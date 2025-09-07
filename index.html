@@ -8,7 +8,10 @@
   </head>
   <body>
     <div class="app">
-      <h1>Word of the Day</h1>
+      <div class="titlebar">
+        <h1>Word of the Day</h1>
+        <button id="helpBtn" class="help-btn" title="How to play" aria-haspopup="dialog" aria-controls="tutorialBackdrop">?</button>
+      </div>
       <div class="meta">
         <div>Day: <span id="dayKey">—</span></div>
         <div>Letters: <span id="wordLength">—</span></div>
@@ -42,6 +45,25 @@
       <footer>
         <small>New word rolls at 00:01 local time.</small>
       </footer>
+    </div>
+
+    <!-- Tutorial Modal -->
+    <div id="tutorialBackdrop" class="backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="tutorialTitle">
+      <div class="modal" role="document">
+        <div class="modal-header">
+          <h2 id="tutorialTitle">How to Play</h2>
+          <button id="closeTutorial" class="close-btn" aria-label="Close tutorial">×</button>
+        </div>
+        <div class="modal-body">
+          <ul>
+            <li>Ask up to 10 questions to learn about the secret word.</li>
+            <li>You have 2 total guesses to name the word.</li>
+            <li>Wrong guess: any shared letters are revealed in their positions.</li>
+            <li>Answers are brief and won’t reveal exact letters.</li>
+            <li>A new word appears daily at 00:01 local time.</li>
+          </ul>
+        </div>
+      </div>
     </div>
 
     <script src="/app.js" type="module"></script>

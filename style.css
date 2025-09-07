@@ -6,6 +6,9 @@
 body{margin:0; background:linear-gradient(180deg,var(--bg),#0c0f1a); color:var(--fg); font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,"Noto Sans",sans-serif}
 .app{max-width:800px; margin:32px auto; padding:0 16px}
 h1{margin:0 0 8px 0}
+.titlebar{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px}
+.help-btn{width:32px; height:32px; border-radius:50%; border:1px solid var(--shade); background:#0e1120; color:var(--fg); font-weight:700; line-height:1; cursor:pointer}
+.help-btn:hover{background:#121631}
 .meta{display:flex; gap:16px; color:var(--muted); margin-bottom:16px}
 .masked{font:600 28px var(--mono); letter-spacing:2px; background:var(--card); border:1px solid var(--shade); padding:16px; border-radius:10px; text-align:center; margin:12px 0}
 .stats{display:flex; gap:24px; margin:12px 0; color:var(--muted)}
@@ -24,3 +27,11 @@ button:disabled{opacity:.5; cursor:not-allowed}
 .bad{color:var(--bad)}
 footer{margin-top:24px; color:var(--muted)}
 
+/* Tutorial modal */
+.hidden{display:none}
+.backdrop{position:fixed; inset:0; background:rgba(0,0,0,.55); display:flex; align-items:center; justify-content:center; z-index:1000; padding:16px}
+.modal{background:var(--card); border:1px solid var(--shade); border-radius:12px; max-width:560px; width:100%; box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.modal-header{display:flex; align-items:center; justify-content:space-between; padding:12px 14px; border-bottom:1px solid var(--shade)}
+.modal-body{padding:14px}
+.close-btn{background:transparent; border:1px solid var(--shade); color:var(--fg); border-radius:8px; cursor:pointer; width:34px; height:32px; font-size:18px; line-height:1}
+.modal-body ul{margin:0; padding-left:20px; color:var(--fg)}

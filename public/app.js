@@ -10,6 +10,9 @@ const els = {
   gInput: document.getElementById('gInput'),
   guessBtn: document.getElementById('guessBtn'),
   guessResult: document.getElementById('guessResult'),
+  helpBtn: document.getElementById('helpBtn'),
+  tutorialBackdrop: document.getElementById('tutorialBackdrop'),
+  closeTutorial: document.getElementById('closeTutorial'),
 };
 
 const LIMITS = { questions: 10, guesses: 2 };
@@ -75,6 +78,12 @@ async function init() {
   els.qInput.addEventListener('keydown', e => { if (e.key === 'Enter') ask(st); });
   els.guessBtn.addEventListener('click', () => guess(st));
   els.gInput.addEventListener('keydown', e => { if (e.key === 'Enter') guess(st); });
+  // Tutorial handlers
+  els.helpBtn?.addEventListener('click', openTutorial);
+  els.closeTutorial?.addEventListener('click', closeTutorial);
+  els.tutorialBackdrop?.addEventListener('click', (e) => {
+    if (e.target === els.tutorialBackdrop) closeTutorial();
+  });
 }
 
 async function ask(state) {
@@ -146,3 +155,19 @@ async function guess(state) {
 }
 
 init();
+
+function openTutorial() {
+  if (!els.tutorialBackdrop) return;
+  els.tutorialBackdrop.classList.remove('hidden');
+  document.addEventListener('keydown', onEscCloseTutorial);
+}
+
+function closeTutorial() {
+  if (!els.tutorialBackdrop) return;
+  els.tutorialBackdrop.classList.add('hidden');
+  document.removeEventListener('keydown', onEscCloseTutorial);
+}
+
+function onEscCloseTutorial(e) {
+  if (e.key === 'Escape') closeTutorial();
+}
