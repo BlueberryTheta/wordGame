@@ -1,12 +1,24 @@
 import { todayWord } from '../src/wotd.js';
 
-export default function handler(req, res) {
+async function readJson(req) {
+  return new Promise((resolve) => {
+    try {
+      let data = '';
+      req.on('data', (chunk) => { data += chunk; });
+      req.on('end', () => {
+        try { resolve(JSON.parse(data || '{}')); }
+        catch { resolve({}); }
+      });
+    } catch {
+      resolve({});
+    }
+  });
+}
+
+export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
   try {
-    let body = req.body;
-    if (typeof body === 'string') {
-      try { body = JSON.parse(body); } catch {}
-    }
+    const body = await readJson(req);
     const { guess } = body || {};
     if (!guess || typeof guess !== 'string') {
       return res.status(400).json({ error: 'Missing guess' });
