@@ -49,7 +49,14 @@ function render(state) {
   els.wordLength.textContent = state.wordLength;
   els.qLeft.textContent = state.questionsLeft;
   els.gLeft.textContent = state.guessesLeft;
-  els.maskedWord.textContent = state.revealed.map(ch => ch ? ch.toUpperCase() : '_').join(' ');
+  // Render tiles
+  els.maskedWord.innerHTML = '';
+  state.revealed.forEach(ch => {
+    const s = document.createElement('span');
+    s.className = 'tile' + (ch ? '' : ' empty');
+    s.textContent = ch ? ch.toUpperCase() : '·';
+    els.maskedWord.appendChild(s);
+  });
   els.qaLog.innerHTML = '';
   state.history.forEach(item => {
     const div = document.createElement('div');
