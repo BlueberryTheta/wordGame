@@ -295,82 +295,13 @@ function renderScore(gUsed, qUsed) {
 }
 
 async function shareScore({ gUsed, qUsed }) {
+  const text = `Word of the Day — I won!\nGuesses: ${gUsed}/2\nQuestions: ${qUsed}/10\n#WordGame`;
+  const shareData = { text, title: 'Word of the Day' };
+  try { if (navigator.share) { await navigator.share(shareData); return; } } catch {}
   try {
-    const blob = await renderScoreImageBlob(gUsed, qUsed);
-    const file = new File([blob], 'wordgame-score.png', { type: 'image/png' });
-    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-      await navigator.share({ files: [file], title: 'Word of the Day', text: 'I won! #WordGame' });
-      return;
-    }
-    if (navigator.clipboard && window.ClipboardItem) {
-      await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-      const btn = document.getElementById('shareScoreBtn'); if (btn) { const prev = btn.textContent; btn.textContent = 'Copied image!'; setTimeout(()=>btn.textContent=prev, 1500); }
-      return;
-    }
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = 'wordgame-score.png'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    await navigator.clipboard.writeText(text);
+    const btn = document.getElementById('shareScoreBtn'); if (btn) { const prev = btn.textContent; btn.textContent = 'Copied!'; setTimeout(()=>btn.textContent=prev, 1500); }
   } catch {}
-}
-
-function renderScoreImageBlob(gUsed, qUsed) {
-  return new Promise((resolve) => {
-    const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
-    const width = 640, height = 360;
-    const canvas = document.createElement('canvas');
-    canvas.width = width * dpr; canvas.height = height * dpr; canvas.style.width = width + 'px'; canvas.style.height = height + 'px';
-    const ctx = canvas.getContext('2d');
-    ctx.scale(dpr, dpr);
-    const bg = ctx.createLinearGradient(0,0,0,height);
-    bg.addColorStop(0, '#0f1222'); bg.addColorStop(1, '#0c0f1a');
-    ctx.fillStyle = bg; ctx.fillRect(0,0,width,height);
-    const cardX=32, cardY=32, cardW=width-64, cardH=height-64;
-    ctx.fillStyle = 'rgba(23,26,46,0.92)';
-    ctx.strokeStyle = '#202543';
-    roundRect(ctx, cardX, cardY, cardW, cardH, 16, true, true);
-    ctx.fillStyle = '#e9ecf1';
-    ctx.font = '700 26px system-ui,Segoe UI,Roboto';
-    ctx.fillText('Word of the Day — You got it!', cardX+20, cardY+48);
-    ctx.fillStyle = '#a7b0c3';
-    ctx.font = '400 16px system-ui,Segoe UI,Roboto';
-    ctx.fillText('Come back tomorrow for a new word.', cardX+20, cardY+74);
-    const acc1 = '#78d9ff', acc2 = '#5fc9ef', shade = '#202543', base = '#0e1120';
-    const gx = cardX+20, gy = cardY+120, gGap=12, gSize=30;
-    for(let i=0;i<2;i++){
-      const x = gx + i*(gSize+gGap), y = gy;
-      drawCell(ctx, x, y, gSize, gSize, i < gUsed, shade, base, acc1, acc2, 6);
-    }
-    ctx.fillStyle = '#a7b0c3'; ctx.font='500 14px system-ui,Segoe UI,Roboto';
-    ctx.fillText(`Guesses: ${gUsed}/2`, gx, gy + gSize + 22);
-    const qx = cardX+20, qy = gy + gSize + 70, qGap=10, qSize=14;
-    for(let i=0;i<10;i++){
-      const x = qx + i*(qSize+qGap), y = qy;
-      drawCell(ctx, x, y, qSize, qSize, i < qUsed, shade, base, acc1, acc2, qSize/2);
-    }
-    ctx.fillStyle = '#a7b0c3'; ctx.fillText(`Questions: ${qUsed}/10`, qx, qy + qSize + 20);
-    canvas.toBlob(b=>resolve(b),'image/png');
-  });
-}
-
-function drawCell(ctx, x, y, w, h, filled, stroke, base, acc1, acc2, radius){
-  ctx.fillStyle = base; ctx.strokeStyle = stroke; roundRect(ctx, x, y, w, h, radius, true, true);
-  if (filled){
-    const grad = ctx.createLinearGradient(x, y, x, y+h);
-    grad.addColorStop(0, acc1); grad.addColorStop(1, acc2);
-    ctx.fillStyle = grad; ctx.strokeStyle = '#3a7395'; roundRect(ctx, x, y, w, h, radius, true, true);
-  }
-}
-
-function roundRect(ctx, x, y, w, h, r, fill, stroke){
-  const rr = Math.min(r, w/2, h/2);
-  ctx.beginPath();
-  ctx.moveTo(x+rr, y);
-  ctx.arcTo(x+w, y, x+w, y+h, rr);
-  ctx.arcTo(x+w, y+h, x, y+h, rr);
-  ctx.arcTo(x, y+h, x, y, rr);
-  ctx.arcTo(x, y, x+w, y, rr);
-  ctx.closePath();
-  if (fill) ctx.fill();
-  if (stroke) ctx.stroke();
 }
 
 function animateTileReveal(indices) {
