@@ -68,6 +68,19 @@
       </div>
     </div>
 
+    <!-- Game Over Modal -->
+    <div id="gameOverBackdrop" class="backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="gameOverTitle">
+      <div class="modal" role="document">
+        <div class="modal-header">
+          <h2 id="gameOverTitle">Game Over</h2>
+          <button id="closeGameOver" class="close-btn" aria-label="Close">×</button>
+        </div>
+        <div class="modal-body">
+          <p id="gameOverMessage">Thanks for playing! Come back tomorrow for a new word.</p>
+        </div>
+      </div>
+    </div>
+
     <script src="/app.js" type="module"></script>
   </body>
   </html>

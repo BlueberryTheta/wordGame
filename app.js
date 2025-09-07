@@ -200,6 +200,55 @@ document.addEventListener('keydown', (e) => {
 window.closeTutorialModal = hideTutorial;
 window.openTutorialModal = showTutorial;
 
+// Game Over modal utilities + observers (non-invasive)
+function openGameOver(title, message) {
+  const backdrop = document.getElementById('gameOverBackdrop');
+  if (!backdrop) return;
+  const t = document.getElementById('gameOverTitle');
+  const m = document.getElementById('gameOverMessage');
+  if (t && title) t.textContent = title;
+  if (m && message) m.textContent = message;
+  backdrop.classList.remove('hidden');
+  document.addEventListener('keydown', onEscHideGameOver);
+}
+function hideGameOver() {
+  const backdrop = document.getElementById('gameOverBackdrop');
+  if (!backdrop) return;
+  backdrop.classList.add('hidden');
+  document.removeEventListener('keydown', onEscHideGameOver);
+}
+function onEscHideGameOver(e) { if (e.key === 'Escape') hideGameOver(); }
+(function setupGameOverModal() {
+  const b = document.getElementById('gameOverBackdrop');
+  const x = document.getElementById('closeGameOver');
+  x?.addEventListener('click', hideGameOver);
+  b?.addEventListener('click', (e) => { if (e.target === b) hideGameOver(); });
+})();
+
+(function setupGameOverObservers() {
+  let shown = false;
+  const resEl = document.getElementById('guessResult') || els.guessResult;
+  const gLeftEl = document.getElementById('gLeft') || els.gLeft;
+  if (resEl) {
+    new MutationObserver(() => {
+      if (shown) return;
+      const txt = resEl.textContent || '';
+      if (/Correct!/i.test(txt)) {
+        shown = true; openGameOver('You got it!', 'Great job! Come back tomorrow for a new word.');
+      }
+    }).observe(resEl, { childList: true, subtree: true, characterData: true });
+  }
+  if (gLeftEl) {
+    new MutationObserver(() => {
+      if (shown) return;
+      const left = parseInt((gLeftEl.textContent || '').trim(), 10);
+      if (!isNaN(left) && left <= 0) {
+        shown = true; openGameOver('Out of guesses', 'Nice try! Come back tomorrow for a new word.');
+      }
+    }).observe(gLeftEl, { childList: true, characterData: true, subtree: true });
+  }
+})();
+
 function animateTileReveal(indices) {
   const tiles = els.maskedWord?.querySelectorAll('.tile');
   if (!tiles) return;
