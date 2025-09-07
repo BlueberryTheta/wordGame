@@ -67,7 +67,7 @@ function render(state) {
     div.appendChild(q); div.appendChild(a);
     els.qaLog.appendChild(div);
   });
-  els.askBtn.disabled = state.questionsLeft <= 0;
+  els.askBtn.disabled = state.questionsLeft <= 0 || state.guessesLeft <= 0;
   els.guessBtn.disabled = state.guessesLeft <= 0;
 }
 
@@ -213,6 +213,9 @@ function openGameOver(title, message) {
   if (m && message) m.textContent = message;
   backdrop.classList.remove('hidden');
   document.addEventListener('keydown', onEscHideGameOver);
+  // Disable inputs when game is over
+  if (els.askBtn) els.askBtn.disabled = true;
+  if (els.guessBtn) els.guessBtn.disabled = true;
 }
 function hideGameOver() {
   const backdrop = document.getElementById('gameOverBackdrop');
