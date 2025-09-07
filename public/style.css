@@ -1,0 +1,26 @@
+:root{
+  --bg:#0f1222; --fg:#e9ecf1; --muted:#a7b0c3; --acc:#78d9ff; --ok:#6dd16a; --bad:#ff6b6b; --card:#171a2e; --shade:#202543;
+  --mono: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+}
+*{box-sizing:border-box}
+body{margin:0; background:linear-gradient(180deg,var(--bg),#0c0f1a); color:var(--fg); font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,"Noto Sans",sans-serif}
+.app{max-width:800px; margin:32px auto; padding:0 16px}
+h1{margin:0 0 8px 0}
+.meta{display:flex; gap:16px; color:var(--muted); margin-bottom:16px}
+.masked{font:600 28px var(--mono); letter-spacing:2px; background:var(--card); border:1px solid var(--shade); padding:16px; border-radius:10px; text-align:center; margin:12px 0}
+.stats{display:flex; gap:24px; margin:12px 0; color:var(--muted)}
+.panel{background:var(--card); border:1px solid var(--shade); border-radius:12px; padding:16px; margin:16px 0}
+.panel h2{margin:0 0 12px 0; font-size:18px}
+.row{display:flex; gap:8px}
+input{flex:1; background:#0e1120; border:1px solid var(--shade); color:var(--fg); padding:10px 12px; border-radius:8px}
+button{background:var(--acc); color:#001018; border:0; padding:10px 14px; border-radius:8px; font-weight:600; cursor:pointer}
+button:disabled{opacity:.5; cursor:not-allowed}
+.qa{margin-top:12px; display:flex; flex-direction:column; gap:8px}
+.qa .item{background:#0e1120; border:1px solid var(--shade); padding:10px 12px; border-radius:8px}
+.qa .q{color:#b8c2d9}
+.qa .a{color:#dff1ff}
+.result{margin-top:10px; min-height:20px}
+.ok{color:var(--ok)}
+.bad{color:var(--bad)}
+footer{margin-top:24px; color:var(--muted)}
+
