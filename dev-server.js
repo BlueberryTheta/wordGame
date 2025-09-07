@@ -3,7 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import { getTodayWord, scheduleNextRoll, ensureTodayWord, dayKey } from './src/wordManager.js';
-import { answerQuestion } from './src/openai.js';
+import { answerQuestion, isValidEnglishWord } from './src/openai.js';
 
 dotenv.config();
 
@@ -55,29 +55,36 @@ app.post('/api/question', async (req, res) => {
 });
 
 app.post('/api/guess', (req, res) => {
-  try {
-    const { guess } = req.body || {};
-    if (!guess || typeof guess !== 'string') {
-      return res.status(400).json({ error: 'Missing guess' });
+  (async () => {
+    try {
+      const { guess } = req.body || {};
+      if (!guess || typeof guess !== 'string') {
+        return res.status(400).json({ error: 'Missing guess' });
+      }
+      // Validate guess before processing
+      const cleanedGuess = String(guess).trim().toLowerCase();
+      if (!/^[a-z]+$/.test(cleanedGuess) || cleanedGuess.length < 4 || cleanedGuess.length > 12) {
+        return res.status(400).json({ error: 'not a word' });
+      }
+      const valid = await isValidEnglishWord(cleanedGuess);
+      if (!valid) return res.status(400).json({ error: 'not a word' });
+
+      const word = getTodayWord();
+      const cleanedWord = word.toLowerCase();
+
+      const correct = cleanedGuess === cleanedWord;
+      if (correct) return res.json({ correct: true, word });
+
+      const guessLetters = new Set([...cleanedGuess]);
+      const revealedMask = [...cleanedWord].map(ch => guessLetters.has(ch) ? ch : null);
+      const lettersInCommon = [...new Set([...cleanedWord].filter(ch => guessLetters.has(ch)))];
+
+      return res.json({ correct: false, revealedMask, lettersInCommon });
+    } catch (e) {
+      console.error(e);
+      return res.status(500).json({ error: 'Failed to process guess' });
     }
-    const word = getTodayWord();
-    const cleanedGuess = guess.trim().toLowerCase();
-    const cleanedWord = word.toLowerCase();
-
-    const correct = cleanedGuess === cleanedWord;
-    if (correct) {
-      return res.json({ correct: true, word });
-    }
-
-    const guessLetters = new Set([...cleanedGuess]);
-    const revealedMask = [...cleanedWord].map(ch => guessLetters.has(ch) ? ch : null);
-    const lettersInCommon = [...new Set([...cleanedWord].filter(ch => guessLetters.has(ch)))];
-
-    return res.json({ correct: false, revealedMask, lettersInCommon });
-  } catch (e) {
-    console.error(e);
-    return res.status(500).json({ error: 'Failed to process guess' });
-  }
+  })();
 });
 
 app.listen(PORT, () => {

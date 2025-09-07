@@ -115,3 +115,35 @@ Prefer yes/no when applicable. If answering would reveal letters or the word, re
     return 'I can\'t say directly—try yes/no-style property questions.';
   }
 }
+
+// Minimal word validation using OpenAI when available.
+// Returns true if it's a valid common English word, false otherwise.
+export async function isValidEnglishWord(word) {
+  const cleaned = String(word || '').trim().toLowerCase();
+  if (!/^[a-z]+$/.test(cleaned)) return false;
+  // Basic length guard aligned with game: 4–12 chars
+  if (cleaned.length < 4 || cleaned.length > 12) return false;
+
+  if (!client) {
+    // Fallback: heuristic only (letters + length). Without a model, allow.
+    return true;
+  }
+
+  try {
+    const resp = await client.chat.completions.create({
+      model: defaultModel,
+      messages: [
+        { role: 'system', content: 'Answer ONLY YES or NO. Determine if the token is a valid standalone common English dictionary word (not a proper noun, not an abbreviation).' },
+        { role: 'user', content: `Token: ${cleaned}` }
+      ],
+      temperature: 0,
+      max_tokens: 2
+    });
+    const text = resp.choices?.[0]?.message?.content?.trim().toUpperCase() || '';
+    return text.startsWith('Y');
+  } catch (e) {
+    console.error('OpenAI isValidEnglishWord failed, allowing word by fallback:', e?.message || e);
+    // On failure, don’t block the user unfairly
+    return true;
+  }
+}

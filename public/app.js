@@ -154,7 +154,12 @@ async function guess(state) {
       : `<span class="bad">No letters in common.</span>`;
     els.gInput.value = '';
   } catch (e) {
-    alert('Failed to guess: ' + e.message);
+    const msg = (e && e.message) ? String(e.message).toLowerCase() : '';
+    if (msg.includes('not a word')) {
+      els.guessResult.innerHTML = '<span class="bad">Not a word.</span>';
+    } else {
+      alert('Failed to guess: ' + (e?.message || ''));
+    }
   } finally {
     els.guessBtn.disabled = state.guessesLeft <= 0;
   }
