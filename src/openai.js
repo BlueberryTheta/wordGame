@@ -25,17 +25,21 @@ Rules:
 - 4-9 letters, common noun or adjective, family-friendly.
 - Avoid proper nouns, brands, slurs, or sensitive content.`;
 
-  const resp = await client.chat.completions.create({
-    model: defaultModel,
-    messages: [
-      { role: 'system', content: sys },
-      { role: 'user', content: 'Pick today\'s word.' }
-    ],
-    temperature: 0.9,
-    max_tokens: 5
-  });
-
-  let word = resp.choices?.[0]?.message?.content?.trim()?.toLowerCase() || '';
+  let word = '';
+  try {
+    const resp = await client.chat.completions.create({
+      model: defaultModel,
+      messages: [
+        { role: 'system', content: sys },
+        { role: 'user', content: 'Pick today\'s word.' }
+      ],
+      temperature: 0.9,
+      max_tokens: 5
+    });
+    word = resp.choices?.[0]?.message?.content?.trim()?.toLowerCase() || '';
+  } catch (e) {
+    console.error('OpenAI generateWord failed, using fallback:', e?.message || e);
+  }
   word = word.replace(/[^a-z]/g, '');
   if (!word || word.length < 4 || word.length > 9) {
     // Fallback if model fails constraints
@@ -72,23 +76,33 @@ export async function answerQuestion(secretWord, question) {
 Answer user questions as helpful short hints (max 25 words), preferably yes/no + brief rationale.
 Do not output the secret word or its exact spelling. If asked directly, refuse politely.`;
 
-  const resp = await client.chat.completions.create({
-    model: defaultModel,
-    messages: [
-      { role: 'system', content: guard },
-      { role: 'user', content: `Secret word: ${secretWord}` },
-      { role: 'user', content: question }
-    ],
-    temperature: 0.4,
-    max_tokens: 120
-  });
+  try {
+    const resp = await client.chat.completions.create({
+      model: defaultModel,
+      messages: [
+        { role: 'system', content: guard },
+        { role: 'user', content: `Secret word: ${secretWord}` },
+        { role: 'user', content: question }
+      ],
+      temperature: 0.4,
+      max_tokens: 120
+    });
 
-  let text = resp.choices?.[0]?.message?.content?.trim() || '';
-  // Last-resort redaction in case the model slips
-  if (text.toLowerCase().includes(secretWord.toLowerCase())) {
-    const re = new RegExp(secretWord, 'ig');
-    text = text.replace(re, '[redacted]');
+    let text = resp.choices?.[0]?.message?.content?.trim() || '';
+    // Last-resort redaction in case the model slips
+    if (text.toLowerCase().includes(secretWord.toLowerCase())) {
+      const re = new RegExp(secretWord, 'ig');
+      text = text.replace(re, '[redacted]');
+    }
+    return text;
+  } catch (e) {
+    console.error('OpenAI answerQuestion failed, using fallback:', e?.message || e);
+    // Fallback hint
+    const q = question.toLowerCase();
+    const vowels = new Set(['a','e','i','o','u']);
+    if (q.includes('length') || q.includes('long')) return `It has ${secretWord.length} letters.`;
+    if (q.includes('vowel')) return [...secretWord].some(ch => vowels.has(ch)) ? 'Yes, it has vowels.' : 'No, it has no vowels.';
+    if (q.includes('first letter')) return 'I won\'t reveal the first letter.';
+    return 'I can\'t say directly—try yes/no-style property questions.';
   }
-  return text;
 }
-
