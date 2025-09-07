@@ -130,16 +130,21 @@ async function guess(state) {
       state.guessesLeft -= 1;
       saveState(state);
       render(state);
+      try { animateTileReveal([...Array(state.revealed.length).keys()]); } catch {}
+      try { startConfetti(); } catch {}
       return;
     }
 
     const mask = data.revealedMask || [];
+    const prev = state.revealed.slice();
+    const newly = [];
     for (let i = 0; i < state.revealed.length && i < mask.length; i++) {
-      if (!state.revealed[i] && mask[i]) state.revealed[i] = mask[i];
+      if (!state.revealed[i] && mask[i]) { state.revealed[i] = mask[i]; if (!prev[i]) newly.push(i); }
     }
     state.guessesLeft -= 1;
     saveState(state);
     render(state);
+    if (typeof newly !== 'undefined' && newly.length) { try { animateTileReveal(newly); } catch {} }
     const letters = (data.lettersInCommon || []).map(x => x.toUpperCase()).join(', ');
     els.guessResult.innerHTML = letters
       ? `<span>Letters in common revealed: <b>${letters}</b></span>`
@@ -194,3 +199,56 @@ document.addEventListener('keydown', (e) => {
 });
 window.closeTutorialModal = hideTutorial;
 window.openTutorialModal = showTutorial;
+
+function animateTileReveal(indices) {
+  const tiles = els.maskedWord?.querySelectorAll('.tile');
+  if (!tiles) return;
+  indices.forEach(i => {
+    const t = tiles[i];
+    if (!t) return;
+    t.classList.add('reveal');
+    t.addEventListener('animationend', () => t.classList.remove('reveal'), { once: true });
+  });
+}
+
+function startConfetti(duration = 1500, count = 140) {
+  const canvas = document.createElement('canvas');
+  Object.assign(canvas.style, { position: 'fixed', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 2000 });
+  document.body.appendChild(canvas);
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  function resize() { canvas.width = innerWidth * dpr; canvas.height = innerHeight * dpr; }
+  resize();
+  const colors = ['#78d9ff', '#6dd16a', '#e9ecf1', '#a7b0c3', '#ff6b6b'];
+  const parts = Array.from({ length: count }, () => ({
+    x: Math.random() * canvas.width,
+    y: -Math.random() * canvas.height * 0.5,
+    w: 6 + Math.random() * 6,
+    h: 10 + Math.random() * 10,
+    vx: (-0.5 + Math.random()) * 1.2 * dpr,
+    vy: (1 + Math.random() * 2.5) * dpr,
+    rot: Math.random() * Math.PI,
+    vr: (-0.5 + Math.random()) * 0.2,
+    color: colors[Math.floor(Math.random() * colors.length)]
+  }));
+  const start = performance.now();
+  let raf;
+  function tick(t) {
+    const elapsed = t - start;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    parts.forEach(p => {
+      p.x += p.vx; p.y += p.vy; p.rot += p.vr;
+      if (p.y > canvas.height) { p.y = -10; p.x = Math.random() * canvas.width; }
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+      ctx.restore();
+    });
+    if (elapsed < duration) raf = requestAnimationFrame(tick); else cleanup();
+  }
+  function cleanup() { cancelAnimationFrame(raf); canvas.remove(); }
+  window.addEventListener('resize', resize, { once: true });
+  raf = requestAnimationFrame(tick);
+}
