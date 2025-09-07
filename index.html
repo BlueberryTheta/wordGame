@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Word of the Day</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <div class="app">
+      <h1>Word of the Day</h1>
+      <div class="meta">
+        <div>Day: <span id="dayKey">—</span></div>
+        <div>Letters: <span id="wordLength">—</span></div>
+      </div>
+
+      <div class="masked" id="maskedWord">Loading…</div>
+
+      <div class="stats">
+        <div>Questions left: <span id="qLeft">10</span></div>
+        <div>Guesses left: <span id="gLeft">3</span></div>
+      </div>
+
+      <section class="panel">
+        <h2>Ask a Question</h2>
+        <div class="row">
+          <input id="qInput" type="text" placeholder="Ask about properties…" />
+          <button id="askBtn">Ask</button>
+        </div>
+        <div class="qa" id="qaLog"></div>
+      </section>
+
+      <section class="panel">
+        <h2>Make a Guess</h2>
+        <div class="row">
+          <input id="gInput" type="text" placeholder="Your guess" />
+          <button id="guessBtn">Guess</button>
+        </div>
+        <div class="result" id="guessResult"></div>
+      </section>
+
+      <footer>
+        <small>New word rolls at 00:01 local time.</small>
+      </footer>
+    </div>
+
+    <script src="/app.js" type="module"></script>
+  </body>
+  </html>
+
