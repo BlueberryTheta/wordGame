@@ -30,6 +30,7 @@ footer{margin-top:24px; color:var(--muted)}
 /* Tutorial modal */
 .hidden{display:none}
 .backdrop{position:fixed; inset:0; background:rgba(0,0,0,.55); display:flex; align-items:center; justify-content:center; z-index:1000; padding:16px}
+.backdrop.hidden{display:none}
 .modal{background:var(--card); border:1px solid var(--shade); border-radius:12px; max-width:560px; width:100%; box-shadow:0 10px 30px rgba(0,0,0,.35)}
 .modal-header{display:flex; align-items:center; justify-content:space-between; padding:12px 14px; border-bottom:1px solid var(--shade)}
 .modal-body{padding:14px}

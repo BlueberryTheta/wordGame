@@ -150,34 +150,43 @@ async function guess(state) {
 
 init();
 
-function openTutorial() {
+function showTutorial() {
   if (!els.tutorialBackdrop) return;
   els.tutorialBackdrop.classList.remove('hidden');
-  document.addEventListener('keydown', onEscCloseTutorial);
+  document.addEventListener('keydown', onEscHideTutorial);
 }
 
-function closeTutorial() {
+function hideTutorial() {
   if (!els.tutorialBackdrop) return;
   els.tutorialBackdrop.classList.add('hidden');
-  document.removeEventListener('keydown', onEscCloseTutorial);
+  document.removeEventListener('keydown', onEscHideTutorial);
 }
 
-function onEscCloseTutorial(e) {
-  if (e.key === 'Escape') closeTutorial();
+function onEscHideTutorial(e) {
+  if (e.key === 'Escape') hideTutorial();
 }
 
 function setupTutorialListeners() {
-  els.helpBtn?.addEventListener('click', openTutorial);
-  els.closeTutorial?.addEventListener('click', closeTutorial);
+  els.helpBtn?.addEventListener('click', showTutorial);
+  els.closeTutorial?.addEventListener('click', hideTutorial);
   els.tutorialBackdrop?.addEventListener('click', (e) => {
-    if (e.target === els.tutorialBackdrop) closeTutorial();
+    if (e.target === els.tutorialBackdrop) hideTutorial();
   });
   // Safety: event delegation in case button listener didn't bind
   document.addEventListener('click', (e) => {
     const t = e.target;
-    if (t && t.id === 'closeTutorial') closeTutorial();
+    if (t && t.id === 'closeTutorial') hideTutorial();
   });
 }
 
 // Wire tutorial listeners immediately so close works even if init fails
 setupTutorialListeners();
+
+// Also handle Esc globally (defensive) and expose helpers for inline handlers
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && els.tutorialBackdrop && !els.tutorialBackdrop.classList.contains('hidden')) {
+    hideTutorial();
+  }
+});
+window.closeTutorialModal = hideTutorial;
+window.openTutorialModal = showTutorial;
