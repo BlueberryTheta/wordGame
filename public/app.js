@@ -211,6 +211,28 @@ function openGameOver(title, message) {
   const m = document.getElementById('gameOverMessage');
   if (t && title) t.textContent = title;
   if (m && message) m.textContent = message;
+  // Build score if win
+  try {
+    const qLeft = parseInt((els.qLeft?.textContent || '0').trim(), 10);
+    const gLeft = parseInt((els.gLeft?.textContent || '0').trim(), 10);
+    const qUsed = isNaN(qLeft) ? null : (10 - qLeft);
+    const gUsed = isNaN(gLeft) ? null : (2 - gLeft);
+    const scoreWrap = document.getElementById('gameOverScore');
+    const actions = document.getElementById('gameOverActions');
+    if (scoreWrap) {
+      scoreWrap.innerHTML = '';
+      if (gUsed != null && qUsed != null && t?.textContent?.toLowerCase().includes('got')) {
+        scoreWrap.classList.remove('hidden');
+        actions?.classList.remove('hidden');
+        scoreWrap.appendChild(renderScore(gUsed, qUsed));
+        const shareBtn = document.getElementById('shareScoreBtn');
+        if (shareBtn) { shareBtn.onclick = () => shareScore({ gUsed, qUsed }); }
+      } else {
+        scoreWrap.classList.add('hidden');
+        actions?.classList.add('hidden');
+      }
+    }
+  } catch {}
   backdrop.classList.remove('hidden');
   document.addEventListener('keydown', onEscHideGameOver);
   // Disable inputs when game is over
@@ -254,6 +276,33 @@ function onEscHideGameOver(e) { if (e.key === 'Escape') hideGameOver(); }
     }).observe(gLeftEl, { childList: true, characterData: true, subtree: true });
   }
 })();
+
+function renderScore(gUsed, qUsed) {
+  const frag = document.createDocumentFragment();
+  const guesses = document.createElement('div'); guesses.className = 'row guesses';
+  guesses.setAttribute('role','img'); guesses.setAttribute('aria-label', `Guesses used: ${gUsed} of 2`);
+  for (let i = 0; i < 2; i++) {
+    const c = document.createElement('div'); c.className = 'cell' + (i < gUsed ? ' filled' : ''); guesses.appendChild(c);
+  }
+  const questions = document.createElement('div'); questions.className = 'row questions';
+  questions.setAttribute('role','img'); questions.setAttribute('aria-label', `Questions asked: ${qUsed} of 10`);
+  for (let i = 0; i < 10; i++) {
+    const c = document.createElement('div'); c.className = 'cell' + (i < qUsed ? ' filled' : ''); questions.appendChild(c);
+  }
+  frag.appendChild(guesses);
+  frag.appendChild(questions);
+  return frag;
+}
+
+async function shareScore({ gUsed, qUsed }) {
+  const text = `Word of the Day — I won!\nGuesses: ${gUsed}/2\nQuestions: ${qUsed}/10\n#WordGame`;
+  const shareData = { text, title: 'Word of the Day' };
+  try { if (navigator.share) { await navigator.share(shareData); return; } } catch {}
+  try {
+    await navigator.clipboard.writeText(text);
+    const btn = document.getElementById('shareScoreBtn'); if (btn) { const prev = btn.textContent; btn.textContent = 'Copied!'; setTimeout(()=>btn.textContent=prev, 1500); }
+  } catch {}
+}
 
 function animateTileReveal(indices) {
   const tiles = els.maskedWord?.querySelectorAll('.tile');
