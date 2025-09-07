@@ -8,6 +8,24 @@ if (apiKey) {
 
 const defaultModel = process.env.OPENAI_MODEL || 'gpt-4o-mini';
 
+function concise(text, maxWords = 10) {
+  if (!text) return '';
+  let first = String(text).split(/(?<=[\.!?])\s+/)[0] || String(text);
+  const words = first.trim().split(/\s+/);
+  if (words.length > maxWords) first = words.slice(0, maxWords).join(' ');
+  return first.trim();
+}
+
+function minimalFallback(secretWord, question) {
+  const q = String(question || '').toLowerCase();
+  const vowels = new Set(['a','e','i','o','u']);
+  if (q.includes('length') || q.includes('long')) return `${secretWord.length} letters.`;
+  if (q.includes('vowel')) return [...secretWord].some(ch => vowels.has(ch)) ? 'Yes.' : 'No.';
+  if (q.includes('first letter')) return "Can't say.";
+  if (q.startsWith('is ') || q.startsWith('are ') || q.startsWith('does ') || q.startsWith('do ')) return "Can't say.";
+  return "Can't say.";
+}
+
 export async function generateWord() {
   // Fallback list if API key is missing
   const fallback = [
@@ -50,31 +68,21 @@ Rules:
 }
 
 export async function answerQuestion(secretWord, question) {
-  // If no API, provide a basic rule-based hinting engine:
+  // If no API, provide a minimal rule-based engine with terse answers
   if (!client) {
     const q = question.toLowerCase();
-    let answer = 'I can\'t answer that.';
     const vowels = new Set(['a','e','i','o','u']);
-    if (q.includes('letter') && q.includes('vowel')) {
-      const hasVowel = [...secretWord].some(ch => vowels.has(ch));
-      answer = hasVowel ? 'Yes, it has vowels.' : 'No, it has no vowels.';
-    } else if (q.includes('length') || q.includes('long')) {
-      answer = `It has ${secretWord.length} letters.`;
-    } else if (q.startsWith('is it a') || q.startsWith('is it an')) {
-      answer = 'I can\'t reveal its category, but keep guessing!';
-    } else if (q.includes('color') || q.includes('colour')) {
-      answer = 'Color is not a reliable clue here.';
-    } else if (q.includes('first letter')) {
-      answer = 'I won\'t reveal the first letter.';
-    } else {
-      answer = 'Try yes/no-style questions about properties, not the word itself.';
-    }
-    return answer;
+    if (q.includes('vowel')) return [...secretWord].some(ch => vowels.has(ch)) ? 'Yes.' : 'No.';
+    if (q.includes('length') || q.includes('long')) return `${secretWord.length} letters.`;
+    if (q.includes('first letter')) return "Can't say.";
+    if (q.startsWith('is ') || q.startsWith('are ') || q.startsWith('does ') || q.startsWith('do ')) return "Can't say.";
+    return 'Try a yes/no question.';
   }
 
   const guard = `You know a secret word. Never reveal it or any exact letters.
-Answer user questions as helpful short hints (max 25 words), preferably yes/no + brief rationale.
-Do not output the secret word or its exact spelling. If asked directly, refuse politely.`;
+Answer the user's question in a single short sentence of at most 10 words.
+No extra information, no explanations, no warnings, no emojis.
+Prefer yes/no when applicable. If answering would reveal letters or the word, reply exactly: Can't say.`;
 
   try {
     const resp = await client.chat.completions.create({
@@ -84,19 +92,20 @@ Do not output the secret word or its exact spelling. If asked directly, refuse p
         { role: 'user', content: `Secret word: ${secretWord}` },
         { role: 'user', content: question }
       ],
-      temperature: 0.4,
-      max_tokens: 120
+      temperature: 0.2,
+      max_tokens: 40
     });
 
     let text = resp.choices?.[0]?.message?.content?.trim() || '';
     // Last-resort redaction in case the model slips
     if (text.toLowerCase().includes(secretWord.toLowerCase())) {
       const re = new RegExp(secretWord, 'ig');
-      text = text.replace(re, '[redacted]');
+      text = text.replace(re, "Can't say.");
     }
-    return text;
+    return concise(text, 10);
   } catch (e) {
     console.error('OpenAI answerQuestion failed, using fallback:', e?.message || e);
+    return minimalFallback(secretWord, question);
     // Fallback hint
     const q = question.toLowerCase();
     const vowels = new Set(['a','e','i','o','u']);
