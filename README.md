@@ -1,6 +1,6 @@
 # Word of the Day – Q&A Guessing Game
 
-A small web game where players ask up to 10 questions and make up to 3 guesses to identify the secret word of the day. If a guess shares any letters with the word, those letters are revealed in their correct positions.
+A small web game where players ask up to 10 questions and make up to 2 guesses to identify the secret word of the day. If a guess shares any letters with the word, those letters are revealed in their correct positions.
 
 - Daily word is generated at 00:01 local time.
 - Questions are answered by ChatGPT in the backend (if configured).
@@ -32,13 +32,13 @@ A small web game where players ask up to 10 questions and make up to 3 guesses t
 
 - Frontend (`public/`):
   - Tracks your daily progress in `localStorage` keyed by the day.
-  - Enforces 10 questions and 3 guesses per day per browser.
+  - Enforces 10 questions and 2 guesses per day per browser.
   - Displays masked letters, Q&A history, and remaining counts.
 
 ## Game Rules (implemented)
 
 - Ask up to 10 questions about the word.
-- Make up to 3 guesses.
+- Make up to 2 guesses.
 - On an incorrect guess, any letters shared with the secret word are revealed at their correct positions.
 - On a correct guess, the word is revealed and the game ends for the day.
 

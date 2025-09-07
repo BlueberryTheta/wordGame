@@ -12,7 +12,7 @@ const els = {
   guessResult: document.getElementById('guessResult'),
 };
 
-const LIMITS = { questions: 10, guesses: 3 };
+const LIMITS = { questions: 10, guesses: 2 };
 
 function storageKey(day) { return `wotd:${day}`; }
 
@@ -146,4 +146,3 @@ async function guess(state) {
 }
 
 init();
-
