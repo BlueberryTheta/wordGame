@@ -86,3 +86,13 @@ footer{margin-top:28px; color:var(--muted)}
   100%{transform:scale(1); filter:brightness(1)}
 }
 .modal-body ul{margin:0; padding-left:20px; color:var(--fg)}
+
+
+/* Tutorial modal typography enhancements */
+.modal-header h2{margin:0; font-weight:800; letter-spacing:.2px}
+.modal-body{line-height:1.6}
+.modal-body ul{list-style:none; padding-left:0}
+.modal-body li{position:relative; padding:10px 12px 10px 40px; background:rgba(32,37,67,.55); border:1px solid var(--shade); border-radius:12px; box-shadow:inset 0 0 0 1px rgba(255,255,255,.02)}
+.modal-body li+li{margin-top:10px}
+.modal-body li::before{content:""; position:absolute; left:14px; top:50%; width:12px; height:12px; border-radius:50%; transform:translateY(-50%);
+  background:radial-gradient(120% 120% at 50% 30%, rgba(120,217,255,.9), rgba(120,217,255,.35)); box-shadow:0 0 0 2px rgba(120,217,255,.18)}
