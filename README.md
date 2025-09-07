@@ -11,7 +11,7 @@ A small web game where players ask up to 10 questions and make up to 3 guesses t
 - Node.js 18+ (ESM, fetch, and top-level `await` support)
 - An OpenAI API key (optional; the game works with a basic fallback if not supplied)
 
-## Setup
+## Setup (Local)
 
 1. Install dependencies:
    - Run `npm install`
@@ -19,20 +19,16 @@ A small web game where players ask up to 10 questions and make up to 3 guesses t
    - Copy `.env.example` to `.env`
    - Set `OPENAI_API_KEY` to your key
    - Optionally set `OPENAI_MODEL` (default: `gpt-4o-mini`) and `PORT`
-3. Start the server:
+3. Start locally (Express dev server):
    - `npm start`
 4. Open the app:
    - Visit `http://localhost:3000`
 
 ## How It Works
 
-- Backend (`server.js`):
-  - Serves static frontend from `public/`.
-  - On startup, ensures today’s word exists, persisting in `data/state.json`.
-  - Schedules the next roll at 00:01 local time.
-  - `/api/state`: returns day key and the word length only.
-  - `/api/question`: sends your question to ChatGPT with guardrails (or uses a basic fallback if no API key).
-  - `/api/guess`: returns whether the guess is correct and reveals any shared letters in their positions.
+- Backend options:
+  - Local dev (`server.js`): Express serves `public/` and provides the API (file-based persistence, scheduler at 00:01).
+  - Vercel deployment (`api/*`): Serverless functions provide the API. The word of the day is selected deterministically per day (no filesystem or scheduler required).
 
 - Frontend (`public/`):
   - Tracks your daily progress in `localStorage` keyed by the day.
@@ -56,15 +52,27 @@ A small web game where players ask up to 10 questions and make up to 3 guesses t
 
 - `server.js` – Express server
 - `src/openai.js` – OpenAI helpers (word generation and Q&A)
-- `src/wordManager.js` – Daily word persistence and scheduler
+- `src/wordManager.js` – Daily word persistence and scheduler (local dev)
+- `src/wotd.js` – Deterministic word-of-day for serverless
 - `public/` – Frontend (HTML/CSS/JS)
 - `data/state.json` – Persisted daily word (gitignored)
+ - `api/` – Vercel Serverless Functions (`/api/state`, `/api/question`, `/api/guess`)
 
 ## Customization
 
 - Adjust question/guess limits in `public/app.js` (`LIMITS`).
 - Tweak reveal behavior in `/api/guess` (currently reveals letters-in-common at their correct positions).
 - Modify prompts and safety rules in `src/openai.js`.
+
+## Deploying on Vercel
+
+- Link the repo to Vercel. No build step is required.
+- Environment variables (Project Settings → Environment Variables):
+  - `OPENAI_API_KEY` – required for ChatGPT answers
+  - `OPENAI_MODEL` – optional (default: `gpt-4o-mini`)
+  - `WOTD_SECRET` – optional secret seed to vary the deterministic daily word
+- Static frontend is served from `public/`. Serverless API routes live in `api/`.
+- Note: In serverless, the daily word is chosen deterministically from a curated list using the date and `WOTD_SECRET`. To use truly random or AI-generated words across deploys, add a persistent store (e.g., Vercel KV) and optionally a Vercel Cron Job to roll at 00:01.
 
 ## Troubleshooting
 
