@@ -1,12 +1,8 @@
 {
   "version": 2,
-  "functions": {
-    "api/*.mjs": { "runtime": "nodejs20.x" }
-  },
   "routes": [
-    { "src": "/api/(.*)", "dest": "/api/$1.mjs" },
+    { "src": "/api/(.*)", "dest": "/api/$1" },
     { "handle": "filesystem" },
     { "src": "/(.*)", "dest": "/public/$1" }
   ]
 }
-
