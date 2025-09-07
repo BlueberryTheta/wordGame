@@ -78,12 +78,6 @@ async function init() {
   els.qInput.addEventListener('keydown', e => { if (e.key === 'Enter') ask(st); });
   els.guessBtn.addEventListener('click', () => guess(st));
   els.gInput.addEventListener('keydown', e => { if (e.key === 'Enter') guess(st); });
-  // Tutorial handlers
-  els.helpBtn?.addEventListener('click', openTutorial);
-  els.closeTutorial?.addEventListener('click', closeTutorial);
-  els.tutorialBackdrop?.addEventListener('click', (e) => {
-    if (e.target === els.tutorialBackdrop) closeTutorial();
-  });
 }
 
 async function ask(state) {
@@ -171,3 +165,19 @@ function closeTutorial() {
 function onEscCloseTutorial(e) {
   if (e.key === 'Escape') closeTutorial();
 }
+
+function setupTutorialListeners() {
+  els.helpBtn?.addEventListener('click', openTutorial);
+  els.closeTutorial?.addEventListener('click', closeTutorial);
+  els.tutorialBackdrop?.addEventListener('click', (e) => {
+    if (e.target === els.tutorialBackdrop) closeTutorial();
+  });
+  // Safety: event delegation in case button listener didn't bind
+  document.addEventListener('click', (e) => {
+    const t = e.target;
+    if (t && t.id === 'closeTutorial') closeTutorial();
+  });
+}
+
+// Wire tutorial listeners immediately so close works even if init fails
+setupTutorialListeners();
