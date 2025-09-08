@@ -31,8 +31,15 @@ function minimalFallback(secretWord, question) {
   const vowels = new Set(['a','e','i','o','u']);
   if (q.includes('length') || q.includes('long') || q.includes('how many letters')) return `${secretWord.length} letters.`;
   if (q.includes('vowel')) return [...secretWord].some(ch => vowels.has(ch)) ? 'Yes.' : 'No.';
-  if (q.includes('first letter')) return "Can't say.";
+  if (q.includes('first letter') || q.includes('starts with') || /contains\s+[a-z]/.test(q)) return "Can't say.";
   if (q.includes('applicable') || q.includes('apply')) return 'Not applicable.';
+  if (q.includes('person place or thing')) return 'Thing.';
+  if (q.includes('a thing')) return 'Yes.';
+  if (q.includes('a person')) return 'No.';
+  if (q.includes('a place')) return 'No.';
+  if (q.includes('outside') || q.includes('outdoors')) return 'Outdoors.';
+  if (q.includes('inside') || q.includes('indoors')) return 'Indoors.';
+  if (/(big|small)/.test(q)) return 'Varies.';
   if (q.includes(' or ')) {
     if (q.includes('both')) return 'It can be both.';
     if (q.includes('color') || q.includes('colour')) return 'Not applicable.';
@@ -44,7 +51,7 @@ function minimalFallback(secretWord, question) {
     }
     return 'It can be both.';
   }
-  if (q.startsWith('is ') || q.startsWith('are ') || q.startsWith('does ') || q.startsWith('do ')) return 'It can be both.';
+  if (q.startsWith('is ') || q.startsWith('are ') || q.startsWith('does ') || q.startsWith('do ')) return 'Varies.';
   return 'Please ask a question.';
 }
 
@@ -97,12 +104,12 @@ export async function answerQuestion(secretWord, question) {
 
   const guard = `You know a secret word. Never reveal it or any exact letters.
 Answer the user's question in ONE short sentence (max 10 words). No explanations.
-Style rules:
+Style rules (be decisive):
 - Prefer yes/no when clear.
-- If ambiguous, reply: It can be both.
+- If asked to choose ("X or Y?"), pick the most typical option for the secret word.
+- If truly ambiguous, reply: It can be both. Avoid this unless necessary.
 - If the property does not apply, reply: Not applicable.
-- For questions with options (e.g., "big or small?"), pick one option if inferable; otherwise reply: It can be both. Do NOT reply "Can't say" just because options are present.
-- Only reply "Can't say" when the user asks about letters/spelling (e.g., first letter, contains letter) or answering would directly reveal the word's spelling.
+- Only reply "Can't say" for letter/spelling questions (first letter, contains letter) or when answering reveals the exact spelling.
 - If the input is not a question, reply: Please ask a question.`;
 
   try {
@@ -113,8 +120,8 @@ Style rules:
         { role: 'user', content: `Secret word: ${secretWord}` },
         { role: 'user', content: question }
       ],
-      temperature: 0.35,
-      max_tokens: 50
+      temperature: 0.45,
+      max_tokens: 60
     });
 
     let text = resp.choices?.[0]?.message?.content?.trim() || '';
@@ -124,11 +131,12 @@ Style rules:
       text = text.replace(re, '[redacted]');
     }
     text = concise(text, 10);
-    // If the model is overly conservative, retry once with a nudge
+    // If the model is overly conservative, retry once with a nudge (can't say or overusing both)
     const tlow = text.toLowerCase();
     const asksLetters = /letter|starts with|spelling|contains/i.test(String(question || ''));
-    if (!asksLetters && (tlow === "can't say." || tlow === "can't say" || tlow === 'cannot say.' || tlow === 'cannot say')) {
-      const nudge = guard + '\nDo not reply "Can\'t say" unless the user asks about letters/spelling. Prefer Yes/No, It can be both, Not applicable, or one option.';
+    const overConservative = (!asksLetters && (tlow === "can't say." || tlow === "can't say" || tlow === 'cannot say.' || tlow === 'cannot say')) || (tlow === 'it can be both.' && !/\bboth\b/i.test(String(question||'')));
+    if (overConservative) {
+      const nudge = guard + '\nAvoid "Can\'t say" and avoid "It can be both" unless the user explicitly implies both; pick the most typical option.';
       const resp2 = await client.chat.completions.create({
         model: defaultModel,
         messages: [
@@ -136,8 +144,8 @@ Style rules:
           { role: 'user', content: `Secret word: ${secretWord}` },
           { role: 'user', content: question }
         ],
-        temperature: 0.35,
-        max_tokens: 50
+        temperature: 0.45,
+        max_tokens: 60
       });
       let t2 = resp2.choices?.[0]?.message?.content?.trim() || '';
       if (t2.toLowerCase().includes(secretWord.toLowerCase())) {
