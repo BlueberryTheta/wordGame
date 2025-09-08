@@ -13,11 +13,10 @@ function ensureDataDir() {
 }
 
 export function dayKey(date = new Date()) {
-  // YYYY-MM-DD in local time
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, '0');
-  const d = String(date.getDate()).padStart(2, '0');
-  return `${y}-${m}-${d}`;
+  // YYYY-MM-DD in America/New_York time
+  const fmt = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit' });
+  const parts = fmt.formatToParts(date).reduce((acc, p) => (acc[p.type] = p.value, acc), {});
+  return `${parts.year}-${parts.month}-${parts.day}`;
 }
 
 function readState() {
@@ -40,7 +39,7 @@ export async function ensureTodayWord() {
   if (existing && existing.day === today && existing.word) {
     return existing.word;
   }
-  const word = await generateWord();
+  const word = await generateWord(today);
   writeState({ day: today, word });
   return word;
 }
@@ -55,20 +54,30 @@ export function getTodayWord() {
 }
 
 export function scheduleNextRoll() {
-  // Schedule generation at 00:01 local time next day
+  // Schedule generation at 00:01 America/New_York next day
   const now = new Date();
-  const next = new Date(now);
-  next.setDate(now.getDate() + 1);
-  next.setHours(0, 1, 0, 0); // 00:01:00.000
-  const delay = Math.max(1, next.getTime() - now.getTime());
+  const tz = 'America/New_York';
+  const fmt = new Intl.DateTimeFormat('en-CA', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false });
+  const partsArr = fmt.formatToParts(now);
+  const parts = partsArr.reduce((acc, p) => (acc[p.type] = p.value, acc), {});
+  // Build next day components in ET
+  let y = Number(parts.year), m = Number(parts.month), d = Number(parts.day);
+  // Create a Date in ET by using the locale string hack
+  const etMidnightPlus = (yy, mm, dd, hh = 0, mi = 1) => new Date(new Date(`${yy}-${String(mm).padStart(2,'0')}-${String(dd).padStart(2,'0')}T${String(hh).padStart(2,'0')}:${String(mi).padStart(2,'0')}:00`).toLocaleString('en-US', { timeZone: tz }));
+  // Compute tomorrow ET date by adding 24h in ET context
+  const todayEt = etMidnightPlus(y, m, d, Number(parts.hour), Number(parts.minute));
+  const tomorrowEt = new Date(todayEt.getTime() + 24 * 60 * 60 * 1000);
+  const y2 = tomorrowEt.getFullYear();
+  const m2 = tomorrowEt.getMonth() + 1;
+  const d2 = tomorrowEt.getDate();
+  const target = etMidnightPlus(y2, m2, d2, 0, 1);
+  const delay = Math.max(1, target.getTime() - now.getTime());
   setTimeout(async () => {
     try {
       await ensureTodayWord();
     } catch (e) {
-      // log and continue; we can try again on next schedule or first request
-      console.error('Failed to roll word at 00:01:', e);
+      console.error('Failed to roll word at 00:01 ET:', e);
     }
     scheduleNextRoll();
   }, delay);
 }
-

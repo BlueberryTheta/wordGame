@@ -48,7 +48,7 @@ function minimalFallback(secretWord, question) {
   return 'Please ask a question.';
 }
 
-export async function generateWord() {
+export async function generateWord(dayHint) {
   // Fallback list if API key is missing
   const fallback = [
     'puzzle', 'garden', 'silver', 'planet', 'sunset', 'rocket', 'candle', 'forest', 'bridge', 'circle',
@@ -61,8 +61,8 @@ export async function generateWord() {
 
   const sys = `You are selecting a single neutral English word-of-the-day.
 Rules:
-- Output exactly one lowercase word, no quotes, no punctuation, no explanation.
-- 4-9 letters, common noun or adjective, family-friendly.
+- Output exactly one lowercase common English NOUN (singular), no quotes, no punctuation, no explanation.
+- 4-9 letters, family-friendly.
 - Avoid proper nouns, brands, slurs, or sensitive content.`;
 
   let word = '';
@@ -71,9 +71,9 @@ Rules:
       model: defaultModel,
       messages: [
         { role: 'system', content: sys },
-        { role: 'user', content: 'Pick today\'s word.' }
+        { role: 'user', content: `Pick today's word${dayHint ? ` for ${dayHint}` : ''}.` }
       ],
-      temperature: 0.9,
+      temperature: 0,
       max_tokens: 5
     });
     word = resp.choices?.[0]?.message?.content?.trim()?.toLowerCase() || '';

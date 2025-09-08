@@ -33,7 +33,7 @@ export default async function handler(req, res) {
     if (!valid) {
       return res.status(400).json({ error: 'not a word' });
     }
-    const word = todayWord();
+    const word = await todayWord();
     const cleanedWord = word.toLowerCase();
 
     const correct = cleanedGuess === cleanedWord;
