@@ -87,6 +87,16 @@ app.post('/api/guess', (req, res) => {
   })();
 });
 
+app.get('/api/reveal', (req, res) => {
+  try {
+    const word = getTodayWord();
+    return res.json({ word });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: 'Failed to reveal word' });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });

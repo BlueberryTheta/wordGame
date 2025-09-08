@@ -16,14 +16,36 @@ function concise(text, maxWords = 10) {
   return first.trim();
 }
 
+function isQuestion(input) {
+  const s = String(input || '').trim();
+  if (!s) return false;
+  if (s.endsWith('?')) return true;
+  const lowers = s.toLowerCase();
+  const starters = ['is', 'are', 'do', 'does', 'did', 'can', 'could', 'should', 'would', 'will', 'was', 'were', 'how', 'what', 'when', 'where', 'why', 'which'];
+  return starters.some(w => lowers.startsWith(w + ' '));
+}
+
 function minimalFallback(secretWord, question) {
+  if (!isQuestion(question)) return 'Please ask a question.';
   const q = String(question || '').toLowerCase();
   const vowels = new Set(['a','e','i','o','u']);
-  if (q.includes('length') || q.includes('long')) return `${secretWord.length} letters.`;
+  if (q.includes('length') || q.includes('long') || q.includes('how many letters')) return `${secretWord.length} letters.`;
   if (q.includes('vowel')) return [...secretWord].some(ch => vowels.has(ch)) ? 'Yes.' : 'No.';
   if (q.includes('first letter')) return "Can't say.";
+  if (q.includes('applicable') || q.includes('apply')) return 'Not applicable.';
+  if (q.includes(' or ')) {
+    if (q.includes('both')) return 'It can be both.';
+    if (q.includes('color') || q.includes('colour')) return 'Not applicable.';
+    const parts = q.split(' or ').map(x => x.replace(/[?\.]/g,'').trim()).filter(Boolean);
+    if (parts.length >= 2) {
+      const pick = Math.random() < 0.5 ? parts[0] : parts[1];
+      const lastWord = pick.split(' ').slice(-1)[0];
+      return lastWord || 'It can be both.';
+    }
+    return 'It can be both.';
+  }
   if (q.startsWith('is ') || q.startsWith('are ') || q.startsWith('does ') || q.startsWith('do ')) return "Can't say.";
-  return "Can't say.";
+  return 'Please ask a question.';
 }
 
 export async function generateWord() {
@@ -68,21 +90,20 @@ Rules:
 }
 
 export async function answerQuestion(secretWord, question) {
-  // If no API, provide a minimal rule-based engine with terse answers
+  // If no API, provide a minimal rule-based engine with improved answers
   if (!client) {
-    const q = question.toLowerCase();
-    const vowels = new Set(['a','e','i','o','u']);
-    if (q.includes('vowel')) return [...secretWord].some(ch => vowels.has(ch)) ? 'Yes.' : 'No.';
-    if (q.includes('length') || q.includes('long')) return `${secretWord.length} letters.`;
-    if (q.includes('first letter')) return "Can't say.";
-    if (q.startsWith('is ') || q.startsWith('are ') || q.startsWith('does ') || q.startsWith('do ')) return "Can't say.";
-    return 'Try a yes/no question.';
+    return minimalFallback(secretWord, question);
   }
 
   const guard = `You know a secret word. Never reveal it or any exact letters.
-Answer the user's question in a single short sentence of at most 10 words.
-No extra information, no explanations, no warnings, no emojis.
-Prefer yes/no when applicable. If answering would reveal letters or the word, reply exactly: Can't say.`;
+Answer the user's question in ONE short sentence (max 10 words). No explanations.
+Style rules:
+- Prefer yes/no when clear.
+- If ambiguous, reply: It can be both.
+- If the property does not apply, reply: Not applicable.
+- For questions with options (e.g., "big or small?"), pick one option if inferable; otherwise reply: It can be both. Do NOT reply "Can't say" just because options are present.
+- If answering would reveal letters or the word, reply exactly: Can't say.
+- If the input is not a question, reply: Please ask a question.`;
 
   try {
     const resp = await client.chat.completions.create({
@@ -92,7 +113,7 @@ Prefer yes/no when applicable. If answering would reveal letters or the word, re
         { role: 'user', content: `Secret word: ${secretWord}` },
         { role: 'user', content: question }
       ],
-      temperature: 0.2,
+      temperature: 0.3,
       max_tokens: 40
     });
 

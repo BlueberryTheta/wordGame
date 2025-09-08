@@ -153,6 +153,19 @@ async function guess(state) {
       ? `<span>Letters in common revealed: <b>${letters}</b></span>`
       : `<span class="bad">No letters in common.</span>`;
     els.gInput.value = '';
+    if (state.guessesLeft <= 0) {
+      state.gameOver = true;
+      saveState(state);
+      try {
+        const r = await fetch('/api/reveal');
+        const j = await r.json();
+        const w = (j && j.word) ? String(j.word).toUpperCase() : '';
+        const msg = w ? `Nice try! The word was ${w}. Come back tomorrow for a new word.` : 'Nice try! Come back tomorrow for a new word.';
+        openGameOver('Out of guesses', msg);
+      } catch {
+        openGameOver('Out of guesses', 'Nice try! Come back tomorrow for a new word.');
+      }
+    }
   } catch (e) {
     const msg = (e && e.message) ? String(e.message).toLowerCase() : '';
     if (msg.includes('not a word')) {
