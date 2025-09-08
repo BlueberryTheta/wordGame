@@ -44,7 +44,7 @@ function minimalFallback(secretWord, question) {
     }
     return 'It can be both.';
   }
-  if (q.startsWith('is ') || q.startsWith('are ') || q.startsWith('does ') || q.startsWith('do ')) return "Can't say.";
+  if (q.startsWith('is ') || q.startsWith('are ') || q.startsWith('does ') || q.startsWith('do ')) return 'It can be both.';
   return 'Please ask a question.';
 }
 
@@ -102,7 +102,7 @@ Style rules:
 - If ambiguous, reply: It can be both.
 - If the property does not apply, reply: Not applicable.
 - For questions with options (e.g., "big or small?"), pick one option if inferable; otherwise reply: It can be both. Do NOT reply "Can't say" just because options are present.
-- If answering would reveal letters or the word, reply exactly: Can't say.
+- Only reply "Can't say" when the user asks about letters/spelling (e.g., first letter, contains letter) or answering would directly reveal the word's spelling.
 - If the input is not a question, reply: Please ask a question.`;
 
   try {
@@ -113,17 +113,40 @@ Style rules:
         { role: 'user', content: `Secret word: ${secretWord}` },
         { role: 'user', content: question }
       ],
-      temperature: 0.3,
-      max_tokens: 40
+      temperature: 0.35,
+      max_tokens: 50
     });
 
     let text = resp.choices?.[0]?.message?.content?.trim() || '';
-    // Last-resort redaction in case the model slips
+    // Redact accidental leaks in case the model slips
     if (text.toLowerCase().includes(secretWord.toLowerCase())) {
       const re = new RegExp(secretWord, 'ig');
-      text = text.replace(re, "Can't say.");
+      text = text.replace(re, '[redacted]');
     }
-    return concise(text, 10);
+    text = concise(text, 10);
+    // If the model is overly conservative, retry once with a nudge
+    const tlow = text.toLowerCase();
+    const asksLetters = /letter|starts with|spelling|contains/i.test(String(question || ''));
+    if (!asksLetters && (tlow === "can't say." || tlow === "can't say" || tlow === 'cannot say.' || tlow === 'cannot say')) {
+      const nudge = guard + '\nDo not reply "Can\'t say" unless the user asks about letters/spelling. Prefer Yes/No, It can be both, Not applicable, or one option.';
+      const resp2 = await client.chat.completions.create({
+        model: defaultModel,
+        messages: [
+          { role: 'system', content: nudge },
+          { role: 'user', content: `Secret word: ${secretWord}` },
+          { role: 'user', content: question }
+        ],
+        temperature: 0.35,
+        max_tokens: 50
+      });
+      let t2 = resp2.choices?.[0]?.message?.content?.trim() || '';
+      if (t2.toLowerCase().includes(secretWord.toLowerCase())) {
+        const re2 = new RegExp(secretWord, 'ig');
+        t2 = t2.replace(re2, '[redacted]');
+      }
+      return concise(t2, 10) || text;
+    }
+    return text;
   } catch (e) {
     console.error('OpenAI answerQuestion failed, using fallback:', e?.message || e);
     return minimalFallback(secretWord, question);
