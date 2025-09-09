@@ -28,6 +28,7 @@ function fnv1a(str) {
 
 export async function generateWord(dayHint, exclude = []) {
   if (!client) throw new Error('OpenAI not configured');
+  const seed = String(dayHint || '');
 
   const sys = `Generate a diverse list of lowercase common English nouns (singular).
 Output only a comma-separated list, no numbers and no commentary.
