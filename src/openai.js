@@ -77,35 +77,44 @@ export async function generateWord(dayHint, exclude = []) {
     return pick;
   }
 
-  const sys = `You are selecting a single neutral English word-of-the-day.
-Rules:
-- Output exactly one lowercase common English NOUN (singular), no quotes, no punctuation, no explanation.
-- 4-9 letters, family-friendly.
-- Avoid proper nouns, brands, slurs, or sensitive content.`;
+  const sys = `Generate a diverse list of lowercase common English nouns (singular).
+Output only a comma-separated list, no numbers and no commentary.
+Each item must be 4-9 letters and family-friendly.`;
 
-  let word = '';
+  let candidates = [];
   try {
-    const banned = Array.from(new Set(['garden', ...exclude])).slice(0, 80).join(', ');
     const resp = await client.chat.completions.create({
       model: defaultModel,
       messages: [
         { role: 'system', content: sys },
-        { role: 'user', content: `Pick today's word${dayHint ? ` for ${dayHint}` : ''}. Do not pick any of: ${banned}.` }
+        { role: 'user', content: `Seed: ${seed || 'none'}\nReturn ~40 nouns. Exclude: ${(exclude||[]).slice(0,50).join(', ') || 'none'}.` }
       ],
-      temperature: 0.8,
-      max_tokens: 5
+      temperature: 0,
+      max_tokens: 300
     });
-    word = resp.choices?.[0]?.message?.content?.trim()?.toLowerCase() || '';
+    const raw = resp.choices?.[0]?.message?.content || '';
+    candidates = raw
+      .split(/[\n,]+/)
+      .map(s => s.trim().toLowerCase())
+      .map(s => s.replace(/[^a-z]/g, ''))
+      .filter(s => s.length >= 4 && s.length <= 9);
   } catch (e) {
-    console.error('OpenAI generateWord failed, using fallback:', e?.message || e);
+    console.error('OpenAI generateWord(list) failed, using fallback list:', e?.message || e);
   }
-  word = word.replace(/[^a-z]/g, '');
-  if (!word || word.length < 4 || word.length > 9) {
-    // Fallback if model fails constraints
-    const choice = fallback[Math.floor(Math.random() * fallback.length)];
-    return choice;
+
+  if (!candidates.length) candidates = fallback.slice();
+  // De-duplicate and remove excludes
+  const seen = new Set();
+  const filtered = [];
+  for (const w of candidates) {
+    if (!w || exclude.includes(w)) continue;
+    if (!seen.has(w)) { seen.add(w); filtered.push(w); }
   }
-  return word;
+  if (!filtered.length) filtered.push(...fallback.filter(w => !exclude.includes(w)));
+
+  // Deterministic pick from filtered using the seed
+  const idx = fnv1a(seed + '|' + filtered.length) % filtered.length;
+  return filtered[idx];
 }
 
 export async function answerQuestion(secretWord, question) {
