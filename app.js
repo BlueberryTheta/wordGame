@@ -92,7 +92,16 @@ async function init() {
   els.guessBtn.addEventListener('click', () => guess(st));
   els.gInput.addEventListener('keydown', e => { if (e.key === 'Enter') guess(st); });
   // Dev panel auto open via ?dev=1
-  try { const u = new URL(location.href); if (u.searchParams.get('dev') === '1') showDev(true); } catch {}
+  try {
+    const u = new URL(location.href);
+    if (u.searchParams.get('dev') === '1') {
+      ensureDevUI();
+      bindDevHandlers(true);
+      showDev(true);
+    } else {
+      bindDevHandlers(false);
+    }
+  } catch { bindDevHandlers(false); }
 }
 
 async function ask(state) {
@@ -408,3 +417,81 @@ els.devRollBtn?.addEventListener('click', async () => {
     els.devRollMsg.textContent = `Error: ${e?.message || 'failed'}`;
   }
 });
+
+function ensureDevUI() {
+  // Create Dev button if missing
+  if (!document.getElementById('devToggle')) {
+    const actions = document.querySelector('.titlebar .title-actions') || document.querySelector('.titlebar');
+    if (actions) {
+      const btn = document.createElement('button');
+      btn.id = 'devToggle'; btn.className = 'dev-toggle'; btn.type = 'button'; btn.textContent = 'Dev';
+      btn.setAttribute('title','Developer tools'); btn.setAttribute('aria-expanded','false');
+      actions.appendChild(btn);
+    }
+  }
+  // Create Dev panel if missing
+  if (!document.getElementById('devPanel')) {
+    const panel = document.createElement('div');
+    panel.id = 'devPanel'; panel.className = 'dev-tools hidden'; panel.setAttribute('aria-hidden','true');
+    panel.innerHTML = `
+      <div class="dev-inner">
+        <div class="dev-row">
+          <label for="devToken">Admin Token</label>
+          <input id="devToken" type="password" placeholder="Enter ADMIN_TOKEN" />
+        </div>
+        <div class="dev-row">
+          <label for="devSalt">Salt</label>
+          <input id="devSalt" type="text" placeholder="optional e.g. test1" />
+        </div>
+        <div class="dev-actions">
+          <button id="devRollBtn" class="share-btn">Roll Now</button>
+          <span id="devRollMsg" class="dev-msg"></span>
+        </div>
+      </div>`;
+    document.body.appendChild(panel);
+  }
+  // Refresh references
+  els.devToggle = document.getElementById('devToggle');
+  els.devPanel = document.getElementById('devPanel');
+  els.devToken = document.getElementById('devToken');
+  els.devSalt = document.getElementById('devSalt');
+  els.devRollBtn = document.getElementById('devRollBtn');
+  els.devRollMsg = document.getElementById('devRollMsg');
+}
+
+function bindDevHandlers(rebind) {
+  // Ensure refs exist
+  ensureDevUI();
+  // Avoid duplicate listeners
+  if (els.devToggle && !els.devToggle.dataset.bound) {
+    els.devToggle.addEventListener('click', () => {
+      const hidden = els.devPanel?.classList.contains('hidden');
+      showDev(hidden);
+    });
+    els.devToggle.dataset.bound = '1';
+  }
+  if (els.devRollBtn && !els.devRollBtn.dataset.bound) {
+    els.devRollBtn.addEventListener('click', onDevRoll);
+    els.devRollBtn.dataset.bound = '1';
+  }
+}
+
+async function onDevRoll() {
+  const token = (els.devToken?.value || localStorage.getItem('adminToken') || '').trim();
+  const salt = (els.devSalt?.value || '').trim() || String(Date.now());
+  if (els.devToken && token) localStorage.setItem('adminToken', token);
+  els.devRollMsg.textContent = 'Rolling...';
+  try {
+    const url = `/api/roll?token=${encodeURIComponent(token)}&salt=${encodeURIComponent(salt)}`;
+    let r = await fetch(url);
+    if (r.status === 404) {
+      r = await fetch(`/api/admin/roll?token=${encodeURIComponent(token)}&salt=${encodeURIComponent(salt)}`, { method: 'POST' });
+    }
+    const j = await r.json();
+    if (!r.ok) throw new Error(j.error || 'Failed');
+    els.devRollMsg.textContent = `Rolled: ${String(j.word || '').toUpperCase()}`;
+    setTimeout(() => location.reload(), 600);
+  } catch (e) {
+    els.devRollMsg.textContent = `Error: ${e?.message || 'failed'}`;
+  }
+}
