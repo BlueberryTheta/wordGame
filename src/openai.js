@@ -111,10 +111,22 @@ Style rules (be decisive):
 - Prefer yes/no when clear, with 1–3 word rationale (e.g., "Yes—usually outdoors").
 - For option questions ("X or Y?"), pick the most typical option for the secret word.
 - Use "It can be both" only if truly common; otherwise choose the typical case.
-- Avoid "Varies"; give the most typical case.
+- Do NOT use the word "Varies" or "varied"; give the typical case.
 - If a property does not apply, reply: Not applicable.
 - Only reply "Can't say" for spelling/letter questions or if answering reveals letters.
-- If the input is not a question, reply: Please ask a question.`;
+- If the input is not a question, reply: Please ask a question.
+
+Examples:
+Q: Is it a person, place, or thing?
+A: Thing.
+Q: Is it outside?
+A: Yes—usually outdoors.
+Q: Is it green?
+A: Often green.
+Q: Is it alive?
+A: Not alive; contains living parts.
+Q: Is it big or small?
+A: Small.`;
 
   try {
     const resp = await client.chat.completions.create({
@@ -135,6 +147,10 @@ Style rules (be decisive):
       text = text.replace(re, '[redacted]');
     }
     text = concise(text, 10);
+    if (/\bvaries\b/i.test(text)) {
+      // Final safeguard to avoid "Varies" in outputs
+      text = text.replace(/\bvaries\b/ig, 'Usually');
+    }
     // If the model is overly conservative, retry once with a nudge (can't say or overusing both)
     const tlow = text.toLowerCase();
     const asksLetters = /letter|starts with|spelling|contains/i.test(String(question || ''));
@@ -156,7 +172,9 @@ Style rules (be decisive):
         const re2 = new RegExp(secretWord, 'ig');
         t2 = t2.replace(re2, '[redacted]');
       }
-      return concise(t2, 10) || text;
+      t2 = concise(t2, 10);
+      if (/\bvaries\b/i.test(t2)) t2 = t2.replace(/\bvaries\b/ig, 'Usually');
+      return t2 || text;
     }
     return text;
   } catch (e) {

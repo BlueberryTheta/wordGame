@@ -89,3 +89,10 @@ export function scheduleNextRoll() {
     scheduleNextRoll();
   }, delay);
 }
+
+export async function forceRollTodayWord() {
+  const today = dayKey();
+  const word = await generateWord(today);
+  writeState({ day: today, word });
+  return word;
+}

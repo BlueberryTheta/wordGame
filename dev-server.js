@@ -2,7 +2,7 @@ import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
-import { getTodayWord, scheduleNextRoll, ensureTodayWord, dayKey } from './src/wordManager.js';
+import { getTodayWord, scheduleNextRoll, ensureTodayWord, dayKey, forceRollTodayWord } from './src/wordManager.js';
 import { answerQuestion, isValidEnglishWord } from './src/openai.js';
 
 dotenv.config();
@@ -85,6 +85,20 @@ app.post('/api/guess', (req, res) => {
       return res.status(500).json({ error: 'Failed to process guess' });
     }
   })();
+});
+
+app.post('/api/admin/roll', async (req, res) => {
+  try {
+    const token = req.query.token || req.headers['x-admin-token'];
+    if (process.env.ADMIN_TOKEN && token !== process.env.ADMIN_TOKEN) {
+      return res.status(403).json({ error: 'forbidden' });
+    }
+    const word = await forceRollTodayWord();
+    res.json({ dayKey: dayKey(), word });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Failed to roll word' });
+  }
 });
 
 app.get('/api/reveal', (req, res) => {
