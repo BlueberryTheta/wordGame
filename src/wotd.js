@@ -1,4 +1,5 @@
 import { generateWord } from './openai.js';
+import { getWordForDay, setWordForDay, getUsedWords, addUsedWord } from './storage.js';
 
 // Day key in America/New_York timezone (handles DST). Rolls at 00:01 ET.
 export function dayKey(date = new Date()) {
@@ -21,8 +22,21 @@ export function resetWordCache() { cache = { day: null, word: null }; }
 export async function todayWord(force = false, salt = '') {
   const today = dayKey();
   if (!force && cache.day === today && cache.word) return cache.word;
-  const hint = salt ? `${today}|${salt}` : today;
-  const word = await generateWord(hint);
+  if (!force) {
+    const stored = await getWordForDay(today);
+    if (stored) { cache = { day: today, word: stored }; return stored; }
+  }
+  const usedSet = await getUsedWords();
+  const exclude = Array.from(usedSet).slice(-200);
+  let attempt = 0, word = '';
+  while (attempt < 8) {
+    const hint = `${today}|${salt}|${attempt}`;
+    word = await generateWord(hint, exclude);
+    if (!usedSet.has(word)) break;
+    attempt++;
+  }
+  await setWordForDay(today, word);
+  await addUsedWord(word);
   cache = { day: today, word };
   return word;
 }

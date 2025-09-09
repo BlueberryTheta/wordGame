@@ -58,7 +58,7 @@ function minimalFallback(secretWord, question) {
   return 'Please ask a question.';
 }
 
-export async function generateWord(dayHint) {
+export async function generateWord(dayHint, exclude = []) {
   // Fallback list if API key is missing
   const fallback = [
     'puzzle', 'garden', 'silver', 'planet', 'sunset', 'rocket', 'candle', 'forest', 'bridge', 'circle',
@@ -66,7 +66,15 @@ export async function generateWord(dayHint) {
   ];
 
   if (!client) {
-    return fallback[Math.floor(Math.random() * fallback.length)];
+    // Deterministic-ish fallback based on hint; avoid garden
+    const seed = String(dayHint || Date.now());
+    let h = 2166136261;
+    for (let i = 0; i < seed.length; i++) { h ^= seed.charCodeAt(i); h = Math.imul(h, 16777619); }
+    const idx = Math.abs(h) % fallback.length;
+    let pick = fallback[idx];
+    if (pick === 'garden') pick = fallback[(idx + 7) % fallback.length];
+    if (exclude.includes(pick)) pick = fallback[(idx + 11) % fallback.length];
+    return pick;
   }
 
   const sys = `You are selecting a single neutral English word-of-the-day.
@@ -77,13 +85,14 @@ Rules:
 
   let word = '';
   try {
+    const banned = Array.from(new Set(['garden', ...exclude])).slice(0, 80).join(', ');
     const resp = await client.chat.completions.create({
       model: defaultModel,
       messages: [
         { role: 'system', content: sys },
-        { role: 'user', content: `Pick today's word${dayHint ? ` for ${dayHint}` : ''}.` }
+        { role: 'user', content: `Pick today's word${dayHint ? ` for ${dayHint}` : ''}. Do not pick any of: ${banned}.` }
       ],
-      temperature: 0,
+      temperature: 0.8,
       max_tokens: 5
     });
     word = resp.choices?.[0]?.message?.content?.trim()?.toLowerCase() || '';

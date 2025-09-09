@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { generateWord } from './openai.js';
+import { getUsedWords, addUsedWord } from './storage.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -93,7 +94,10 @@ export function scheduleNextRoll() {
 export async function forceRollTodayWord(salt = '') {
   const today = dayKey();
   const hint = salt ? `${today}|${salt}` : today;
-  const word = await generateWord(hint);
+  const used = await getUsedWords();
+  const exclude = Array.from(used).slice(-200);
+  const word = await generateWord(hint, exclude);
+  await addUsedWord(word);
   writeState({ day: today, word });
   return word;
 }
