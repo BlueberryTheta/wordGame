@@ -5,11 +5,18 @@ import { fileURLToPath } from 'url';
 const KV_URL = process.env.KV_REST_API_URL;
 const KV_TOKEN = process.env.KV_REST_API_TOKEN;
 const KV_ENABLED = !!(KV_URL && KV_TOKEN);
+const IS_VERCEL = !!process.env.VERCEL;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const dataDir = path.join(__dirname, '..', 'data');
 const histPath = path.join(dataDir, 'history.json');
+
+// In-memory fallback for serverless without KV (avoids write errors on read-only FS)
+const memStore = {
+  used: new Set(),
+  perDay: new Map(),
+};
 
 async function kvFetch(cmdPath, opts = {}) {
   const url = KV_URL.replace(/\/$/, '') + cmdPath;
@@ -23,16 +30,26 @@ async function kvFetch(cmdPath, opts = {}) {
 }
 
 function ensureFile() {
+  if (IS_VERCEL) return; // never write files on serverless
   if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
   if (!fs.existsSync(histPath)) fs.writeFileSync(histPath, JSON.stringify({ used: [], perDay: {} }, null, 2), 'utf8');
 }
 
 function readLocal() {
+  if (IS_VERCEL) {
+    // fall back to in-memory
+    return { used: Array.from(memStore.used), perDay: Object.fromEntries(memStore.perDay) };
+  }
   ensureFile();
   return JSON.parse(fs.readFileSync(histPath, 'utf8'));
 }
 
 function writeLocal(obj) {
+  if (IS_VERCEL) {
+    memStore.used = new Set(obj.used || []);
+    memStore.perDay = new Map(Object.entries(obj.perDay || {}));
+    return;
+  }
   ensureFile();
   fs.writeFileSync(histPath, JSON.stringify(obj, null, 2), 'utf8');
 }
@@ -81,4 +98,3 @@ export async function addUsedWord(word) {
   obj.used = Array.from(set);
   writeLocal(obj);
 }
-
