@@ -24,11 +24,15 @@ export default async function handler(req, res) {
     if (!question || typeof question !== 'string') {
       return res.status(400).json({ error: 'Missing question' });
     }
-    const word = todayWord();
+    const word = await todayWord();
     const reply = await answerQuestion(word, question);
     return res.status(200).json({ answer: reply });
   } catch (e) {
-    console.error(e);
+    console.error('QUESTION_ERROR:', e?.message || e);
+    const msg = (e && e.message) ? String(e.message) : '';
+    if (/openai not configured/i.test(msg)) {
+      return res.status(503).json({ error: 'AI unavailable: OPENAI_API_KEY missing' });
+    }
     return res.status(500).json({ error: 'Failed to answer question' });
   }
 }
