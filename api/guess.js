@@ -19,6 +19,8 @@ async function readJson(req) {
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
   try {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+    res.setHeader('Pragma', 'no-cache');
     const body = await readJson(req);
     const { guess } = body || {};
     if (!guess || typeof guess !== 'string') {

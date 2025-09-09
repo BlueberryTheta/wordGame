@@ -37,12 +37,9 @@ function minimalFallback(secretWord, question) {
   if (q.includes('a thing')) return 'Yes.';
   if (q.includes('a person')) return 'No.';
   if (q.includes('a place')) return 'No.';
-  if (q.includes('outside') || q.includes('outdoors')) return 'Usually outdoors.';
-  if (q.includes('inside') || q.includes('indoors')) return 'Usually indoors.';
-  if (q.includes('green')) return 'Often green.';
-  if (q.includes('alive')) return 'Not alive; contains living parts.';
-  if (q.includes('on the ground')) return 'Usually on the ground.';
-  if (/(big|small)/.test(q)) return 'Often medium-sized.';
+  if (q.includes('outside') || q.includes('outdoors')) return 'Outdoors.';
+  if (q.includes('inside') || q.includes('indoors')) return 'Indoors.';
+  if (/(big|small)/.test(q)) return 'Varies.';
   if (q.includes(' or ')) {
     if (q.includes('both')) return 'It can be both.';
     if (q.includes('color') || q.includes('colour')) return 'Not applicable.';
@@ -108,12 +105,11 @@ export async function answerQuestion(secretWord, question) {
   const guard = `You know a secret word. Never reveal it or any exact letters.
 Answer the user's question in ONE short sentence (max 10 words). No explanations.
 Style rules (be decisive):
-- Prefer yes/no when clear, with 1–3 word rationale (e.g., "Yes—usually outdoors").
-- For option questions ("X or Y?"), pick the most typical option for the secret word.
-- Use "It can be both" only if truly common; otherwise choose the typical case.
-- Avoid "Varies"; give the most typical case.
-- If a property does not apply, reply: Not applicable.
-- Only reply "Can't say" for spelling/letter questions or if answering reveals letters.
+- Prefer yes/no when clear.
+- If asked to choose ("X or Y?"), pick the most typical option for the secret word.
+- If truly ambiguous, reply: It can be both. Avoid this unless necessary.
+- If the property does not apply, reply: Not applicable.
+- Only reply "Can't say" for letter/spelling questions (first letter, contains letter) or when answering reveals the exact spelling.
 - If the input is not a question, reply: Please ask a question.`;
 
   try {
@@ -124,8 +120,8 @@ Style rules (be decisive):
         { role: 'user', content: `Secret word: ${secretWord}` },
         { role: 'user', content: question }
       ],
-      temperature: 0.5,
-      max_tokens: 70
+      temperature: 0.45,
+      max_tokens: 60
     });
 
     let text = resp.choices?.[0]?.message?.content?.trim() || '';
@@ -138,9 +134,9 @@ Style rules (be decisive):
     // If the model is overly conservative, retry once with a nudge (can't say or overusing both)
     const tlow = text.toLowerCase();
     const asksLetters = /letter|starts with|spelling|contains/i.test(String(question || ''));
-    const overConservative = (!asksLetters && (tlow === "can't say." || tlow === "can't say" || tlow === 'cannot say.' || tlow === 'cannot say')) || ((tlow.includes('it can be both') || tlow.includes('varies')) && !/\bboth\b/i.test(String(question||'')));
+    const overConservative = (!asksLetters && (tlow === "can't say." || tlow === "can't say" || tlow === 'cannot say.' || tlow === 'cannot say')) || (tlow === 'it can be both.' && !/\bboth\b/i.test(String(question||'')));
     if (overConservative) {
-      const nudge = guard + '\nAvoid "Can\'t say", avoid "Varies", avoid "It can be both" unless the user implies both; pick the most typical option and add a 1–3 word rationale.';
+      const nudge = guard + '\nAvoid "Can\'t say" and avoid "It can be both" unless the user explicitly implies both; pick the most typical option.';
       const resp2 = await client.chat.completions.create({
         model: defaultModel,
         messages: [
@@ -148,8 +144,8 @@ Style rules (be decisive):
           { role: 'user', content: `Secret word: ${secretWord}` },
           { role: 'user', content: question }
         ],
-        temperature: 0.5,
-        max_tokens: 70
+        temperature: 0.45,
+        max_tokens: 60
       });
       let t2 = resp2.choices?.[0]?.message?.content?.trim() || '';
       if (t2.toLowerCase().includes(secretWord.toLowerCase())) {
@@ -203,3 +199,4 @@ export async function isValidEnglishWord(word) {
     return true;
   }
 }
+
