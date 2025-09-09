@@ -1,8 +1,8 @@
 import { generateWord } from './openai.js';
-import { getWordForDay, setWordForDay, getUsedWords, addUsedWord } from './storage.js';
 
-const KV_ENABLED = !!(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
-const IS_VERCEL = !!process.env.VERCEL;
+// Simpler approach: no external storage. Always derive deterministically
+// from ET day + optional secret + optional salt. Cache in-memory per
+// instance to avoid repeated calls during a warm session.
 
 // Day key in America/New_York timezone (handles DST). Rolls at 00:01 ET.
 export function dayKey(date = new Date()) {
@@ -25,27 +25,6 @@ export function resetWordCache() { cache = { day: null, word: null }; }
 export async function todayWord(force = false, salt = '') {
   const today = dayKey();
   if (!force && cache.day === today && cache.word) return cache.word;
-  // If KV is enabled or running locally, use storage to avoid repeats across restarts
-  if (!IS_VERCEL || KV_ENABLED) {
-    if (!force) {
-      const stored = await getWordForDay(today);
-      if (stored) { cache = { day: today, word: stored }; return stored; }
-    }
-    const usedSet = await getUsedWords();
-    const exclude = Array.from(usedSet).slice(-200);
-    let attempt = 0, word = '';
-    while (attempt < 8) {
-      const hint = `${today}|${salt}|${attempt}|${process.env.WOTD_SECRET || ''}`;
-      word = await generateWord(hint, exclude);
-      if (!usedSet.has(word)) break;
-      attempt++;
-    }
-    await setWordForDay(today, word);
-    await addUsedWord(word);
-    cache = { day: today, word };
-    return word;
-  }
-  // Serverless without KV: derive deterministically from day + secret, no storage
   const hint = `${today}|${process.env.WOTD_SECRET || ''}|${salt}`;
   const word = await generateWord(hint, []);
   cache = { day: today, word };

@@ -16,6 +16,16 @@ function concise(text, maxWords = 10) {
   return first.trim();
 }
 
+// Deterministic 32-bit hash (FNV-1a) used to pick from lists by seed
+function fnv1a(str) {
+  let h = 2166136261 >>> 0;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+
 function isQuestion(input) {
   const s = String(input || '').trim();
   if (!s) return false;
