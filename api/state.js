@@ -10,9 +10,19 @@ export default async function handler(req, res) {
     const token = url.searchParams.get('token');
     const adminOk = !process.env.ADMIN_TOKEN || token === process.env.ADMIN_TOKEN;
     const word = await todayWord(force && adminOk, (force && adminOk) ? salt : '');
-    return res.status(200).json({ dayKey: dayKey(), wordLength: word.length });
+    const version = fnv1a(word);
+    return res.status(200).json({ dayKey: dayKey(), wordLength: word.length, wordVersion: version });
   } catch (e) {
     console.error(e);
     return res.status(500).json({ error: 'Failed to get state' });
   }
+}
+
+function fnv1a(str) {
+  let h = 2166136261 >>> 0;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return (h >>> 0).toString(16);
 }

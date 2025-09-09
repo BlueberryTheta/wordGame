@@ -26,19 +26,21 @@ const LIMITS = { questions: 10, guesses: 2 };
 
 function storageKey(day) { return `wotd:${day}`; }
 
-function loadState(day, len) {
+function loadState(day, len, version) {
   const raw = localStorage.getItem(storageKey(day));
   if (raw) {
     try {
       const s = JSON.parse(raw);
-      // If word length changed (unlikely), reset
+      // Reset if length or version changed (e.g., dev roll same day)
       if (s.wordLength !== len) throw new Error('length changed');
+      if (version && s.wordVersion && s.wordVersion !== version) throw new Error('version changed');
       return s;
     } catch {}
   }
   const state = {
     dayKey: day,
     wordLength: len,
+    wordVersion: version || null,
     revealed: Array(len).fill(null),
     questionsLeft: LIMITS.questions,
     guessesLeft: LIMITS.guesses,
@@ -85,7 +87,7 @@ async function init() {
     return;
   }
   const s = await resp.json();
-  const st = loadState(s.dayKey, s.wordLength);
+  const st = loadState(s.dayKey, s.wordLength, s.wordVersion);
   render(st);
 
   els.askBtn.addEventListener('click', () => ask(st));
