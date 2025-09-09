@@ -26,7 +26,29 @@ export async function todayWord(force = false, salt = '') {
   const today = dayKey();
   if (!force && cache.day === today && cache.word) return cache.word;
   const hint = `${today}|${process.env.WOTD_SECRET || ''}|${salt}`;
-  const word = await generateWord(hint, []);
+  let word = '';
+  try {
+    word = await generateWord(hint, []);
+  } catch (e) {
+    // Final fallback: deterministic local pick to avoid throwing
+    word = localFallbackWord(hint);
+  }
+  word = String(word || '').toLowerCase().replace(/[^a-z]/g, '');
+  if (!word || word.length < 4 || word.length > 9) {
+    word = localFallbackWord(hint);
+  }
   cache = { day: today, word };
   return word;
+}
+
+function localFallbackWord(hint) {
+  const pool = [
+    'puzzle','planet','rocket','forest','bridge','circle','shadow','cobalt','nectar','marble',
+    'silver','sunset','artist','quartz','candle','random','victor','safety','eleven','garden'
+  ];
+  let h = 2166136261 >>> 0;
+  const s = String(hint || 'seed');
+  for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+  const idx = Math.abs(h) % pool.length;
+  return pool[idx];
 }
