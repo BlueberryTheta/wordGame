@@ -90,9 +90,10 @@ export function scheduleNextRoll() {
   }, delay);
 }
 
-export async function forceRollTodayWord() {
+export async function forceRollTodayWord(salt = '') {
   const today = dayKey();
-  const word = await generateWord(today);
+  const hint = salt ? `${today}|${salt}` : today;
+  const word = await generateWord(hint);
   writeState({ day: today, word });
   return word;
 }

@@ -18,10 +18,11 @@ export function dayKey(date = new Date()) {
 
 let cache = { day: null, word: null };
 export function resetWordCache() { cache = { day: null, word: null }; }
-export async function todayWord(force = false) {
+export async function todayWord(force = false, salt = '') {
   const today = dayKey();
   if (!force && cache.day === today && cache.word) return cache.word;
-  const word = await generateWord(today);
+  const hint = salt ? `${today}|${salt}` : today;
+  const word = await generateWord(hint);
   cache = { day: today, word };
   return word;
 }

@@ -90,10 +90,11 @@ app.post('/api/guess', (req, res) => {
 app.post('/api/admin/roll', async (req, res) => {
   try {
     const token = req.query.token || req.headers['x-admin-token'];
+    const salt = req.query.salt || '';
     if (process.env.ADMIN_TOKEN && token !== process.env.ADMIN_TOKEN) {
       return res.status(403).json({ error: 'forbidden' });
     }
-    const word = await forceRollTodayWord();
+    const word = await forceRollTodayWord(salt);
     res.json({ dayKey: dayKey(), word });
   } catch (e) {
     console.error(e);
