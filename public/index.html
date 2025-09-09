@@ -10,7 +10,10 @@
     <div class="app">
       <div class="titlebar">
         <h1>Word of the Day</h1>
-        <button id="helpBtn" class="help-btn" title="How to play" aria-label="How to play" data-tip="How to play" aria-haspopup="dialog" aria-controls="tutorialBackdrop">?</button>
+        <div class="title-actions">
+          <button id="helpBtn" class="help-btn" title="How to play" aria-label="How to play" data-tip="How to play" aria-haspopup="dialog" aria-controls="tutorialBackdrop">?</button>
+          <button id="devToggle" class="dev-toggle" title="Developer tools" aria-expanded="false">Dev</button>
+        </div>
       </div>
       <div class="meta">
         <div>Day: <span id="dayKey">—</span></div>
@@ -45,8 +48,26 @@
       </section>
 
       <footer>
-        <small>New word rolls at 00:01 local time.</small>
+        <small>New word rolls at 12:01 AM Eastern Time.</small>
       </footer>
+    </div>
+
+    <!-- Dev Tools Panel -->
+    <div id="devPanel" class="dev-tools hidden" aria-hidden="true">
+      <div class="dev-inner">
+        <div class="dev-row">
+          <label for="devToken">Admin Token</label>
+          <input id="devToken" type="password" placeholder="Enter ADMIN_TOKEN" />
+        </div>
+        <div class="dev-row">
+          <label for="devSalt">Salt</label>
+          <input id="devSalt" type="text" placeholder="optional e.g. test1" />
+        </div>
+        <div class="dev-actions">
+          <button id="devRollBtn" class="share-btn">Roll Now</button>
+          <span id="devRollMsg" class="dev-msg"></span>
+        </div>
+      </div>
     </div>
 
     <!-- Tutorial Modal -->

@@ -13,6 +13,13 @@ const els = {
   helpBtn: document.getElementById('helpBtn'),
   tutorialBackdrop: document.getElementById('tutorialBackdrop'),
   closeTutorial: document.getElementById('closeTutorial'),
+  // Dev tools
+  devToggle: document.getElementById('devToggle'),
+  devPanel: document.getElementById('devPanel'),
+  devToken: document.getElementById('devToken'),
+  devSalt: document.getElementById('devSalt'),
+  devRollBtn: document.getElementById('devRollBtn'),
+  devRollMsg: document.getElementById('devRollMsg'),
 };
 
 const LIMITS = { questions: 10, guesses: 2 };
@@ -85,6 +92,8 @@ async function init() {
   els.qInput.addEventListener('keydown', e => { if (e.key === 'Enter') ask(st); });
   els.guessBtn.addEventListener('click', () => guess(st));
   els.gInput.addEventListener('keydown', e => { if (e.key === 'Enter') guess(st); });
+  // Dev panel auto open via ?dev=1
+  try { const u = new URL(location.href); if (u.searchParams.get('dev') === '1') showDev(true); } catch {}
 }
 
 async function ask(state) {
@@ -374,3 +383,39 @@ function startConfetti(duration = 1500, count = 140) {
   window.addEventListener('resize', resize, { once: true });
   raf = requestAnimationFrame(tick);
 }
+// Dev tools logic
+function showDev(open) {
+  if (!els.devPanel || !els.devToggle) return;
+  if (open) {
+    els.devPanel.classList.remove('hidden');
+    els.devPanel.setAttribute('aria-hidden', 'false');
+    els.devToggle.setAttribute('aria-expanded', 'true');
+  } else {
+    els.devPanel.classList.add('hidden');
+    els.devPanel.setAttribute('aria-hidden', 'true');
+    els.devToggle.setAttribute('aria-expanded', 'false');
+  }
+}
+els.devToggle?.addEventListener('click', () => {
+  const hidden = els.devPanel?.classList.contains('hidden');
+  showDev(hidden);
+});
+els.devRollBtn?.addEventListener('click', async () => {
+  const token = (els.devToken?.value || localStorage.getItem('adminToken') || '').trim();
+  const salt = (els.devSalt?.value || '').trim() || String(Date.now());
+  if (els.devToken && token) localStorage.setItem('adminToken', token);
+  els.devRollMsg.textContent = 'Rolling...';
+  try {
+    const url = `/api/roll?token=${encodeURIComponent(token)}&salt=${encodeURIComponent(salt)}`;
+    let r = await fetch(url);
+    if (r.status === 404) {
+      r = await fetch(`/api/admin/roll?token=${encodeURIComponent(token)}&salt=${encodeURIComponent(salt)}`, { method: 'POST' });
+    }
+    const j = await r.json();
+    if (!r.ok) throw new Error(j.error || 'Failed');
+    els.devRollMsg.textContent = `Rolled: ${String(j.word || '').toUpperCase()}`;
+    setTimeout(() => location.reload(), 600);
+  } catch (e) {
+    els.devRollMsg.textContent = `Error: ${e?.message || 'failed'}`;
+  }
+});

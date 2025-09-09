@@ -12,6 +12,8 @@ body{margin:0; color:var(--fg); font-family:system-ui,-apple-system,Segoe UI,Rob
 .app{max-width:900px; margin:40px auto; padding:0 20px}
 h1{margin:0 0 4px 0; letter-spacing:.2px; font-weight:800}
 .titlebar{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px}
+.title-actions{display:flex; align-items:center; gap:8px}
+.dev-toggle{height:36px; padding:0 10px; border-radius:10px; border:1px solid var(--shade); background:#0e1120; color:var(--fg); cursor:pointer}
 .help-btn{position:relative; width:40px; height:40px; border-radius:12px; border:1px solid var(--shade); background:
   radial-gradient(120% 120% at 20% 10%, rgba(120,217,255,.15), transparent 40%),
   linear-gradient(180deg,#0f142d,#0e1120);
@@ -57,6 +59,16 @@ button:disabled{opacity:.55; cursor:not-allowed; box-shadow:none}
 .ok{color:var(--ok)}
 .bad{color:var(--bad)}
 footer{margin-top:28px; color:var(--muted)}
+
+/* Dev tools */
+.dev-tools{position:fixed; right:16px; bottom:16px; z-index:1500}
+.dev-tools.hidden{display:none}
+.dev-inner{background:linear-gradient(180deg,rgba(23,26,46,.95),rgba(18,21,37,.95)); border:1px solid var(--shade); border-radius:12px; padding:12px; box-shadow:0 10px 30px rgba(0,0,0,.45); min-width:280px}
+.dev-row{display:flex; align-items:center; gap:8px; margin-bottom:8px}
+.dev-row label{width:110px; color:var(--muted); font-size:12px}
+.dev-row input{flex:1; background:#0e1120; border:1px solid var(--shade); color:var(--fg); padding:8px 10px; border-radius:8px}
+.dev-actions{display:flex; align-items:center; gap:8px}
+.dev-msg{color:var(--muted); font-size:12px}
 
 /* Tutorial modal */
 .hidden{display:none}

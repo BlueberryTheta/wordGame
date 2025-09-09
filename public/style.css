@@ -66,6 +66,18 @@ footer{margin-top:24px; color:var(--muted)}
 .close-btn:focus-visible{outline:none; box-shadow:0 0 0 3px rgba(120,217,255,.2), 0 6px 14px rgba(0,0,0,.28)}
 .modal-body ul{margin:0; padding-left:20px; color:var(--fg)}
 
+/* Dev tools */
+.title-actions{display:flex; align-items:center; gap:8px}
+.dev-toggle{height:36px; padding:0 10px; border-radius:10px; border:1px solid var(--shade); background:#0e1120; color:var(--fg); cursor:pointer}
+.dev-tools{position:fixed; right:16px; bottom:16px; z-index:1500}
+.dev-tools.hidden{display:none}
+.dev-inner{background:linear-gradient(180deg,rgba(23,26,46,.95),rgba(18,21,37,.95)); border:1px solid var(--shade); border-radius:12px; padding:12px; box-shadow:0 10px 30px rgba(0,0,0,.45); min-width:280px}
+.dev-row{display:flex; align-items:center; gap:8px; margin-bottom:8px}
+.dev-row label{width:110px; color:var(--muted); font-size:12px}
+.dev-row input{flex:1; background:#0e1120; border:1px solid var(--shade); color:var(--fg); padding:8px 10px; border-radius:8px}
+.dev-actions{display:flex; align-items:center; gap:8px}
+.dev-msg{color:var(--muted); font-size:12px}
+
 /* Tiles and animations */
 .tiles{display:flex; gap:10px; justify-content:center; align-items:center; flex-wrap:wrap}
 .tile{width:44px; height:54px; display:flex; align-items:center; justify-content:center; border-radius:10px; border:1px solid var(--shade); background:linear-gradient(180deg,#0f142c,#0b0e1d); font:700 22px var(--mono); letter-spacing:.5px; color:var(--fg); box-shadow:inset 0 -3px 0 rgba(255,255,255,.03)}
