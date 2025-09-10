@@ -1,5 +1,6 @@
 import { todayWord } from '../src/wotd.js';
 import { isValidEnglishWord } from '../src/openai.js';
+const BOOT_ID = Math.random().toString(36).slice(2,8);
 
 async function readJson(req) {
   return new Promise((resolve) => {
@@ -61,6 +62,5 @@ export default async function handler(req, res) {
   } catch (e) {
     console.error('[GUESS_ERROR]', e?.message || e);
     return res.status(500).json({ error: 'Failed to process guess' });
-const BOOT_ID = Math.random().toString(36).slice(2,8);
   }
 }
