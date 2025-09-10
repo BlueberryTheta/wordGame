@@ -24,9 +24,14 @@ let cache = { day: null, word: null };
 export function resetWordCache() { cache = { day: null, word: null }; }
 export async function todayWord(force = false, salt = '') {
   const today = dayKey();
-  if (!force && cache.day === today && cache.word) return cache.word;
+  if (!force && cache.day === today && cache.word) {
+    console.log('[WOTD] cache hit', { day: today, word: cache.word, len: cache.word.length });
+    return cache.word;
+  }
   const hint = `${today}|${process.env.WOTD_SECRET || ''}|${salt}`;
+  console.log('[WOTD] generating', { day: today, force, salt, hint });
   const word = await generateWord(hint, []);
+  console.log('[WOTD] generated', { day: today, word, len: String(word||'').length });
   cache = { day: today, word };
   return word;
 }

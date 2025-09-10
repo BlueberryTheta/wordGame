@@ -86,6 +86,7 @@ async function init() {
     return;
   }
   const s = await resp.json();
+  console.log('[CLIENT STATE]', s);
   const st = loadState(s.dayKey, s.wordLength, s.wordVersion);
   render(st);
 
@@ -117,6 +118,7 @@ async function ask(state) {
       body: JSON.stringify({ question: q })
     });
     const data = await resp.json();
+    console.log('[CLIENT Q]', { q, respOk: resp.ok, data });
     if (!resp.ok) throw new Error(data.error || 'Request failed');
     state.history.push({ q, a: data.answer });
     state.questionsLeft -= 1;
@@ -142,6 +144,7 @@ async function guess(state) {
       body: JSON.stringify({ guess: g })
     });
     const data = await resp.json();
+    console.log('[CLIENT GUESS]', { g, respOk: resp.ok, data });
     if (!resp.ok) throw new Error(data.error || 'Request failed');
 
     if (data.correct) {

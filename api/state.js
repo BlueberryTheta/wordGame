@@ -11,9 +11,11 @@ export default async function handler(req, res) {
     const adminOk = !process.env.ADMIN_TOKEN || token === process.env.ADMIN_TOKEN;
     const word = await todayWord(force && adminOk, (force && adminOk) ? salt : '');
     const version = fnv1a(word);
-    return res.status(200).json({ dayKey: dayKey(), wordLength: word.length, wordVersion: version });
+    const payload = { dayKey: dayKey(), wordLength: word.length, wordVersion: version };
+    console.log('[STATE]', { query: Object.fromEntries(url.searchParams.entries()), payload });
+    return res.status(200).json(payload);
   } catch (e) {
-    console.error(e);
+    console.error('[STATE_ERROR]', e?.message || e);
     return res.status(500).json({ error: 'Failed to get state' });
   }
 }

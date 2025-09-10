@@ -40,6 +40,7 @@ export default async function handler(req, res) {
 
     const correct = cleanedGuess === cleanedWord;
     if (correct) {
+      console.log('[GUESS]', { guess: cleanedGuess, correct: true, word, len: word.length });
       return res.status(200).json({ correct: true, word });
     }
 
@@ -47,9 +48,16 @@ export default async function handler(req, res) {
     const revealedMask = [...cleanedWord].map(ch => guessLetters.has(ch) ? ch : null);
     const lettersInCommon = [...new Set([...cleanedWord].filter(ch => guessLetters.has(ch)))];
 
+    console.log('[GUESS]', {
+      guess: cleanedGuess,
+      correct: false,
+      word,
+      len: word.length,
+      lettersInCommon: lettersInCommon.join('')
+    });
     return res.status(200).json({ correct: false, revealedMask, lettersInCommon });
   } catch (e) {
-    console.error(e);
+    console.error('[GUESS_ERROR]', e?.message || e);
     return res.status(500).json({ error: 'Failed to process guess' });
   }
 }
