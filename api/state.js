@@ -1,4 +1,5 @@
 import { todayWord, dayKey } from '../src/wotd.js';
+const BOOT_ID = Math.random().toString(36).slice(2,8);
 
 export default async function handler(req, res) {
   try {
@@ -12,7 +13,7 @@ export default async function handler(req, res) {
     const word = await todayWord(force && adminOk, (force && adminOk) ? salt : '');
     const version = fnv1a(word);
     const payload = { dayKey: dayKey(), wordLength: word.length, wordVersion: version };
-    console.log('[STATE]', { query: Object.fromEntries(url.searchParams.entries()), payload });
+    console.log('[STATE]', { boot: BOOT_ID, region: process.env.VERCEL_REGION, query: Object.fromEntries(url.searchParams.entries()), payload });
     return res.status(200).json(payload);
   } catch (e) {
     console.error('[STATE_ERROR]', e?.message || e);

@@ -40,7 +40,7 @@ export default async function handler(req, res) {
 
     const correct = cleanedGuess === cleanedWord;
     if (correct) {
-      console.log('[GUESS]', { guess: cleanedGuess, correct: true, word, len: word.length });
+      console.log('[GUESS]', { boot: BOOT_ID, region: process.env.VERCEL_REGION, guess: cleanedGuess, correct: true, word, len: word.length });
       return res.status(200).json({ correct: true, word });
     }
 
@@ -49,6 +49,8 @@ export default async function handler(req, res) {
     const lettersInCommon = [...new Set([...cleanedWord].filter(ch => guessLetters.has(ch)))];
 
     console.log('[GUESS]', {
+      boot: BOOT_ID,
+      region: process.env.VERCEL_REGION,
       guess: cleanedGuess,
       correct: false,
       word,
@@ -59,5 +61,6 @@ export default async function handler(req, res) {
   } catch (e) {
     console.error('[GUESS_ERROR]', e?.message || e);
     return res.status(500).json({ error: 'Failed to process guess' });
+const BOOT_ID = Math.random().toString(36).slice(2,8);
   }
 }

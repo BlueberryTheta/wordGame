@@ -25,6 +25,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Missing question' });
     }
     const word = await todayWord();
+    console.log('[QUESTION]', { dayKey: dayKey(), q: question, word, len: word.length });
     const reply = await answerQuestion(word, question);
     return res.status(200).json({ answer: reply });
   } catch (e) {
