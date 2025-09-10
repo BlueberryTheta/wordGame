@@ -474,10 +474,15 @@ async function onDevRoll() {
     if (r.status === 404) {
       r = await fetch(`/api/admin/roll?token=${encodeURIComponent(token)}&salt=${encodeURIComponent(salt)}`, { method: 'POST' });
     }
-    const j = await r.json();
-    if (!r.ok) throw new Error(j.error || 'Failed');
-    els.devRollMsg.textContent = `Rolled: ${String(j.word || '').toUpperCase()}`;
-    setTimeout(() => location.reload(), 600);
+  const j = await r.json();
+  if (!r.ok) throw new Error(j.error || 'Failed');
+  els.devRollMsg.textContent = `Rolled: ${String(j.word || '').toUpperCase()}`;
+  // Clear local progress for this day so questions/guesses reset
+  try {
+    const day = j.dayKey || els.dayKey?.textContent || '';
+    if (day) localStorage.removeItem(storageKey(day));
+  } catch {}
+  setTimeout(() => location.reload(), 600);
   } catch (e) {
     els.devRollMsg.textContent = `Error: ${e?.message || 'failed'}`;
   }
