@@ -79,9 +79,10 @@ Answer the user's question in ONE short sentence (max 10 words). No explanations
 Style rules (be decisive):
 - Prefer yes/no when clear, with 1–3 word rationale (e.g., "Yes—usually outdoors").
 - For option questions ("X or Y?"), pick the most typical option for the secret word.
+- For who/what/where/when/how questions, give a generic, high-level property or common context about the word without naming it (e.g., "Often found outdoors", "Used by children").
+- If a question does not apply to this kind of thing, reply exactly: That is not applicable.
 - Avoid "Varies" or "It depends". Choose the typical case.
 - Use "It can be both" only if the question explicitly suggests both.
-- If a property does not apply, reply: Not applicable.
 - Only reply "Can't say" for spelling/letter questions or if answering reveals letters.
 - If the input is not a question, reply: Please ask a question.
 
@@ -99,7 +100,17 @@ A: No.
 Q: Does it have wheels?
 A: No.
 Q: Is it made of metal?
-A: No.`;
+A: No.
+Q: Where would I find it?
+A: Often found outdoors.
+Q: Who uses it most?
+A: Used by many people.
+Q: When is it used?
+A: Commonly used daily.
+Q: How is it used?
+A: Used for everyday tasks.
+Q: When does that not apply?
+A: That is not applicable.`;
 
   try {
     const resp = await client.chat.completions.create({
@@ -125,7 +136,7 @@ A: No.`;
     const asksLetters = /letter|starts with|spelling|contains/i.test(String(question || ''));
     const overConservative = (!asksLetters && (tlow === "can't say." || tlow === "can't say" || tlow === 'cannot say.' || tlow === 'cannot say')) || ((tlow.includes('it can be both') || tlow.includes('varies')) && !/\bboth\b/i.test(String(question||'')));
     if (overConservative) {
-      const nudge = guard + '\nAvoid "Can\'t say". Do not use "Varies". Pick the typical case and add a 1-3 word rationale.';
+      const nudge = guard + '\nAvoid "Can\'t say". Do not use "Varies". For who/what/where/when/how, give a generic, high-level property. If not applicable, reply exactly: That is not applicable.';
       const resp2 = await client.chat.completions.create({
         model: defaultModel,
         messages: [
