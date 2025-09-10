@@ -1,4 +1,5 @@
 import { generateWord } from './openai.js';
+import { getWordForDay, setWordForDay } from './storage.js';
 
 // Simpler approach: no external storage. Always derive deterministically
 // from ET day + optional secret + optional salt. Cache in-memory per
@@ -29,9 +30,34 @@ export async function todayWord(force = false, salt = '') {
     return cache.word;
   }
   const hint = `${today}|${process.env.WOTD_SECRET || ''}|${salt}`;
-  console.log('[WOTD] generating', { day: today, force, salt, hint });
+  const hasKV = !!(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
+
+  // If KV is available, pin the word once per day for all instances
+  if (hasKV) {
+    if (!force) {
+      const existing = await getWordForDay(today);
+      if (existing) {
+        console.log('[WOTD] kv hit', { day: today, word: existing, len: existing.length });
+        cache = { day: today, word: existing };
+        return existing;
+      }
+    }
+    console.log('[WOTD] generating (KV)', { day: today, force, salt, hint });
+    const word = await generateWord(hint, []);
+    console.log('[WOTD] generated (KV)', { day: today, word, len: String(word||'').length });
+    await setWordForDay(today, word);
+    cache = { day: today, word };
+    return word;
+  }
+
+  // Without KV in serverless, different instances can diverge. Make this explicit.
+  const onVercel = !!process.env.VERCEL;
+  if (onVercel && !hasKV) {
+    console.error('[WOTD_ERROR] KV not configured; multiple instances may disagree. Set KV_REST_API_URL and KV_REST_API_TOKEN.');
+  }
+  console.log('[WOTD] generating (no KV)', { day: today, force, salt, hint });
   const word = await generateWord(hint, []);
-  console.log('[WOTD] generated', { day: today, word, len: String(word||'').length });
+  console.log('[WOTD] generated (no KV)', { day: today, word, len: String(word||'').length });
   cache = { day: today, word };
   return word;
 }
