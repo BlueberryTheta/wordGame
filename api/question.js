@@ -1,4 +1,4 @@
-import { todayWord } from '../src/wotd.js';
+import { todayWord, dayKey } from '../src/wotd.js';
 import { answerQuestion } from '../src/openai.js';
 
 async function readJson(req) {
