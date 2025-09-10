@@ -25,19 +25,19 @@ let cache = { day: null, word: null };
 export function resetWordCache() { cache = { day: null, word: null }; }
 export async function todayWord(force = false, salt = '') {
   const today = dayKey();
-  if (!force && cache.day === today && cache.word) {
-    console.log('[WOTD] cache hit', { day: today, word: cache.word, len: cache.word.length });
-    return cache.word;
-  }
   const hint = `${today}|${process.env.WOTD_SECRET || ''}|${salt}`;
   const hasKV = !!(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
 
   // If KV is available, pin the word once per day for all instances
   if (hasKV) {
+    // Always read from KV first so Dev roll (which updates KV) takes effect
+    // immediately across all warm instances.
     if (!force) {
       const existing = await getWordForDay(today);
       if (existing) {
-        console.log('[WOTD] kv hit', { day: today, word: existing, len: existing.length });
+        if (!(cache.day === today && cache.word === existing)) {
+          console.log('[WOTD] kv hit', { day: today, word: existing, len: existing.length });
+        }
         cache = { day: today, word: existing };
         return existing;
       }
@@ -54,6 +54,10 @@ export async function todayWord(force = false, salt = '') {
   const onVercel = !!process.env.VERCEL;
   if (onVercel && !hasKV) {
     console.error('[WOTD_ERROR] KV not configured; multiple instances may disagree. Set KV_REST_API_URL and KV_REST_API_TOKEN.');
+  }
+  if (!force && cache.day === today && cache.word) {
+    console.log('[WOTD] cache hit', { day: today, word: cache.word, len: cache.word.length });
+    return cache.word;
   }
   console.log('[WOTD] generating (no KV)', { day: today, force, salt, hint });
   const word = await generateWord(hint, []);
