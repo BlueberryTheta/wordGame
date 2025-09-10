@@ -22,7 +22,8 @@ const els = {
   devRollMsg: document.getElementById('devRollMsg'),
 };
 
-const LIMITS = { questions: 10, guesses: 2 };
+const LIMITS = { questions: 7, guesses: 2 };
+const MAX_QUESTION_LEN = 100;
 
 function storageKey(day) { return `wotd:${day}`; }
 
@@ -110,6 +111,10 @@ async function init() {
 async function ask(state) {
   const q = (els.qInput.value || '').trim();
   if (!q) return;
+  if (q.length > MAX_QUESTION_LEN) {
+    alert(`Question too long (max ${MAX_QUESTION_LEN} characters).`);
+    return;
+  }
   if (state.questionsLeft <= 0) return;
   els.askBtn.disabled = true;
   try {
