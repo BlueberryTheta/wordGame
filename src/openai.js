@@ -77,7 +77,7 @@ export async function answerQuestion(secretWord, question) {
   const guard = `You know a secret word. Never reveal it or any exact letters.
 Answer the user's question in ONE short sentence (max 10 words). No explanations.
 Style rules (be decisive):
-- Prefer yes/no when clear, with 1–3 word rationale (e.g., "Yes—usually outdoors").
+- For yes/no questions (Is/Are/Do/Does/Did/Can/Could/Should/Would/Will/Was/Were/Has/Have/Had), answer EXACTLY "Yes." or "No." — nothing else.
 - For option questions ("X or Y?"), pick the most typical option for the secret word.
 - For who/what/where/when/how questions, give a generic, high-level property or common context about the word without naming it (e.g., "Often found outdoors", "Used by children").
 - If a question does not apply to this kind of thing, reply exactly: That is not applicable.
@@ -90,7 +90,7 @@ Examples:
 Q: Is it a person, place, or thing?
 A: Thing.
 Q: Is it outside?
-A: Yes—usually outdoors.
+A: Yes.
 Q: Is it green?
 A: Often green.
 Q: Is it alive?
@@ -131,12 +131,23 @@ A: That is not applicable.`;
       text = text.replace(re, '[redacted]');
     }
     text = concise(text, 10);
+    // Strict post-processing for yes/no questions to avoid extra info
+    const qLower = String(question || '').trim().toLowerCase();
+    const isYesNo = /^(is|are|do|does|did|can|could|should|would|will|was|were|has|have|had)\b/.test(qLower);
+    if (isYesNo) {
+      const t = text.toLowerCase();
+      if (t.includes('not applicable')) return 'That is not applicable.';
+      if (/^\s*y(es)?\b/.test(t) || /\byes\b/.test(t)) return 'Yes.';
+      if (/^\s*n(o)?\b/.test(t) || /\bno\b/.test(t)) return 'No.';
+      // If ambiguous, fall back to "Yes." or "No." only if strongly implied
+      // Otherwise keep concise text (rare)
+    }
     // If the model is overly conservative, retry once with a nudge (can't say or overusing both)
     const tlow = text.toLowerCase();
     const asksLetters = /letter|starts with|spelling|contains/i.test(String(question || ''));
     const overConservative = (!asksLetters && (tlow === "can't say." || tlow === "can't say" || tlow === 'cannot say.' || tlow === 'cannot say')) || ((tlow.includes('it can be both') || tlow.includes('varies')) && !/\bboth\b/i.test(String(question||'')));
     if (overConservative) {
-      const nudge = guard + '\nAvoid "Can\'t say". Do not use "Varies". For who/what/where/when/how, give a generic, high-level property. If not applicable, reply exactly: That is not applicable.';
+      const nudge = guard + '\nFor yes/no questions, answer EXACTLY "Yes." or "No." — nothing else. Avoid "Can\'t say" and "Varies". For who/what/where/when/how, give a generic, high-level property. If not applicable, reply exactly: That is not applicable.';
       const resp2 = await client.chat.completions.create({
         model: defaultModel,
         messages: [
@@ -153,6 +164,12 @@ A: That is not applicable.`;
         t2 = t2.replace(re2, '[redacted]');
       }
       t2 = concise(t2, 10);
+      if (isYesNo) {
+        const tt = t2.toLowerCase();
+        if (tt.includes('not applicable')) return 'That is not applicable.';
+        if (/^\s*y(es)?\b/.test(tt) || /\byes\b/.test(tt)) return 'Yes.';
+        if (/^\s*n(o)?\b/.test(tt) || /\bno\b/.test(tt)) return 'No.';
+      }
       return t2 || text;
     }
     return text;
