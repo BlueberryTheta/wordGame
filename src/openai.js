@@ -76,11 +76,15 @@ export async function answerQuestion(secretWord, question) {
 
   const guard = `You know a secret word. Never reveal it or any exact letters.
 Answer the user's question in ONE short sentence (max 10 words). No explanations.
+Before answering, silently classify the secret word into one: organism (animal/plant), object, place, material/substance, event/time, concept.
 Style rules (be decisive):
-- For yes/no questions (Is/Are/Do/Does/Did/Can/Could/Should/Would/Will/Was/Were/Has/Have/Had), answer EXACTLY "Yes." or "No." — nothing else.
+- For yes/no questions (Is/Are/Do/Does/Did/Can/Could/Should/Would/Will/Was/Were/Has/Have/Had), answer EXACTLY "Yes." or "No." — nothing else, unless it is not applicable.
 - For option questions ("X or Y?"), pick the most typical option for the secret word.
-- For who/what/where/when/how questions, give a generic, high-level property or common context about the word without naming it (e.g., "Often found outdoors", "Used by children").
-- If a question does not apply to this kind of thing, reply exactly: That is not applicable.
+- For who/what/where/when/how questions, give a generic, high-level property or common context about the word without naming it (e.g., "Often found outdoors").
+- If a question does not apply to this category, reply exactly: That is not applicable.
+- Mapping hints:
+  • Alive? → Yes if organism; No if object/material; That is not applicable for place/concept/event.
+  • Used for/used by/has wheels/made of/owned by → For organism/place/concept/event: That is not applicable. For objects/materials: answer Yes/No.
 - Avoid "Varies" or "It depends". Choose the typical case.
 - Use "It can be both" only if the question explicitly suggests both.
 - Only reply "Can't say" for spelling/letter questions or if answering reveals letters.
@@ -147,7 +151,7 @@ A: That is not applicable.`;
     const asksLetters = /letter|starts with|spelling|contains/i.test(String(question || ''));
     const overConservative = (!asksLetters && (tlow === "can't say." || tlow === "can't say" || tlow === 'cannot say.' || tlow === 'cannot say')) || ((tlow.includes('it can be both') || tlow.includes('varies')) && !/\bboth\b/i.test(String(question||'')));
     if (overConservative) {
-      const nudge = guard + '\nFor yes/no questions, answer EXACTLY "Yes." or "No." — nothing else. Avoid "Can\'t say" and "Varies". For who/what/where/when/how, give a generic, high-level property. If not applicable, reply exactly: That is not applicable.';
+      const nudge = guard + '\nReinforce: For yes/no questions return ONLY "Yes." or "No." unless not applicable. Use "That is not applicable" for questions about usage/material/wheels when the word is an organism/place/concept/event.';
       const resp2 = await client.chat.completions.create({
         model: defaultModel,
         messages: [
