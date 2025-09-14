@@ -106,6 +106,8 @@ async function init() {
       bindDevHandlers(false);
     }
   } catch { bindDevHandlers(false); }
+  // Theme setup
+  setupTheme();
 }
 
 async function ask(state) {
@@ -509,4 +511,28 @@ async function onDevRoll() {
   } catch (e) {
     els.devRollMsg.textContent = `Error: ${e?.message || 'failed'}`;
   }
+}
+
+// Theme handling
+function applyTheme(theme) {
+  const root = document.documentElement;
+  if (theme === 'light') root.classList.add('theme-light');
+  else root.classList.remove('theme-light');
+  try { localStorage.setItem('theme', theme); } catch {}
+  if (els.themeToggle) els.themeToggle.textContent = theme === 'light' ? 'Dark' : 'Theme';
+}
+function setupTheme() {
+  let theme = 'dark';
+  try {
+    theme = localStorage.getItem('theme') || theme;
+    if (!localStorage.getItem('theme')) {
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) theme = 'light';
+    }
+  } catch {}
+  applyTheme(theme);
+  els.themeToggle = document.getElementById('themeToggle');
+  els.themeToggle?.addEventListener('click', () => {
+    const next = (localStorage.getItem('theme') || 'dark') === 'light' ? 'dark' : 'light';
+    applyTheme(next);
+  });
 }

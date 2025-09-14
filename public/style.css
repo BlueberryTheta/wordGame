@@ -2,12 +2,19 @@
   --bg:#0f1222; --fg:#e9ecf1; --muted:#a7b0c3; --acc:#78d9ff; --ok:#6dd16a; --bad:#ff6b6b; --card:#171a2e; --shade:#202543;
   --mono: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
 }
+/* Light theme overrides */
+.theme-light{
+  --bg:#f6f8fb; --fg:#0f1222; --muted:#5a657a; --acc:#007acc; --ok:#2a8f2a; --bad:#c84444; --card:#ffffff; --shade:#d8dde8;
+}
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
 body{margin:0; background:linear-gradient(180deg,var(--bg),#0c0f1a); color:var(--fg); font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,"Noto Sans",sans-serif}
 .app{max-width:800px; margin:32px auto; padding:0 16px}
 h1{margin:0 0 8px 0}
 .titlebar{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px}
+.title-actions{display:flex; align-items:center; gap:8px}
+.dev-toggle{height:36px; padding:0 10px; border-radius:10px; border:1px solid var(--shade); background:#0e1120; color:var(--fg); cursor:pointer}
+.theme-toggle{height:36px; padding:0 10px; border-radius:10px; border:1px solid var(--shade); background:#0e1120; color:var(--fg); cursor:pointer}
 .help-btn{position:relative; width:40px; height:40px; border-radius:12px; border:1px solid var(--shade); background:
   radial-gradient(120% 120% at 20% 10%, rgba(120,217,255,.15), transparent 40%),
   linear-gradient(180deg,#0f142d,#0e1120);
