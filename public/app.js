@@ -216,7 +216,12 @@ function applyTheme(theme) {
   if (theme === 'light') root.classList.add('theme-light');
   else root.classList.remove('theme-light');
   try { localStorage.setItem('theme', theme); } catch {}
-  if (els.themeToggle) els.themeToggle.textContent = theme === 'light' ? 'Dark' : 'Theme';
+  if (els.themeToggle) {
+    const label = theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode';
+    els.themeToggle.textContent = theme === 'light' ? '🌙' : '☀️';
+    els.themeToggle.setAttribute('aria-label', label);
+    els.themeToggle.setAttribute('title', label);
+  }
 }
 function setupTheme() {
   let theme = 'dark';
