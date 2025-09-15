@@ -17,7 +17,7 @@ body{margin:0; color:var(--fg); font-family:system-ui,-apple-system,Segoe UI,Rob
 h1{margin:0 0 4px 0; letter-spacing:.2px; font-weight:800}
 .titlebar{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px}
 .title-actions{display:flex; align-items:center; gap:8px}
-.dev-toggle{height:36px; padding:0 10px; border-radius:10px; border:1px solid var(--shade); background:#0e1120; color:var(--fg); cursor:pointer}
+.dev-toggle{display:none}
 .theme-toggle{height:36px; padding:0 10px; border-radius:10px; border:1px solid var(--shade); background:#0e1120; color:var(--fg); cursor:pointer}
 .help-btn{position:relative; width:40px; height:40px; border-radius:12px; border:1px solid var(--shade); background:
   radial-gradient(120% 120% at 20% 10%, rgba(120,217,255,.15), transparent 40%),

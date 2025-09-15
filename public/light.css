@@ -1,0 +1,46 @@
+:root {}
+
+/* Light theme specific component overrides for better contrast */
+.theme-light body{ background:linear-gradient(180deg, var(--bg), #e9edf5) }
+.theme-light .theme-toggle,
+.theme-light .dev-toggle{ background:#ffffff; color:var(--fg); border:1px solid var(--shade) }
+.theme-light input{ background:#ffffff; color:var(--fg) }
+.theme-light .qa .item{ background:#ffffff }
+.theme-light .qa .q{ color:#2d3a57 }
+.theme-light .qa .a{ color:#0f1222 }
+.theme-light .help-btn,
+.theme-light .close-btn{
+  background:
+    radial-gradient(120% 120% at 20% 10%, rgba(0,122,204,.10), transparent 40%),
+    linear-gradient(180deg,#ffffff,#f3f6fb);
+  color:var(--fg);
+  border:1px solid var(--shade);
+  box-shadow:0 4px 12px rgba(0,0,0,.10), inset 0 0 0 1px rgba(255,255,255,.6);
+}
+.theme-light .help-btn:hover,
+.theme-light .close-btn:hover{
+  background:
+    radial-gradient(120% 120% at 70% 0%, rgba(0,122,204,.12), transparent 40%),
+    linear-gradient(180deg,#ffffff,#eef2f8);
+  box-shadow:0 6px 16px rgba(0,0,0,.14), 0 0 0 3px rgba(0,122,204,.12);
+}
+.theme-light .help-btn:focus-visible,
+.theme-light .close-btn:focus-visible{ box-shadow:0 0 0 3px rgba(0,122,204,.20), 0 6px 14px rgba(0,0,0,.12) }
+.theme-light .help-btn::after{ background:#ffffff; color:var(--fg); border:1px solid var(--shade); box-shadow:0 8px 18px rgba(0,0,0,.18) }
+
+/* Tiles */
+.theme-light .tile{ background:linear-gradient(180deg,#ffffff,#eef2f8); border-color:var(--shade); color:var(--fg) }
+.theme-light .tile.reveal{ border-color:#8bb8d8; background:linear-gradient(180deg,#e8f6ff,#f2f9ff) }
+
+/* Score cells */
+.theme-light .score .row .cell{ background:#ffffff; border-color:var(--shade) }
+.theme-light .score .row .cell.filled{ background:linear-gradient(180deg,var(--acc),#5fc9ef) }
+
+/* Tutorial list items and game-over message */
+.theme-light .modal-body li{ background:rgba(0,0,0,.04); border-color:var(--shade); box-shadow:inset 0 0 0 1px rgba(255,255,255,.5) }
+.theme-light .modal-body li::before{ box-shadow:0 0 0 2px rgba(0,122,204,.18) }
+.theme-light #gameOverMessage{ background:rgba(0,0,0,.04); border-color:var(--shade) }
+
+/* Dev inputs */
+.theme-light .dev-row input{ background:#ffffff; color:var(--fg); border-color:var(--shade) }
+
