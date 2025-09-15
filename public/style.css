@@ -124,3 +124,5 @@ footer{margin-top:24px; color:var(--muted)}
 #gameOverMessage::before{
   content:"⭐"; display:block; font-size:22px; margin-bottom:8px; opacity:.9;
 }
+/* Temporarily hide Dev button */
+#devToggle{ display:none !important }
