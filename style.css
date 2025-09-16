@@ -137,3 +137,13 @@ footer{margin-top:28px; color:var(--muted)}
 .score-actions{margin-top:10px}
 .share-btn{background:linear-gradient(180deg,var(--acc),#5fc9ef); color:#001018; border:0; padding:10px 14px; border-radius:10px; font-weight:800; cursor:pointer; box-shadow:0 6px 16px rgba(120,217,255,.25)}
 .share-btn:hover{transform:translateY(-1px)}
+
+/* Title/logo swap per theme */
+.logo-light,.logo-dark{display:none; height:40px; width:auto}
+/* Dark mode: show dark logo, hide text */
+html:not(.theme-light) .site-title{display:none}
+html:not(.theme-light) .logo-dark{display:block}
+
+/* Light mode: show light logo, hide text */
+.theme-light .site-title{display:none}
+.theme-light .logo-light{display:block}
