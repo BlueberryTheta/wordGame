@@ -16,6 +16,14 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Serve logo assets that live at repo root (not in public)
+app.get('/assets/inqaily-dark-logo.png', (req, res) => {
+  res.sendFile(path.join(__dirname, 'inqaily dark logo.png'));
+});
+app.get('/assets/inqaily-light-logo.png', (req, res) => {
+  res.sendFile(path.join(__dirname, 'inqaily light logo.png'));
+});
+
 // Ensure today word exists on startup and schedule next change at 00:01
 await ensureTodayWord();
 scheduleNextRoll();
