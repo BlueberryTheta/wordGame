@@ -362,8 +362,8 @@ function renderScore(gUsed, qUsed) {
     const c = document.createElement('div'); c.className = 'cell' + (i < gUsed ? ' filled' : ''); guesses.appendChild(c);
   }
   const questions = document.createElement('div'); questions.className = 'row questions';
-  questions.setAttribute('role','img'); questions.setAttribute('aria-label', `Questions asked: ${qUsed} of 10`);
-  for (let i = 0; i < 10; i++) {
+  questions.setAttribute('role','img'); questions.setAttribute('aria-label', `Questions asked: ${qUsed} of 7`);
+  for (let i = 0; i < 7; i++) {
     const c = document.createElement('div'); c.className = 'cell' + (i < qUsed ? ' filled' : ''); questions.appendChild(c);
   }
   frag.appendChild(guesses);
@@ -372,8 +372,8 @@ function renderScore(gUsed, qUsed) {
 }
 
 async function shareScore({ gUsed, qUsed }) {
-  const text = `Word of the Day — I won!\nGuesses: ${gUsed}/2\nQuestions: ${qUsed}/10\n#WordGame`;
-  const shareData = { text, title: 'Word of the Day' };
+  const text = `Inqaily — I won!\nGuesses: ${gUsed}/2\nQuestions: ${qUsed}/7\n#Inqaily`;
+  const shareData = { text, title: 'Inqaily' };
   try { if (navigator.share) { await navigator.share(shareData); return; } } catch {}
   try {
     await navigator.clipboard.writeText(text);
