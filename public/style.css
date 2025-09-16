@@ -55,6 +55,10 @@ button:disabled{opacity:.5; cursor:not-allowed}
 .bad{color:var(--bad)}
 footer{margin-top:24px; color:var(--muted)}
 
+/* Responsive footer ad */
+.ads-footer{max-width:100%; padding:16px 0 24px; margin:24px auto 0; display:flex; justify-content:center}
+.ads-footer .adsbygoogle{display:block; width:100%; max-width:100%}
+
 /* Tutorial modal */
 .hidden{display:none}
 .backdrop{position:fixed; inset:0; background:rgba(0,0,0,.55); display:flex; align-items:center; justify-content:center; z-index:1000; padding:16px}
