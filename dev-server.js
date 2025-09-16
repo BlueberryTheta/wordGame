@@ -17,11 +17,15 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Serve logo assets that live at repo root (not in public)
-app.get('/assets/inqaily-dark-logo.png', (req, res) => {
-  res.sendFile(path.join(__dirname, 'inqaily dark logo.png'));
+// Explicit logo routes (handle various paths/encodings)
+const darkLogoPath = path.join(__dirname, 'inqaily dark logo.png');
+const lightLogoPath = path.join(__dirname, 'inqaily light logo.png');
+
+app.get(['/assets/inqaily-dark-logo.png', '/inqaily-dark-logo.png', '/inqaily%20dark%20logo.png', '/inqaily dark logo.png'], (req, res) => {
+  res.sendFile(darkLogoPath);
 });
-app.get('/assets/inqaily-light-logo.png', (req, res) => {
-  res.sendFile(path.join(__dirname, 'inqaily light logo.png'));
+app.get(['/assets/inqaily-light-logo.png', '/inqaily-light-logo.png', '/inqaily%20light%20logo.png', '/inqaily light logo.png'], (req, res) => {
+  res.sendFile(lightLogoPath);
 });
 
 // Ensure today word exists on startup and schedule next change at 00:01
