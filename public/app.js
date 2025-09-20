@@ -241,14 +241,19 @@ function setupTheme() {
 
 function showTutorial() {
   if (!els.tutorialBackdrop) return;
+  // Avoid reopening if already visible
+  if (!els.tutorialBackdrop.classList.contains('hidden')) return;
   els.tutorialBackdrop.classList.remove('hidden');
   document.addEventListener('keydown', onEscHideTutorial);
+  // Mark tutorial as seen so we don't auto-open next visits
+  try { localStorage.setItem('tutorialSeen', '1'); } catch {}
 }
 
 function hideTutorial() {
   if (!els.tutorialBackdrop) return;
   els.tutorialBackdrop.classList.add('hidden');
   document.removeEventListener('keydown', onEscHideTutorial);
+  try { localStorage.setItem('tutorialSeen', '1'); } catch {}
 }
 
 function onEscHideTutorial(e) {
@@ -279,6 +284,22 @@ document.addEventListener('keydown', (e) => {
 });
 window.closeTutorialModal = hideTutorial;
 window.openTutorialModal = showTutorial;
+
+// Auto-open tutorial on first visit
+function maybeShowTutorialOnFirstVisit() {
+  try {
+    const seen = localStorage.getItem('tutorialSeen');
+    if (!seen) {
+      // Small delay so layout settles
+      setTimeout(showTutorial, 200);
+    }
+  } catch {
+    // If storage blocked, still try to show once
+    setTimeout(showTutorial, 200);
+  }
+}
+// Run immediately so it works even if init() fails
+maybeShowTutorialOnFirstVisit();
 
 // Game Over modal utilities + observers (non-invasive)
 function openGameOver(title, message) {
