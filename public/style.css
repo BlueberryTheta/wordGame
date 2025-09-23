@@ -171,6 +171,15 @@ html:not(.theme-light) .logo-dark{display:block}
   filter: saturate(calc(1 + .5 * var(--heat, 0))) brightness(calc(1 + .2 * var(--heat, 0)));
   animation: heatFlicker var(--flicker-duration, 1.2s) ease-in-out infinite alternate;
 }
+/* Improve contrast in light mode */
+.theme-light .streak-count{
+  color:#8b4b00; /* deeper amber for contrast */
+  text-shadow:
+    0 1px 0 rgba(0,0,0,.22),
+    0 0 calc(1px + 1px * var(--heat, 0)) #ffcd66,
+    0 0 calc(3px + 3px * var(--heat, 0)) rgba(252,163,17,.9),
+    0 0 calc(6px + 6px * var(--heat, 0)) rgba(255,107,0,.65);
+}
 @keyframes heatFlicker{
   0%{ transform: translateY(0); opacity:1 }
   50%{ transform: translateY(-.5px); opacity:.97 }
