@@ -211,6 +211,19 @@ html:not(.theme-light) .logo-dark{display:block}
   70%{ opacity: .4 }
   100%{ transform: translateY(calc(-1 * var(--ember-travel, 24px))) scale(.85); opacity: 0 }
 }
+
+/* Make embers pop on light theme */
+.theme-light .streak-count .ember{
+  /* slightly larger, brighter core and stronger halo */
+  transform: translateY(0) scale(calc(var(--ember-scale, 1) * 1.12));
+  background: radial-gradient(50% 50% at 50% 50%, rgba(255, 190, 60, .98) 0%, rgba(251, 133, 0, .95) 52%, rgba(251, 133, 0, 0) 72%);
+  box-shadow:
+    0 0 10px rgba(255, 150, 20, .55),
+    0 0 2px rgba(0,0,0,.18); /* subtle outline for contrast */
+  opacity: .92;
+  filter: saturate(1.12) brightness(1.05);
+}
+.theme-light .streak-count .ember-layer{ mix-blend-mode: normal }
 #gameOverStreak .streak-modal{position:relative; display:inline-flex; align-items:center; gap:8px}
 /* Streak info icon + bubble */
 .streak-info-btn{display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; border-radius:50%;
