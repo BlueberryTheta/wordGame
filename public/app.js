@@ -515,7 +515,7 @@ function openGameOver(title, message) {
             </svg>
           </button>
           <div id="streakInfoBubbleModal" class="streak-info-bubble" role="tooltip">
-            Play at least once each day to grow your streak. Come back daily to keep it going!
+            Play daily to grow your streak. Come back tomorrow to keep it going!
           </div>
         </span>`;
       setupModalStreakInfo();
