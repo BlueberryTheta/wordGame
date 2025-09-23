@@ -102,7 +102,7 @@ function render(state) {
   els.wordLength.textContent = state.wordLength;
   els.qLeft.textContent = state.questionsLeft;
   els.gLeft.textContent = state.guessesLeft;
-  if (els.streak) { els.streak.textContent = String(getCurrentStreak(state.dayKey)); }
+  if (els.streak) { els.streak.textContent = String(getCurrentStreak(state.dayKey)); try { applyStreakHeat(els.streak, getCurrentStreak(state.dayKey)); } catch {} }
   // Render tiles
   els.maskedWord.innerHTML = '';
   state.revealed.forEach(ch => {
@@ -417,6 +417,20 @@ function setupModalStreakInfo() {
   });
 }
 
+// Visual intensity for streak numbers
+function applyStreakHeat(el, count) {
+  if (!el) return;
+  try { el.classList.add('streak-count'); } catch {}
+  const n = Number(count || 0);
+  const heat = Math.max(0, Math.min(1, n / 10)); // scales 0..1 by 10+
+  const durSec = Math.max(0.5, 1.2 - 0.06 * n); // faster flicker as streak grows
+  try {
+    el.style.setProperty('--heat', String(heat));
+    el.style.setProperty('--flicker-duration', `${durSec}s`);
+    el.setAttribute('aria-live', 'polite');
+  } catch {}
+}
+
 // Game Over modal utilities + observers (non-invasive)
 function openGameOver(title, message) {
   const backdrop = document.getElementById('gameOverBackdrop');
@@ -445,7 +459,7 @@ function openGameOver(title, message) {
               <polygon points="15,3 17.2,8.2 22.9,8.6 18.2,12.1 19.8,17.6 15,14.6 10.2,17.6 11.8,12.1 7.1,8.6 12.8,8.2" fill="url(#streakGradModal)"/>
             </svg>
           </span>
-          Inqaily streak: <strong>${streakNow}</strong>
+          Inqaily streak: <strong class=\"streak-count\">${streakNow}</strong>
           <button id="streakInfoModal" class="streak-info-btn" aria-label="About streaks" title="About streaks">
             <svg viewBox="0 0 24 24" width="14" height="14" focusable="false" aria-hidden="true">
               <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/>
@@ -458,6 +472,8 @@ function openGameOver(title, message) {
           </div>
         </span>`;
       setupModalStreakInfo();
+      const modalCountEl = sEl.querySelector('.streak-count');
+      try { applyStreakHeat(modalCountEl, streakNow); } catch {}
     }
   } catch {}
   // Build score if win
