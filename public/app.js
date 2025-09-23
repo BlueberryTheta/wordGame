@@ -232,7 +232,7 @@ async function guess(state) {
     } else {
       els.guessResult.innerHTML = `<span>Guess: <b>${g.toUpperCase()}</b> — <span class="bad">No letters in common.</span></span>`;
     }
-    els.gInput.value = '';
+    // Keep the incorrect guess in the input so it remains visible
     if (state.guessesLeft <= 0) {
       state.gameOver = true;
       saveState(state);
