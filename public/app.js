@@ -429,6 +429,53 @@ function applyStreakHeat(el, count) {
     el.style.setProperty('--flicker-duration', `${durSec}s`);
     el.setAttribute('aria-live', 'polite');
   } catch {}
+  try { updateEmbers(el, n, heat); } catch {}
+}
+
+// Create/update ember particles bound to a streak element
+function updateEmbers(el, n, heat) {
+  if (!el) return;
+  let layer = el.querySelector('.ember-layer');
+  if (!layer) {
+    layer = document.createElement('span');
+    layer.className = 'ember-layer';
+    el.appendChild(layer);
+  }
+  // Desired ember count grows with streak, capped for perf
+  const target = Math.max(4, Math.min(28, Math.round(6 + heat * 24)));
+  const curr = layer.children.length;
+  // Resize pool
+  if (curr < target) {
+    for (let i = curr; i < target; i++) {
+      const e = document.createElement('span');
+      e.className = 'ember';
+      layer.appendChild(e);
+    }
+  } else if (curr > target) {
+    for (let i = curr - 1; i >= target; i--) {
+      layer.removeChild(layer.children[i]);
+    }
+  }
+  // Update shared travel distance based on heat
+  const travelPx = Math.round(22 + heat * 26); // 22..48px
+  layer.style.setProperty('--ember-travel', travelPx + 'px');
+  // Configure each ember with randomized parameters influenced by heat
+  const children = layer.children;
+  for (let i = 0; i < children.length; i++) {
+    const e = children[i];
+    const left = Math.random() * 100; // % across the number area
+    const baseDur = 2.4 - heat * 1.2; // 2.4..1.2s
+    const jitter = (Math.random() * 0.6) - 0.3; // -0.3..+0.3
+    const dur = Math.max(0.8, baseDur + jitter);
+    const scale = 0.8 + heat * 0.6 + Math.random() * 0.2; // 0.8..1.6
+    const opacity = 0.55 + heat * 0.35; // .55.. .9
+    const delay = -Math.random() * dur; // negative delay to desync
+    e.style.left = left + '%';
+    e.style.setProperty('--ember-duration', dur + 's');
+    e.style.setProperty('--ember-scale', String(scale));
+    e.style.setProperty('--ember-opacity', String(opacity));
+    e.style.animationDelay = delay + 's';
+  }
 }
 
 // Game Over modal utilities + observers (non-invasive)
