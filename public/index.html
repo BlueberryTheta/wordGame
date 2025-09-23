@@ -73,7 +73,10 @@
       <div class="stats">
         <div class="badge">Questions left: <strong id="qLeft">7</strong></div>
         <div class="badge">Guesses left: <strong id="gLeft">2</strong></div>
-        <div class="badge">Streak: <strong id="streak">0</strong></div>
+      </div>
+
+      <div class="streak-row">
+        <div class="badge">🌠 Inqaily streak: <strong id="streak">0</strong></div>
       </div>
 
       <section class="panel">
@@ -146,6 +149,7 @@
         </div>
         <div class="modal-body">
           <p id="gameOverMessage">Thanks for playing! Come back tomorrow for a new word.</p>
+          <div id="gameOverStreak" class="streak-summary"></div>
           <div id="gameOverScore" class="score hidden"></div>
           <div class="score-actions hidden" id="gameOverActions">
             <button id="shareScoreBtn" class="share-btn" aria-label="Share your score">Share</button>

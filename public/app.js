@@ -359,6 +359,15 @@ function openGameOver(title, message) {
   const m = document.getElementById('gameOverMessage');
   if (t && title) t.textContent = title;
   if (m && message) m.textContent = message;
+  // Always show current streak in the modal
+  try {
+    const day = els.dayKey?.textContent || '';
+    const streakNow = getCurrentStreak(day);
+    const sEl = document.getElementById('gameOverStreak');
+    if (sEl) {
+      sEl.textContent = `🌠 Inqaily streak: ${streakNow}`;
+    }
+  } catch {}
   // Build score if win
   try {
     const qLeft = parseInt((els.qLeft?.textContent || '0').trim(), 10);
