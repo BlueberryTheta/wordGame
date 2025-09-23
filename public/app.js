@@ -179,9 +179,12 @@ async function guess(state) {
     render(state);
     if (typeof newly !== 'undefined' && newly.length) { try { animateTileReveal(newly); } catch {} }
     const letters = (data.lettersInCommon || []).map(x => x.toUpperCase()).join(', ');
-    els.guessResult.innerHTML = letters
-      ? `<span>Letters in common revealed: <b>${letters}</b></span>`
-      : `<span class="bad">No letters in common.</span>`;
+    // Show the guessed word along with letters in common
+    if (letters) {
+      els.guessResult.innerHTML = `<span>Guess: <b>${g.toUpperCase()}</b> — Letters in common: <b>${letters}</b></span>`;
+    } else {
+      els.guessResult.innerHTML = `<span>Guess: <b>${g.toUpperCase()}</b> — <span class="bad">No letters in common.</span></span>`;
+    }
     els.gInput.value = '';
     if (state.guessesLeft <= 0) {
       state.gameOver = true;
