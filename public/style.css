@@ -187,10 +187,10 @@ html:not(.theme-light) .logo-dark{display:block}
 }
 
 /* Ember particles around the streak number */
-.streak-count .ember-layer{ position:absolute; inset:-10px -6px -14px -6px; pointer-events:none; z-index:0 }
+.streak-count .ember-layer{ position:absolute; inset:-14px -6px -6px -6px; pointer-events:none; z-index:0 }
 .streak-count{ z-index:1 }
 .streak-count .ember{
-  position:absolute; bottom:0; width:3px; height:3px; border-radius:50%;
+  position:absolute; top:0; width:3px; height:3px; border-radius:50%;
   background: radial-gradient(50% 50% at 50% 50%, rgba(255, 209, 102, .95) 0%, rgba(252, 163, 17, .9) 55%, rgba(255, 80, 0, .0) 70%);
   box-shadow: 0 0 6px rgba(255, 170, 40, .45);
   opacity: .8;
