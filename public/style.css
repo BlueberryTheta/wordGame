@@ -149,7 +149,7 @@ html:not(.theme-light) .logo-dark{display:block}
 }
 /* Streak icon visuals */
 .streak-row{margin:4px 0 12px}
-.streak-row .badge{display:flex; align-items:center; gap:8px; color:var(--muted)}
+.streak-row .badge{display:flex; align-items:center; gap:8px; color:var(--muted); position:relative}
 .streak-icon{display:inline-flex; vertical-align:middle}
 .streak-icon .icon{width:18px; height:18px; filter:drop-shadow(0 0 4px rgba(255,209,102,.35)); animation:streakTwinkle 2.2s ease-in-out infinite}
 @keyframes streakTwinkle{0%,100%{transform:scale(1); opacity:1}50%{transform:scale(1.08); opacity:.9}}
@@ -158,3 +158,14 @@ html:not(.theme-light) .logo-dark{display:block}
 /* Game Over streak line */
 #gameOverStreak{margin-top:10px; color:var(--muted); display:flex; align-items:center; justify-content:center; gap:8px}
 #gameOverStreak .streak-icon .icon{width:18px; height:18px}
+/* Streak info icon + bubble */
+.streak-info-btn{display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; border-radius:50%;
+  background:#0e1120; border:1px solid var(--shade); color:var(--muted); cursor:pointer; padding:0}
+.streak-info-btn:hover{color:var(--fg)}
+.streak-info-btn:focus-visible{outline:none; box-shadow:0 0 0 3px rgba(120,217,255,.2)}
+.streak-info-bubble{position:absolute; top:100%; right:0; margin-top:8px; max-width:280px; font-size:12px; line-height:1.4;
+  background:rgba(15,18,34,.96); color:var(--fg); border:1px solid var(--shade); border-radius:10px; padding:10px 12px;
+  box-shadow:0 10px 24px rgba(0,0,0,.35); transform:translateY(-4px); opacity:0; pointer-events:none; transition:opacity .12s ease, transform .12s ease}
+.streak-info-bubble::after{content:""; position:absolute; top:-6px; right:10px; width:10px; height:10px; transform:rotate(45deg);
+  background:rgba(15,18,34,.96); border-left:1px solid var(--shade); border-top:1px solid var(--shade)}
+.streak-info-bubble.show{opacity:1; pointer-events:auto; transform:translateY(0)}

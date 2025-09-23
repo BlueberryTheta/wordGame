@@ -152,6 +152,7 @@ async function init() {
   } catch { bindDevHandlers(false); }
   // Theme setup
   setupTheme();
+  setupStreakInfo();
 }
 
 async function ask(state) {
@@ -350,6 +351,39 @@ function maybeShowTutorialOnFirstVisit() {
 }
 // Run immediately so it works even if init() fails
 maybeShowTutorialOnFirstVisit();
+
+// Streak info bubble handlers
+function setupStreakInfo() {
+  const btn = document.getElementById('streakInfo');
+  const bubble = document.getElementById('streakInfoBubble');
+  if (!btn || !bubble) return;
+  let open = false;
+  function openBubble() {
+    bubble.classList.add('show');
+    open = true;
+    setTimeout(() => {
+      document.addEventListener('click', onDocClick);
+      document.addEventListener('keydown', onEsc);
+    }, 0);
+  }
+  function closeBubble() {
+    bubble.classList.remove('show');
+    open = false;
+    document.removeEventListener('click', onDocClick);
+    document.removeEventListener('keydown', onEsc);
+  }
+  function onDocClick(e) {
+    if (!open) return;
+    const t = e.target;
+    if (t === btn || btn.contains(t) || t === bubble || bubble.contains(t)) return;
+    closeBubble();
+  }
+  function onEsc(e) { if (e.key === 'Escape') closeBubble(); }
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (open) closeBubble(); else openBubble();
+  });
+}
 
 // Game Over modal utilities + observers (non-invasive)
 function openGameOver(title, message) {
