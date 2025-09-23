@@ -352,6 +352,32 @@ function maybeShowTutorialOnFirstVisit() {
 // Run immediately so it works even if init() fails
 maybeShowTutorialOnFirstVisit();
 
+// Subtitle letter-by-letter reveal
+function setupSubtitleLetters() {
+  const el = document.querySelector('.subtitle');
+  if (!el) return;
+  const text = (el.textContent || '').trim();
+  if (!text || el.dataset.split === '1') return;
+  el.dataset.split = '1';
+  el.setAttribute('aria-label', text);
+  const frag = document.createDocumentFragment();
+  const baseDelay = 220; // ms
+  const step = 42; // ms per char
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    const span = document.createElement('span');
+    span.className = 'char';
+    span.textContent = ch === ' ' ? '\u00A0' : ch;
+    span.style.animationDelay = ((baseDelay + i * step) / 1000) + 's';
+    frag.appendChild(span);
+  }
+  el.textContent = '';
+  el.appendChild(frag);
+  el.classList.add('reveal-chars');
+}
+// Run immediately (script is at end of body)
+setupSubtitleLetters();
+
 // Streak info bubble handlers
 function setupStreakInfo() {
   const btn = document.getElementById('streakInfo');
