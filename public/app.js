@@ -4,6 +4,7 @@ const els = {
   maskedWord: document.getElementById('maskedWord'),
   qLeft: document.getElementById('qLeft'),
   gLeft: document.getElementById('gLeft'),
+  streak: document.getElementById('streak'),
   qInput: document.getElementById('qInput'),
   askBtn: document.getElementById('askBtn'),
   qaLog: document.getElementById('qaLog'),
@@ -24,6 +25,47 @@ const els = {
 
 const LIMITS = { questions: 7, guesses: 2 };
 const MAX_QUESTION_LEN = 100;
+const STREAK_KEY = 'wotd:streak';
+
+// ---- Streak helpers ----
+function readStreak() {
+  try {
+    const raw = localStorage.getItem(STREAK_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+function writeStreak(obj) {
+  try { localStorage.setItem(STREAK_KEY, JSON.stringify(obj)); } catch {}
+}
+function fmtDay(d) {
+  const y = d.getUTCFullYear();
+  const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+  const dd = String(d.getUTCDate()).padStart(2, '0');
+  return `${y}-${m}-${dd}`;
+}
+function prevDay(dayKeyStr) {
+  const [y, m, d] = dayKeyStr.split('-').map(n => parseInt(n, 10));
+  const dt = new Date(Date.UTC(y, (m - 1), d));
+  dt.setUTCDate(dt.getUTCDate() - 1);
+  return fmtDay(dt);
+}
+function markPlayed(todayKey) {
+  const rec = readStreak();
+  if (!rec) { writeStreak({ lastDay: todayKey, count: 1 }); return; }
+  if (rec.lastDay === todayKey) return; // already counted today
+  if (rec.lastDay === prevDay(todayKey)) {
+    writeStreak({ lastDay: todayKey, count: (parseInt(rec.count, 10) || 0) + 1 });
+  } else {
+    writeStreak({ lastDay: todayKey, count: 1 }); // reset after gap
+  }
+}
+function getCurrentStreak(todayKey) {
+  const rec = readStreak();
+  if (!rec) return 0;
+  if (rec.lastDay === todayKey) return parseInt(rec.count, 10) || 0;
+  if (rec.lastDay === prevDay(todayKey)) return parseInt(rec.count, 10) || 0;
+  return 0;
+}
 
 function storageKey(day) { return `wotd:${day}`; }
 
@@ -60,6 +102,7 @@ function render(state) {
   els.wordLength.textContent = state.wordLength;
   els.qLeft.textContent = state.questionsLeft;
   els.gLeft.textContent = state.guessesLeft;
+  if (els.streak) { els.streak.textContent = String(getCurrentStreak(state.dayKey)); }
   // Render tiles
   els.maskedWord.innerHTML = '';
   state.revealed.forEach(ch => {
@@ -132,6 +175,8 @@ async function ask(state) {
     state.questionsLeft -= 1;
     saveState(state);
     els.qInput.value = '';
+    // count streak on first successful interaction
+    try { markPlayed(state.dayKey); } catch {}
     render(state);
   } catch (e) {
     alert('Failed to ask: ' + e.message);
@@ -161,6 +206,7 @@ async function guess(state) {
       state.revealed = data.word.split('');
       state.guessesLeft -= 1;
       saveState(state);
+      try { markPlayed(state.dayKey); } catch {}
       render(state);
       try { animateTileReveal([...Array(state.revealed.length).keys()]); } catch {}
       try { startConfetti(); } catch {}
@@ -176,6 +222,7 @@ async function guess(state) {
     }
     state.guessesLeft -= 1;
     saveState(state);
+    try { markPlayed(state.dayKey); } catch {}
     render(state);
     if (typeof newly !== 'undefined' && newly.length) { try { animateTileReveal(newly); } catch {} }
     const letters = (data.lettersInCommon || []).map(x => x.toUpperCase()).join(', ');
