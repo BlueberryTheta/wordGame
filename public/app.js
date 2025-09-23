@@ -365,7 +365,20 @@ function openGameOver(title, message) {
     const streakNow = getCurrentStreak(day);
     const sEl = document.getElementById('gameOverStreak');
     if (sEl) {
-      sEl.textContent = `🌠 Inqaily streak: ${streakNow}`;
+      sEl.innerHTML = `
+        <span class="streak-icon" aria-hidden="true">
+          <svg class="icon" viewBox="0 0 24 24" focusable="false">
+            <defs>
+              <linearGradient id="streakGradModal" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#ffd166"/>
+                <stop offset="100%" stop-color="#fca311"/>
+              </linearGradient>
+            </defs>
+            <path d="M3 14 C7 12, 9 10, 13 9" stroke="url(#streakGradModal)" stroke-width="2" stroke-linecap="round" fill="none"/>
+            <polygon points="15,3 17.2,8.2 22.9,8.6 18.2,12.1 19.8,17.6 15,14.6 10.2,17.6 11.8,12.1 7.1,8.6 12.8,8.2" fill="url(#streakGradModal)"/>
+          </svg>
+        </span>
+        Inqaily streak: ${streakNow}`;
     }
   } catch {}
   // Build score if win

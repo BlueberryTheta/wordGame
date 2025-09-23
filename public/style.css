@@ -147,3 +147,14 @@ html:not(.theme-light) .logo-dark{display:block}
   .logo-dark,
   .logo-light{ height:200px }
 }
+/* Streak icon visuals */
+.streak-row{margin:4px 0 12px}
+.streak-row .badge{display:flex; align-items:center; gap:8px; color:var(--muted)}
+.streak-icon{display:inline-flex; vertical-align:middle}
+.streak-icon .icon{width:18px; height:18px; filter:drop-shadow(0 0 4px rgba(255,209,102,.35)); animation:streakTwinkle 2.2s ease-in-out infinite}
+@keyframes streakTwinkle{0%,100%{transform:scale(1); opacity:1}50%{transform:scale(1.08); opacity:.9}}
+.theme-light .streak-icon .icon{filter:drop-shadow(0 0 4px rgba(252,163,17,.25))}
+
+/* Game Over streak line */
+#gameOverStreak{margin-top:10px; color:var(--muted); display:flex; align-items:center; justify-content:center; gap:8px}
+#gameOverStreak .streak-icon .icon{width:18px; height:18px}
