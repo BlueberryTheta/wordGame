@@ -102,10 +102,8 @@ function render(state) {
   try { els.dayKey.dataset.key = state.dayKey; } catch {}
   els.dayKey.textContent = formatDayCool(state.dayKey);
   els.wordLength.textContent = state.wordLength;
-  const wla = document.getElementById('wordLengthAligned'); if (wla) wla.textContent = state.wordLength;
   els.qLeft.textContent = state.questionsLeft;
   els.gLeft.textContent = state.guessesLeft;
-  const gla = document.getElementById('gLeftAligned'); if (gla) gla.textContent = state.guessesLeft;
   if (els.streak) { els.streak.textContent = String(getCurrentStreak(state.dayKey)); try { applyStreakHeat(els.streak, getCurrentStreak(state.dayKey)); } catch {} }
   // Render tiles
   els.maskedWord.innerHTML = '';
@@ -126,7 +124,7 @@ function render(state) {
   });
   els.askBtn.disabled = state.questionsLeft <= 0 || state.guessesLeft <= 0;
   els.guessBtn.disabled = state.guessesLeft <= 0;
-  try { alignPillsToTiles(); } catch {}
+  try { alignRightPills(); } catch {}
 }
 
 async function init() {
@@ -431,18 +429,35 @@ function setupStreakInfo() {
 }
 
 // Align the under-word pills (letters + guesses) to the left edge of tiles
-function alignPillsToTiles() {
-  const row = document.getElementById('alignedPills');
-  if (!row) return;
-  const tiles = els.maskedWord?.querySelectorAll('.tile');
-  if (!tiles || tiles.length === 0) { row.style.setProperty('--tiles-left-offset','0px'); return; }
-  const first = tiles[0];
-  const rowRect = row.getBoundingClientRect();
-  const firstRect = first.getBoundingClientRect();
-  const offset = Math.max(0, Math.round(firstRect.left - rowRect.left));
-  row.style.setProperty('--tiles-left-offset', offset + 'px');
+function alignRightPills() {
+  try {
+    const tilesRect = document.getElementById('maskedWord')?.getBoundingClientRect();
+    if (!tilesRect) return;
+    // Letters pill (second in .meta)
+    const meta = document.querySelector('.meta');
+    const letters = meta?.querySelector('div:nth-child(2)');
+    if (meta && letters) {
+      const rowRect = meta.getBoundingClientRect();
+      const pillRect = letters.getBoundingClientRect();
+      const desiredLeft = tilesRect.right - rowRect.left - pillRect.width;
+      const currentLeft = pillRect.left - rowRect.left;
+      const delta = Math.round(desiredLeft - currentLeft);
+      letters.style.transform = `translateX(${delta}px)`;
+    }
+    // Guesses-left pill in stats
+    const stats = document.querySelector('.stats');
+    const guesses = document.getElementById('guessesBadge') || stats?.querySelector('.badge:last-child');
+    if (stats && guesses) {
+      const rowRect = stats.getBoundingClientRect();
+      const pillRect = guesses.getBoundingClientRect();
+      const desiredLeft = tilesRect.right - rowRect.left - pillRect.width;
+      const currentLeft = pillRect.left - rowRect.left;
+      const delta = Math.round(desiredLeft - currentLeft);
+      guesses.style.transform = `translateX(${delta}px)`;
+    }
+  } catch {}
 }
-window.addEventListener('resize', () => { try { alignPillsToTiles(); } catch {} });
+window.addEventListener('resize', () => { try { alignRightPills(); } catch {} });
 
 function setupModalStreakInfo() {
   const btn = document.getElementById('streakInfoModal');
