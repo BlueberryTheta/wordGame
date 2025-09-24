@@ -1,5 +1,5 @@
 import { generateWord } from './openai.js';
-import { getWordForDay, setWordForDay } from './storage.js';
+import { getWordForDay, setWordForDay, getUsedWords, addUsedWord } from './storage.js';
 
 // Simpler approach: no external storage. Always derive deterministically
 // from ET day + optional secret + optional salt. Cache in-memory per
@@ -38,14 +38,18 @@ export async function todayWord(force = false, salt = '') {
         if (!(cache.day === today && cache.word === existing)) {
           console.log('[WOTD] kv hit', { day: today, word: existing, len: existing.length });
         }
+        try { await addUsedWord(existing); } catch {}
         cache = { day: today, word: existing };
         return existing;
       }
     }
     console.log('[WOTD] generating (KV)', { day: today, force, salt, hint });
-    const word = await generateWord(hint, []);
+    let exclude = [];
+    try { exclude = Array.from(await getUsedWords()); } catch {}
+    const word = await generateWord(hint, exclude);
     console.log('[WOTD] generated (KV)', { day: today, word, len: String(word||'').length });
     await setWordForDay(today, word);
+    try { await addUsedWord(word); } catch {}
     cache = { day: today, word };
     return word;
   }
@@ -60,8 +64,11 @@ export async function todayWord(force = false, salt = '') {
     return cache.word;
   }
   console.log('[WOTD] generating (no KV)', { day: today, force, salt, hint });
-  const word = await generateWord(hint, []);
+  let exclude = [];
+  try { exclude = Array.from(await getUsedWords()); } catch {}
+  const word = await generateWord(hint, exclude);
   console.log('[WOTD] generated (no KV)', { day: today, word, len: String(word||'').length });
+  try { await addUsedWord(word); } catch {}
   cache = { day: today, word };
   return word;
 }
