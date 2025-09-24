@@ -161,7 +161,9 @@ function formatDayCool(key) {
   try {
     const [y, m, d] = String(key).split('-').map(n => parseInt(n, 10));
     if (!y || !m || !d) return String(key);
-    const dt = new Date(Date.UTC(y, m - 1, d));
+    // Important: use UTC noon to avoid previous-day rollover when
+    // formatting in ET (UTC-5/UTC-4), which would happen at 00:00Z.
+    const dt = new Date(Date.UTC(y, m - 1, d, 12));
     const parts = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', weekday: 'short', month: 'short', day: 'numeric' }).formatToParts(dt);
     const map = Object.fromEntries(parts.map(p => [p.type, p.value]));
     // Example: Sat · Sep 20
