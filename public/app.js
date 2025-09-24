@@ -98,7 +98,9 @@ function saveState(state) {
 }
 
 function render(state) {
-  els.dayKey.textContent = state.dayKey;
+  // Pretty-format the date for display while preserving the raw key for logic
+  try { els.dayKey.dataset.key = state.dayKey; } catch {}
+  els.dayKey.textContent = formatDayCool(state.dayKey);
   els.wordLength.textContent = state.wordLength;
   els.qLeft.textContent = state.questionsLeft;
   els.gLeft.textContent = state.guessesLeft;
@@ -153,6 +155,18 @@ async function init() {
   // Theme setup
   setupTheme();
   setupStreakInfo();
+}
+
+function formatDayCool(key) {
+  try {
+    const [y, m, d] = String(key).split('-').map(n => parseInt(n, 10));
+    if (!y || !m || !d) return String(key);
+    const dt = new Date(Date.UTC(y, m - 1, d));
+    const parts = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', weekday: 'short', month: 'short', day: 'numeric' }).formatToParts(dt);
+    const map = Object.fromEntries(parts.map(p => [p.type, p.value]));
+    // Example: Sat · Sep 20
+    return `${map.weekday || ''} · ${map.month || ''} ${map.day || ''}`.trim();
+  } catch { return String(key); }
 }
 
 async function ask(state) {
@@ -514,7 +528,7 @@ function openGameOver(title, message) {
   if (m && message) m.textContent = message;
   // Always show current streak in the modal
   try {
-    const day = els.dayKey?.textContent || '';
+    const day = els.dayKey?.dataset?.key || els.dayKey?.textContent || '';
     const streakNow = getCurrentStreak(day);
     const sEl = document.getElementById('gameOverStreak');
     if (sEl) {
@@ -776,7 +790,7 @@ async function onDevRoll() {
   els.devRollMsg.textContent = `Rolled: ${String(j.word || '').toUpperCase()}`;
   // Clear local progress for this day so questions/guesses reset
   try {
-    const day = j.dayKey || els.dayKey?.textContent || '';
+    const day = j.dayKey || els.dayKey?.dataset?.key || els.dayKey?.textContent || '';
     if (day) localStorage.removeItem(storageKey(day));
   } catch {}
   setTimeout(() => location.reload(), 600);
