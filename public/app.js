@@ -102,8 +102,10 @@ function render(state) {
   try { els.dayKey.dataset.key = state.dayKey; } catch {}
   els.dayKey.textContent = formatDayCool(state.dayKey);
   els.wordLength.textContent = state.wordLength;
+  const wla = document.getElementById('wordLengthAligned'); if (wla) wla.textContent = state.wordLength;
   els.qLeft.textContent = state.questionsLeft;
   els.gLeft.textContent = state.guessesLeft;
+  const gla = document.getElementById('gLeftAligned'); if (gla) gla.textContent = state.guessesLeft;
   if (els.streak) { els.streak.textContent = String(getCurrentStreak(state.dayKey)); try { applyStreakHeat(els.streak, getCurrentStreak(state.dayKey)); } catch {} }
   // Render tiles
   els.maskedWord.innerHTML = '';
@@ -124,6 +126,7 @@ function render(state) {
   });
   els.askBtn.disabled = state.questionsLeft <= 0 || state.guessesLeft <= 0;
   els.guessBtn.disabled = state.guessesLeft <= 0;
+  try { alignPillsToTiles(); } catch {}
 }
 
 async function init() {
@@ -426,6 +429,20 @@ function setupStreakInfo() {
     if (open) closeBubble(); else openBubble();
   });
 }
+
+// Align the under-word pills (letters + guesses) to the left edge of tiles
+function alignPillsToTiles() {
+  const row = document.getElementById('alignedPills');
+  if (!row) return;
+  const tiles = els.maskedWord?.querySelectorAll('.tile');
+  if (!tiles || tiles.length === 0) { row.style.setProperty('--tiles-left-offset','0px'); return; }
+  const first = tiles[0];
+  const rowRect = row.getBoundingClientRect();
+  const firstRect = first.getBoundingClientRect();
+  const offset = Math.max(0, Math.round(firstRect.left - rowRect.left));
+  row.style.setProperty('--tiles-left-offset', offset + 'px');
+}
+window.addEventListener('resize', () => { try { alignPillsToTiles(); } catch {} });
 
 function setupModalStreakInfo() {
   const btn = document.getElementById('streakInfoModal');
