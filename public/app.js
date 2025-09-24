@@ -124,7 +124,6 @@ function render(state) {
   });
   els.askBtn.disabled = state.questionsLeft <= 0 || state.guessesLeft <= 0;
   els.guessBtn.disabled = state.guessesLeft <= 0;
-  try { alignRightPills(); } catch {}
 }
 
 async function init() {
@@ -429,35 +428,7 @@ function setupStreakInfo() {
 }
 
 // Align the under-word pills (letters + guesses) to the left edge of tiles
-function alignRightPills() {
-  try {
-    const tilesRect = document.getElementById('maskedWord')?.getBoundingClientRect();
-    if (!tilesRect) return;
-    // Letters pill (second in .meta)
-    const meta = document.querySelector('.meta');
-    const letters = meta?.querySelector('div:nth-child(2)');
-    if (meta && letters) {
-      const rowRect = meta.getBoundingClientRect();
-      const pillRect = letters.getBoundingClientRect();
-      const desiredLeft = tilesRect.right - rowRect.left - pillRect.width;
-      const currentLeft = pillRect.left - rowRect.left;
-      const delta = Math.round(desiredLeft - currentLeft);
-      letters.style.transform = `translateX(${delta}px)`;
-    }
-    // Guesses-left pill in stats
-    const stats = document.querySelector('.stats');
-    const guesses = document.getElementById('guessesBadge') || stats?.querySelector('.badge:last-child');
-    if (stats && guesses) {
-      const rowRect = stats.getBoundingClientRect();
-      const pillRect = guesses.getBoundingClientRect();
-      const desiredLeft = tilesRect.right - rowRect.left - pillRect.width;
-      const currentLeft = pillRect.left - rowRect.left;
-      const delta = Math.round(desiredLeft - currentLeft);
-      guesses.style.transform = `translateX(${delta}px)`;
-    }
-  } catch {}
-}
-window.addEventListener('resize', () => { try { alignRightPills(); } catch {} });
+// (reverted) no JS alignment of pills
 
 function setupModalStreakInfo() {
   const btn = document.getElementById('streakInfoModal');
