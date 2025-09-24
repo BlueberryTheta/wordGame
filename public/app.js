@@ -241,7 +241,7 @@ async function guess(state) {
     saveState(state);
     try { markPlayed(state.dayKey); } catch {}
     render(state);
-    if (typeof newly !== 'undefined' && newly.length) { try { animateTileReveal(newly); } catch {} }
+    if (typeof newly !== 'undefined' && newly.length) { try { animateTileSlam(newly); } catch {} }
     const letters = (data.lettersInCommon || []).map(x => x.toUpperCase()).join(', ');
     // Show the guessed word along with letters in common
     if (letters) {
@@ -666,6 +666,17 @@ function animateTileReveal(indices) {
     if (!t) return;
     t.classList.add('reveal');
     t.addEventListener('animationend', () => t.classList.remove('reveal'), { once: true });
+  });
+}
+
+function animateTileSlam(indices) {
+  const tiles = els.maskedWord?.querySelectorAll('.tile');
+  if (!tiles) return;
+  indices.forEach(i => {
+    const t = tiles[i];
+    if (!t) return;
+    t.classList.add('slam');
+    t.addEventListener('animationend', () => t.classList.remove('slam'), { once: true });
   });
 }
 
