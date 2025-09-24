@@ -66,7 +66,7 @@ h1{margin:0 0 8px 0}
 }
 /* Letter A icon mask for Letters */
 .meta > div:nth-child(2)::before{ display:none; content:none }
-.meta > div:nth-child(2){ display:none }
+/* ensure Letters pill remains visible */
 /* Hide 'Day:' label text without changing HTML */
 .meta > div:first-child{ font-size:0 }
 .meta > div:first-child #dayKey{ font-size:12px }
