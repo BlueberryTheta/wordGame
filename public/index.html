@@ -6,6 +6,11 @@
     <title>Inqaily — Daily word guessing with yes/no clues</title>
     <meta name="description" content="Inqaily is a daily word game. Ask up to 7 smart questions, get brief AI answers, and make 2 guesses to uncover the secret noun. A new word appears every day at 12:01 AM ET." />
     <meta name="keywords" content="daily word game, word of the day, guess the word, yes no questions, ai word game, inqaily" />
+    <script>
+      (function(){
+        try { if (localStorage.getItem('theme') === 'light') document.documentElement.classList.add('theme-light'); } catch {}
+      })();
+    </script>
     <link rel="stylesheet" href="/style.css" />
     <link rel="stylesheet" href="/light.css" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
