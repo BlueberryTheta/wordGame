@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Inqaily — Cookies</title>
+    <link rel="stylesheet" href="/style.css" />
+    <link rel="stylesheet" href="/light.css" />
+    <style>
+      .doc{max-width:800px; margin:32px auto; padding:0 16px}
+      .doc h1{margin:0 0 8px}
+      .doc section{background:var(--card); border:1px solid var(--shade); border-radius:12px; padding:16px; margin:16px 0}
+      .muted{color:var(--muted)}
+      .doc a{color:var(--acc)}
+    </style>
+  </head>
+  <body>
+    <div class="doc">
+      <h1>Cookies</h1>
+      <p class="muted">Last updated: <span id="ckDate"></span></p>
+
+      <section>
+        <p>We use cookies and similar technologies to operate the site, remember preferences, and understand usage. Advertising partners (like Google) may also set cookies to show relevant ads.</p>
+      </section>
+
+      <section>
+        <h2>Types of Cookies</h2>
+        <ul>
+          <li>Strictly necessary: for basic functionality (e.g., session, security).</li>
+          <li>Preferences/local storage: to remember game state and settings in your browser.</li>
+          <li>Analytics: to measure aggregate usage.</li>
+          <li>Advertising: set by third‑party partners to show and measure ads.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Your Choices</h2>
+        <ul>
+          <li>Manage cookies in your browser settings (block/delete).</li>
+          <li>Control ad personalization at <a href="https://adssettings.google.com/" target="_blank" rel="noopener">Google Ads Settings</a> and learn more at <a href="https://www.aboutads.info/choices" target="_blank" rel="noopener">aboutads.info</a>.</li>
+        </ul>
+      </section>
+
+      <p><a href="/">← Back to Inqaily</a></p>
+    </div>
+    <script>document.getElementById('ckDate').textContent = new Date().toLocaleDateString();</script>
+  </body>
+  </html>
