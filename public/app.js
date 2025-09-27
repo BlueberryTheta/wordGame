@@ -155,6 +155,7 @@ async function init() {
   // Theme setup
   setupTheme();
   setupStreakInfo();
+  setupMenu();
 }
 
 function formatDayCool(key) {
@@ -459,6 +460,37 @@ function setupModalStreakInfo() {
   btn.addEventListener('click', (e) => {
     e.stopPropagation();
     if (open) closeBubble(); else openBubble();
+  });
+}
+
+// Simple top-right menu toggle
+function setupMenu() {
+  const btn = document.getElementById('menuToggle');
+  const dd = document.getElementById('menuDropdown');
+  if (!btn || !dd) return;
+  function close() {
+    dd.classList.add('hidden');
+    btn.setAttribute('aria-expanded','false');
+    dd.setAttribute('aria-hidden','true');
+    document.removeEventListener('click', onDoc);
+    document.removeEventListener('keydown', onEsc);
+  }
+  function onDoc(e){
+    if (e.target === btn || btn.contains(e.target) || e.target === dd || dd.contains(e.target)) return;
+    close();
+  }
+  function onEsc(e){ if (e.key === 'Escape') close(); }
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const hidden = dd.classList.contains('hidden');
+    if (hidden) {
+      dd.classList.remove('hidden');
+      btn.setAttribute('aria-expanded','true');
+      dd.setAttribute('aria-hidden','false');
+      setTimeout(()=>{ document.addEventListener('click', onDoc); document.addEventListener('keydown', onEsc); },0);
+    } else {
+      close();
+    }
   });
 }
 
