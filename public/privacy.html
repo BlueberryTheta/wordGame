@@ -35,10 +35,39 @@
         <h2>Cookies and Advertising</h2>
         <p>We use cookies and similar technologies for functionality and analytics. This site also uses Google AdSense to show ads.</p>
         <ul>
-          <li>Third-party vendors, including Google, use cookies to serve ads based on your prior visits to this and/or other websites.</li>
+          <li>Third‑party vendors, including Google, use cookies to serve ads based on your prior visits to this and/or other websites.</li>
           <li>Google’s use of advertising cookies enables it and its partners to serve ads to you based on your visit to this site and/or other sites on the Internet.</li>
           <li>You may opt out of personalized advertising by visiting <a href="https://adssettings.google.com/" rel="noopener" target="_blank">Google Ads Settings</a>. You can also visit <a href="https://www.aboutads.info/choices" rel="noopener" target="_blank">aboutads.info</a> to opt out of third‑party vendors’ cookies for interest‑based advertising.</li>
         </ul>
+      </section>
+
+      <section>
+        <h2>AI Services</h2>
+        <p>To operate the game, we send limited data to an AI service provider (OpenAI). Specifically:</p>
+        <ul>
+          <li>When you ask a question, the question text and the secret word are sent to the AI to generate a brief answer.</li>
+          <li>When you enter a guess, the guessed token may be sent to the AI to help validate whether it is a common English word.</li>
+        </ul>
+        <p>We use this data solely to provide the game’s functionality.</p>
+      </section>
+
+      <section>
+        <h2>Server Logs and Hosting</h2>
+        <p>We may record limited request information for security and debugging (e.g., the day key, questions/guesses you submit, timestamps). Our hosting provider may also process IP addresses and basic request metadata in access logs to deliver and protect the service.</p>
+      </section>
+
+      <section>
+        <h2>Your Choices and Rights</h2>
+        <ul>
+          <li>Ads personalization controls: <a href="https://adssettings.google.com/" target="_blank" rel="noopener">Google Ads Settings</a></li>
+          <li>Browser settings: You can block or delete cookies in your browser settings (some features rely on local storage/cookies).</li>
+        </ul>
+        <p class="muted">California (CPRA): We do not sell your personal information. Personalized advertising may be considered a “share” under CPRA. You can limit such personalization using the links above.</p>
+      </section>
+
+      <section>
+        <h2>Children’s Privacy</h2>
+        <p>This service is not directed to children under 13. If you believe a child provided information to us, please contact us and we will delete it.</p>
       </section>
 
       <section>
@@ -61,13 +90,36 @@
 
       <section>
         <h2>Contact</h2>
-        <p>Questions about this policy? Please add your preferred contact method here.</p>
+        <p>Questions about this policy? Complete the reCAPTCHA to reveal our contact email.</p>
+        <div class="contact-box">
+          <div class="g-recaptcha" data-sitekey="YOUR_RECAPTCHA_SITE_KEY" data-callback="onContactCaptcha"></div>
+          <div id="emailWrap" class="hidden" aria-live="polite">
+            <strong>Email:</strong>
+            <a id="contactEmail" href="#" rel="nofollow noopener">[revealed after verification]</a>
+          </div>
+        </div>
+        <p class="muted">We use reCAPTCHA to prevent automated spam. The email address is only assembled client‑side after successful verification to reduce scraping.</p>
       </section>
 
       <p><a href="/">← Back to Inqaily</a></p>
     </div>
     <script>
       document.getElementById('ppDate').textContent = new Date().toLocaleDateString();
+      // Assemble and reveal contact email only after reCAPTCHA success
+      window.onContactCaptcha = function(){
+        try{
+          var p1 = 'customer-support';
+          var p2 = '@';
+          var p3 = '123598b2-bb85-46b9-a704-7f688d2d3375';
+          var p4 = '.mail.conversations.godaddy.com';
+          var addr = p1 + p2 + p3 + p4;
+          var a = document.getElementById('contactEmail');
+          a.textContent = addr;
+          a.href = 'mailto:' + addr;
+          document.getElementById('emailWrap').classList.remove('hidden');
+        }catch{}
+      };
     </script>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   </body>
   </html>

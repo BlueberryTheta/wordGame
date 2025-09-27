@@ -121,6 +121,16 @@ footer .legal-links a{color:inherit; text-decoration:none; opacity:.85}
 footer .legal-links a:hover{opacity:1; text-decoration:underline}
 footer .legal-links .sep{margin:0 6px; opacity:.6}
 
+/* Minimal cookie/consent banner */
+.cookie-banner{position:fixed; left:16px; right:16px; bottom:16px; z-index:1200}
+.cookie-banner.hidden{display:none}
+.cookie-inner{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 14px; border-radius:12px;
+  background:linear-gradient(180deg, rgba(23,26,46,.96), rgba(18,21,37,.96)); border:1px solid var(--shade); box-shadow:0 10px 24px rgba(0,0,0,.35)}
+.theme-light .cookie-inner{background:rgba(255,255,255,.98)}
+.cookie-text{color:var(--muted); font-size:13px}
+.cookie-actions{display:flex; gap:8px}
+.cookie-actions .secondary{background:#0e1120; color:var(--fg); border:1px solid var(--shade)}
+
 /* Responsive footer ad */
 .ads-footer{max-width:100%; padding:16px 0 24px; margin:24px auto 0; display:flex; justify-content:center}
 .ads-footer .adsbygoogle{display:block; width:100%; max-width:100%}

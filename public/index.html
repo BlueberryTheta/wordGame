@@ -41,6 +41,13 @@
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
+      // Consent Mode defaults (denied until user makes a choice)
+      gtag('consent', 'default', {
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
       gtag('js', new Date());
 
       gtag('config', 'G-KRP6HPMK46');
@@ -204,5 +211,50 @@
     </div>
 
     <script src="/app.js" type="module"></script>
+    <!-- Minimal cookie/consent banner -->
+    <div id="cookieBanner" class="cookie-banner hidden" role="dialog" aria-live="polite" aria-label="Cookie consent">
+      <div class="cookie-inner">
+        <div class="cookie-text">We use cookies for basic functionality, analytics, and ads. You can accept or limit to non‑essential being off.</div>
+        <div class="cookie-actions">
+          <button id="cookieAccept">Accept all</button>
+          <button id="cookieReject" class="secondary">Reject non‑essential</button>
+        </div>
+      </div>
+    </div>
+    <script>
+      (function(){
+        try {
+          var key = 'consent:v1';
+          var saved = localStorage.getItem(key);
+          var banner = document.getElementById('cookieBanner');
+          function apply(choice){
+            if (choice === 'accept') {
+              gtag('consent', 'update', {
+                'ad_storage': 'granted',
+                'analytics_storage': 'granted',
+                'ad_user_data': 'granted',
+                'ad_personalization': 'granted'
+              });
+            } else {
+              gtag('consent', 'update', {
+                'ad_storage': 'denied',
+                'analytics_storage': 'denied',
+                'ad_user_data': 'denied',
+                'ad_personalization': 'denied'
+              });
+            }
+          }
+          if (!saved) {
+            banner.classList.remove('hidden');
+          } else {
+            apply(saved);
+          }
+          var acc = document.getElementById('cookieAccept');
+          var rej = document.getElementById('cookieReject');
+          if (acc) acc.onclick = function(){ localStorage.setItem(key, 'accept'); apply('accept'); banner.classList.add('hidden'); };
+          if (rej) rej.onclick = function(){ localStorage.setItem(key, 'reject'); apply('reject'); banner.classList.add('hidden'); };
+        } catch {}
+      })();
+    </script>
   </body>
   </html>
