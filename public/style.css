@@ -335,3 +335,6 @@ html:not(.theme-light) .logo-dark{display:block}
   border-left-color: var(--shade);
   border-top-color: var(--shade);
 }
+
+/* Hide legacy top-level menu mount */
+body > .app > .menu-mount{ display:none }
