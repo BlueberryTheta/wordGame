@@ -54,11 +54,36 @@
 
       <section>
         <h2>Contact</h2>
-        <p>Questions about these Terms? Please add your preferred contact method here.</p>
+        <p>Questions about these Terms? Complete the reCAPTCHA to reveal our contact email.</p>
+        <div class="contact-box">
+          <div class="g-recaptcha" data-sitekey="6LfyOdcrAAAAALo1XTWUhuK8wL9WA0HBDSTPNVto" data-callback="onContactCaptcha"></div>
+          <div id="emailWrap" class="hidden" aria-live="polite">
+            <strong>Email:</strong>
+            <a id="contactEmail" href="#" rel="nofollow noopener">[revealed after verification]</a>
+          </div>
+        </div>
+        <p class="muted">We use reCAPTCHA to prevent automated spam. The email address is only assembled client‑side after successful verification to reduce scraping.</p>
       </section>
 
       <p><a href="/">← Back to Inqaily</a></p>
     </div>
-    <script>document.getElementById('tosDate').textContent = new Date().toLocaleDateString();</script>
+    <script>
+      document.getElementById('tosDate').textContent = new Date().toLocaleDateString();
+      // Assemble and reveal contact email only after reCAPTCHA success
+      window.onContactCaptcha = function(){
+        try{
+          var p1 = 'customer-support';
+          var p2 = '@';
+          var p3 = '123598b2-bb85-46b9-a704-7f688d2d3375';
+          var p4 = '.mail.conversations.godaddy.com';
+          var addr = p1 + p2 + p3 + p4;
+          var a = document.getElementById('contactEmail');
+          a.textContent = addr;
+          a.href = 'mailto:' + addr;
+          document.getElementById('emailWrap').classList.remove('hidden');
+        }catch{}
+      };
+    </script>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   </body>
   </html>
