@@ -168,6 +168,15 @@ async function init() {
       else todayLink.classList.add('hidden');
     }
   } catch {}
+  // Hide streak UI when viewing a past day (vault mode)
+  try {
+    const todayKey = s.todayKey || s.dayKey;
+    const isPastDay = (s.dayKey && todayKey) ? (s.dayKey !== todayKey) : false;
+    const streakRow = document.querySelector('.streak-row');
+    if (streakRow) streakRow.classList.toggle('hidden', !!isPastDay);
+    const goStreak = document.getElementById('gameOverStreak');
+    if (goStreak) goStreak.classList.toggle('hidden', !!isPastDay);
+  } catch {}
   // Vault lock: if playing a past day already completed, disable play and reveal
   if (dayParam && isCompletedLocal(dayParam)) {
     VAULT_LOCKED = true;
