@@ -79,6 +79,9 @@
         function dayKeyFromYMD(y,m,d){ return `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
         function endOfMonth(y,m){ return new Date(Date.UTC(y, m-1+1, 0)); }
         const today = new Date(); const tP = etParts(today); const todayKey = dayKeyFromYMD(tP.y, tP.m, tP.d);
+        // Earliest selectable day (inclusive)
+        const MIN_Y = 2025, MIN_M = 9; const MIN_D = 27;
+        const minKey = dayKeyFromYMD(MIN_Y, MIN_M, MIN_D);
         let viewY = tP.y, viewM = tP.m;
         const title = document.getElementById('calTitle'); const grid = document.getElementById('calGrid');
         const prev = document.getElementById('prevMon'); const next = document.getElementById('nextMon');
@@ -97,13 +100,13 @@
           for (let d=1; d<=daysInMonth; d++){
             const key = dayKeyFromYMD(viewY, viewM, d);
             const cell = document.createElement('button'); cell.type='button'; cell.className='cal-cell'; cell.setAttribute('role','gridcell'); cell.textContent = String(d);
-            if (key > todayKey){ cell.disabled = true; cell.classList.add('disabled'); }
+            if (key > todayKey || key < minKey){ cell.disabled = true; cell.classList.add('disabled'); }
             if (completed.has(key)){ const badge=document.createElement('span'); badge.className='cal-done'; badge.textContent='✓'; cell.appendChild(badge); }
             cell.onclick = ()=>{ if (!cell.disabled) location.href='/?day='+encodeURIComponent(key); };
             grid.appendChild(cell);
           }
         }
-        prev.onclick = ()=>{ if (viewM===1){ viewM=12; viewY--; } else viewM--; render(); };
+        prev.onclick = ()=>{ const atMinMonth = (viewY===MIN_Y && viewM===MIN_M); if (atMinMonth) return; if (viewM===1){ viewM=12; viewY--; } else viewM--; if (viewY < MIN_Y || (viewY===MIN_Y && viewM<MIN_M)) { viewY=MIN_Y; viewM=MIN_M; } render(); };
         next.onclick = ()=>{ if (viewY>tP.y || (viewY===tP.y && viewM>=tP.m)) return; if (viewM===12){ viewM=1; viewY++; } else viewM++; render(); };
         render();
       })();
