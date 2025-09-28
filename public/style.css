@@ -261,6 +261,17 @@ html:not(.theme-light) .logo-dark{display:block}
   background: rgba(109, 209, 106, .55); /* semi-transparent so date remains visible */
   color:#001018; display:inline-flex; align-items:center; justify-content:center; font-weight:900; font-size:12px;
   border:1px solid rgba(45, 122, 45, .8); opacity:.9; pointer-events:none}
+
+/* Vault: completed days grid */
+.done-grid{display:grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap:10px; margin-top:10px}
+.done-item{display:flex; align-items:center; justify-content:space-between; gap:8px; padding:10px 12px; border-radius:12px;
+  background:linear-gradient(180deg, rgba(23,26,46,.9), rgba(18,21,37,.9)); border:1px solid var(--shade);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.02), 0 6px 14px rgba(0,0,0,.18); color:var(--fg); text-decoration:none}
+.theme-light .done-item{background:#ffffff; box-shadow:inset 0 0 0 1px rgba(255,255,255,.6), 0 6px 14px rgba(0,0,0,.08)}
+.done-item .date{font-weight:800}
+.done-item .chip{display:inline-flex; align-items:center; justify-content:center; min-width:22px; height:22px; padding:0 8px;
+  background:linear-gradient(180deg,var(--ok),#57b857); color:#001018; border-radius:999px; border:1px solid #2d7a2d; font-weight:900; font-size:12px}
+.done-item:hover{transform:translateY(-1px)}
 @media (min-width: 640px){ .subtitle{ font-size:24px } }
 /* Streak icon visuals */
 .streak-row{margin:4px 0 12px}

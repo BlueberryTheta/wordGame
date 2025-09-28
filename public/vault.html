@@ -111,7 +111,33 @@
         render();
       })();
       // Completed days list
-      ;(function(){ const wrap=document.getElementById('doneWrap'); const out=[]; try{ for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i)||''; if(k.startsWith('wotd:')){ try{ const v=JSON.parse(localStorage.getItem(k)||'{}'); if(v && (v.gameOver || v.guessesLeft===0)) out.push(k.replace(/^wotd:/,'')); }catch{} } } } catch{} if(out.length){ out.sort(); const ul=document.createElement('ul'); out.forEach(d=>{ const li=document.createElement('li'); li.textContent = d; ul.appendChild(li); }); wrap.textContent=''; wrap.appendChild(ul); } })();
+      ;(function(){
+        const wrap=document.getElementById('doneWrap');
+        const out=[];
+        try{
+          for(let i=0;i<localStorage.length;i++){
+            const k=localStorage.key(i)||'';
+            if(k.startsWith('wotd:')){
+              try{
+                const v=JSON.parse(localStorage.getItem(k)||'{}');
+                if(v && (v.gameOver || v.guessesLeft===0)) out.push(k.replace(/^wotd:/,''));
+              }catch{}
+            }
+          }
+        } catch{}
+        if(out.length){
+          out.sort();
+          const grid=document.createElement('div'); grid.className='done-grid';
+          out.forEach(d=>{
+            const a=document.createElement('a'); a.className='done-item'; a.href='/?day='+encodeURIComponent(d); a.setAttribute('aria-label', `View ${d}`);
+            const spanDate=document.createElement('span'); spanDate.className='date'; spanDate.textContent=d;
+            const chip=document.createElement('span'); chip.className='chip'; chip.textContent='✓';
+            a.appendChild(spanDate); a.appendChild(chip); grid.appendChild(a);
+          });
+          wrap.textContent='';
+          wrap.appendChild(grid);
+        }
+      })();
     </script>
   </body>
   </html>
