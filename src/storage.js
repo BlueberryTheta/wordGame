@@ -54,47 +54,62 @@ function writeLocal(obj) {
   fs.writeFileSync(histPath, JSON.stringify(obj, null, 2), 'utf8');
 }
 
-export async function getWordForDay(day) {
+export async function getWordForDay(day, kind = 'main') {
   if (KV_ENABLED) {
-    const key = `wotd:word:${day}`;
+    const key = `wotd:word:${kind}:${day}`;
     const out = await kvFetch(`/get/${encodeURIComponent(key)}`);
     return out.result || null;
   }
   const obj = readLocal();
-  return obj.perDay?.[day] || null;
+  // Backward compat: legacy main stored at perDay[day]
+  if (kind === 'main' && obj.perDay?.[day]) return obj.perDay[day];
+  const k = `${kind}:${day}`;
+  return obj.perDay?.[k] || null;
 }
 
-export async function setWordForDay(day, word) {
+export async function setWordForDay(day, word, kind = 'main') {
   if (KV_ENABLED) {
-    const key = `wotd:word:${day}`;
+    const key = `wotd:word:${kind}:${day}`;
     await kvFetch(`/set/${encodeURIComponent(key)}/${encodeURIComponent(word)}`);
     return;
   }
   const obj = readLocal();
-  obj.perDay[day] = word;
+  if (!obj.perDay) obj.perDay = {};
+  if (kind === 'main') obj.perDay[day] = word; // keep legacy path populated
+  obj.perDay[`${kind}:${day}`] = word;
   writeLocal(obj);
 }
 
-export async function getUsedWords() {
+export async function getUsedWords(kind = 'main') {
   if (KV_ENABLED) {
-    const key = `wotd:used`;
+    const key = `wotd:used:${kind}`;
     const out = await kvFetch(`/smembers/${encodeURIComponent(key)}`);
     const arr = out.result || [];
     return new Set(arr);
   }
   const obj = readLocal();
-  return new Set(obj.used || []);
+  // Support legacy flat list for main
+  if (kind === 'main' && Array.isArray(obj.used)) return new Set(obj.used);
+  const usedByKind = obj.usedByKind || {};
+  return new Set(usedByKind[kind] || []);
 }
 
-export async function addUsedWord(word) {
+export async function addUsedWord(word, kind = 'main') {
   if (KV_ENABLED) {
-    const key = `wotd:used`;
+    const key = `wotd:used:${kind}`;
     await kvFetch(`/sadd/${encodeURIComponent(key)}/${encodeURIComponent(word)}`);
     return;
   }
   const obj = readLocal();
-  const set = new Set(obj.used || []);
-  set.add(word);
-  obj.used = Array.from(set);
+  if (kind === 'main') {
+    const set = new Set(obj.used || []);
+    set.add(word);
+    obj.used = Array.from(set);
+  }
+  const usedByKind = obj.usedByKind || {};
+  const setKind = new Set(usedByKind[kind] || []);
+  setKind.add(word);
+  usedByKind[kind] = Array.from(setKind);
+  obj.usedByKind = usedByKind;
   writeLocal(obj);
 }

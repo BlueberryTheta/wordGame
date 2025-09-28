@@ -33,23 +33,23 @@ export async function todayWord(force = false, salt = '') {
     // Always read from KV first so Dev roll (which updates KV) takes effect
     // immediately across all warm instances.
     if (!force) {
-      const existing = await getWordForDay(today);
+      const existing = await getWordForDay(today, 'main');
       if (existing) {
         if (!(cache.day === today && cache.word === existing)) {
           console.log('[WOTD] kv hit', { day: today, word: existing, len: existing.length });
         }
-        try { await addUsedWord(existing); } catch {}
+        try { await addUsedWord(existing, 'main'); } catch {}
         cache = { day: today, word: existing };
         return existing;
       }
     }
     console.log('[WOTD] generating (KV)', { day: today, force, salt, hint });
     let exclude = [];
-    try { exclude = Array.from(await getUsedWords()); } catch {}
+    try { exclude = Array.from(await getUsedWords('main')); } catch {}
     const word = await generateWord(hint, exclude);
     console.log('[WOTD] generated (KV)', { day: today, word, len: String(word||'').length });
-    await setWordForDay(today, word);
-    try { await addUsedWord(word); } catch {}
+    await setWordForDay(today, word, 'main');
+    try { await addUsedWord(word, 'main'); } catch {}
     cache = { day: today, word };
     return word;
   }
@@ -65,10 +65,39 @@ export async function todayWord(force = false, salt = '') {
   }
   console.log('[WOTD] generating (no KV)', { day: today, force, salt, hint });
   let exclude = [];
-  try { exclude = Array.from(await getUsedWords()); } catch {}
+  try { exclude = Array.from(await getUsedWords('main')); } catch {}
   const word = await generateWord(hint, exclude);
   console.log('[WOTD] generated (no KV)', { day: today, word, len: String(word||'').length });
-  try { await addUsedWord(word); } catch {}
+  try { await addUsedWord(word, 'main'); } catch {}
   cache = { day: today, word };
+  return word;
+}
+
+// Puzzle mode variant: separate word namespace and seed
+export async function puzzleWord(force = false, salt = '') {
+  const today = dayKey();
+  const hint = `${today}|${process.env.WOTD_SECRET || ''}|puzzle|${salt}`;
+  const hasKV = !!(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
+
+  if (hasKV) {
+    if (!force) {
+      const existing = await getWordForDay(today, 'puzzle');
+      if (existing) {
+        try { await addUsedWord(existing, 'puzzle'); } catch {}
+        return existing;
+      }
+    }
+    let exclude = [];
+    try { exclude = Array.from(await getUsedWords('puzzle')); } catch {}
+    const word = await generateWord(hint, exclude);
+    await setWordForDay(today, word, 'puzzle');
+    try { await addUsedWord(word, 'puzzle'); } catch {}
+    return word;
+  }
+
+  let exclude = [];
+  try { exclude = Array.from(await getUsedWords('puzzle')); } catch {}
+  const word = await generateWord(hint, exclude);
+  try { await addUsedWord(word, 'puzzle'); } catch {}
   return word;
 }

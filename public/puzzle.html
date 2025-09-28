@@ -13,17 +13,101 @@
     <link rel="stylesheet" href="/light.css" />
     <style>
       .page{max-width:800px; margin:32px auto; padding:0 16px}
-      .card{background:var(--card); border:1px solid var(--shade); border-radius:12px; padding:16px; margin:16px 0; text-align:center}
+      .panel{background:var(--card); border:1px solid var(--shade); border-radius:12px; padding:16px; margin:16px 0}
+      .tiles{display:flex; gap:10px; justify-content:center; align-items:center; flex-wrap:wrap}
+      .tile{width:44px; height:54px; display:flex; align-items:center; justify-content:center; border-radius:10px; border:1px solid var(--shade); background:linear-gradient(180deg,#0f142c,#0b0e1d); font:700 22px var(--mono); letter-spacing:.5px; color:var(--fg); box-shadow:inset 0 -3px 0 rgba(255,255,255,.03)}
+      .tile.empty{color:var(--muted); opacity:.85}
+      .qa{display:flex; flex-direction:column; gap:8px}
+      .qa .item{background:#0e1120; border:1px solid var(--shade); padding:10px 12px; border-radius:8px}
+      .qa .q{color:#b8c2d9}
+      .qa .a{color:#dff1ff}
       .muted{color:var(--muted)}
     </style>
   </head>
   <body>
     <div class="page">
-      <h1>Puzzle</h1>
-      <div class="card">
-        <p class="muted">Coming soon.</p>
+      <h1>Puzzle Mode</h1>
+      <div class="panel">
+        <div id="pTiles" class="tiles" aria-live="polite"></div>
+      </div>
+      <div class="panel">
+        <h2>Hints</h2>
+        <div id="pHints" class="qa"></div>
+      </div>
+      <div class="panel">
+        <h2>Your One Guess</h2>
+        <div class="row">
+          <input id="pGuess" type="text" placeholder="Your guess" />
+          <button id="pGuessBtn">Guess</button>
+        </div>
+        <div id="pResult" class="muted" style="margin-top:8px"></div>
       </div>
       <p><a href="/">← Back to Inqaily</a></p>
     </div>
+    <script type="module">
+      const els = {
+        tiles: document.getElementById('pTiles'),
+        hints: document.getElementById('pHints'),
+        input: document.getElementById('pGuess'),
+        btn: document.getElementById('pGuessBtn'),
+        res: document.getElementById('pResult')
+      };
+      let mask = [];
+      let len = 0;
+      let used = false;
+      function renderTiles(){
+        els.tiles.innerHTML = '';
+        for (let i=0;i<len;i++){
+          const s = document.createElement('span');
+          s.className = 'tile' + (mask[i] ? '' : ' empty');
+          s.textContent = mask[i] ? mask[i].toUpperCase() : '·';
+          els.tiles.appendChild(s);
+        }
+      }
+      function renderHints(qas){
+        els.hints.innerHTML = '';
+        qas.forEach(({q,a}) => {
+          const div = document.createElement('div');
+          div.className = 'item';
+          const qel = document.createElement('div'); qel.className = 'q'; qel.textContent = `Q: ${q}`;
+          const ael = document.createElement('div'); ael.className = 'a'; ael.textContent = `A: ${a}`;
+          div.appendChild(qel); div.appendChild(ael);
+          els.hints.appendChild(div);
+        });
+      }
+      async function load(){
+        const r = await fetch('/api/puzzle/state');
+        const j = await r.json();
+        len = j.wordLength;
+        mask = j.revealedMask || Array(len).fill(null);
+        renderTiles();
+        renderHints(j.qas || []);
+      }
+      async function doGuess(){
+        if (used) return;
+        const g = (els.input.value||'').trim();
+        if (!g) return;
+        els.btn.disabled = true; used = true;
+        try{
+          const r = await fetch('/api/puzzle/guess', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ guess: g }) });
+          const j = await r.json();
+          if (!r.ok) throw new Error(j.error||'failed');
+          if (j.correct){
+            els.res.innerHTML = `<span style="color:#6dd16a">Correct! The word was ${j.word.toUpperCase()}.</span>`;
+          } else {
+            mask = j.revealedMask || mask;
+            renderTiles();
+            const letters = (j.lettersInCommon||[]).map(x=>x.toUpperCase()).join(', ');
+            els.res.innerHTML = letters ? `Letters in common: <b>${letters}</b>` : `<span style="color:#ff6b6b">No letters in common.</span>`;
+            // Reveal the word after the single guess
+            try{ const rr = await fetch('/api/puzzle/reveal'); const jj = await rr.json(); els.res.innerHTML += ` — The word was <b>${String(jj.word||'').toUpperCase()}</b>.`; } catch {}
+          }
+        } catch(e){ els.res.textContent = 'Error: ' + (e?.message||''); }
+        finally { els.btn.disabled = true; els.input.disabled = true; }
+      }
+      els.btn.addEventListener('click', doGuess);
+      els.input.addEventListener('keydown', e => { if (e.key==='Enter') doGuess(); });
+      load();
+    </script>
   </body>
   </html>
