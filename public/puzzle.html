@@ -107,13 +107,14 @@
           if (!r.ok) throw new Error(j.error||'failed');
           if (j.correct){
             els.res.innerHTML = `<span style="color:#6dd16a">Correct! The word was ${j.word.toUpperCase()}.</span>`;
+            openGameOver('You got it!', 'Great job! Come back tomorrow for a new puzzle.', true, j.word);
           } else {
             mask = j.revealedMask || mask;
             renderTiles();
             const letters = (j.lettersInCommon||[]).map(x=>x.toUpperCase()).join(', ');
-            els.res.innerHTML = letters ? `Letters in common: <b>${letters}</b>` : `<span style="color:#ff6b6b">No letters in common.</span>`;
+            els.res.innerHTML = letters ? `Letters in common: <b>${letters}</b>` : `<span style=\"color:#ff6b6b\">No letters in common.</span>`;
             // Reveal the word after the single guess
-            try{ const rr = await fetch('/api/puzzle/reveal'); const jj = await rr.json(); els.res.innerHTML += ` — The word was <b>${String(jj.word||'').toUpperCase()}</b>.`; } catch {}
+            try{ const rr = await fetch('/api/puzzle/reveal'); const jj = await rr.json(); openGameOver('Out of guesses', `${letters ? `Letters in common: ${letters}. ` : ''}The word was ${String(jj.word||'').toUpperCase()}.`); } catch {}
           }
         } catch(e){ els.res.textContent = 'Error: ' + (e?.message||''); }
         finally { els.btn.disabled = true; els.input.disabled = true; }
@@ -172,6 +173,38 @@
           } else close();
         });
       })();
+
+      // Auto-open tutorial on first visit (shared key with main)
+      (function maybeShowTutorial(){
+        try { if (!localStorage.getItem('tutorialSeen')) setTimeout(()=>document.getElementById('helpBtn')?.click(), 250); }
+        catch { setTimeout(()=>document.getElementById('helpBtn')?.click(), 250); }
+      })();
+
+      function openGameOver(title, message, win=false, word=''){
+        const b = document.getElementById('pGameOver');
+        if (!b) return;
+        const t = document.getElementById('pGoTitle');
+        const m = document.getElementById('pGoMessage');
+        if (t) t.textContent = title;
+        if (m) m.textContent = message;
+        const actions = document.getElementById('pGoActions');
+        if (win) actions?.classList.remove('hidden'); else actions?.classList.add('hidden');
+        const shareBtn = document.getElementById('pShare');
+        if (win && shareBtn) { shareBtn.onclick = () => sharePuzzleWin(word); }
+        b.classList.remove('hidden');
+        function close(){ b.classList.add('hidden'); document.removeEventListener('keydown', onEsc); }
+        function onEsc(e){ if (e.key==='Escape') close(); }
+        document.getElementById('pGoClose')?.addEventListener('click', close, { once:true });
+        b.addEventListener('click', (e)=>{ if (e.target===b) close(); });
+        document.addEventListener('keydown', onEsc);
+      }
+
+      async function sharePuzzleWin(word){
+        const text = `Inqaily — Puzzle: I solved it!\nWord: ${String(word||'').toUpperCase()}\n#Inqaily`;
+        const shareData = { text, title: 'Inqaily — Puzzle' };
+        try { if (navigator.share) { await navigator.share(shareData); return; } } catch {}
+        try { await navigator.clipboard.writeText(text); } catch {}
+      }
     </script>
 
     <!-- Tutorial Modal (reused) -->
@@ -204,5 +237,21 @@
         back?.addEventListener('click', (e)=>{ if (e.target===back) hide(); });
       })();
     </script>
+
+    <!-- Game Over Modal for Puzzle -->
+    <div id="pGameOver" class="backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="pGoTitle">
+      <div class="modal" role="document">
+        <div class="modal-header">
+          <h2 id="pGoTitle">Game Over</h2>
+          <button id="pGoClose" class="close-btn" aria-label="Close">×</button>
+        </div>
+        <div class="modal-body" style="text-align:center">
+          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>
+          <div id="pGoActions" class="score-actions hidden">
+            <button id="pShare" class="share-btn" aria-label="Share your win">Share</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </body>
   </html>

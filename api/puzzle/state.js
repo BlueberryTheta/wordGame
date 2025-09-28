@@ -46,7 +46,7 @@ export default async function handler(req, res) {
       try { await setPuzzleState(day, stored); } catch {}
     }
     const mask = letters.map((ch, i) => (stored.idxs || []).includes(i) ? ch : null);
-    return res.status(200).json({ wordLength: letters.length, revealedMask: mask, qas: stored.qas || [] });
+    return res.status(200).json({ dayKey: day, wordLength: letters.length, revealedMask: mask, qas: stored.qas || [] });
   } catch (e) {
     console.error('[PUZZLE_STATE_ERROR]', e?.message || e);
     return res.status(500).json({ error: 'Failed to load puzzle state' });
