@@ -681,8 +681,8 @@ function openGameOver(title, message) {
   try {
     const qLeft = parseInt((els.qLeft?.textContent || '0').trim(), 10);
     const gLeft = parseInt((els.gLeft?.textContent || '0').trim(), 10);
-    const qUsed = isNaN(qLeft) ? null : (10 - qLeft);
-    const gUsed = isNaN(gLeft) ? null : (2 - gLeft);
+    const qUsed = isNaN(qLeft) ? null : (LIMITS.questions - qLeft);
+    const gUsed = isNaN(gLeft) ? null : (LIMITS.guesses - gLeft);
     const scoreWrap = document.getElementById('gameOverScore');
     const actions = document.getElementById('gameOverActions');
     if (scoreWrap) {

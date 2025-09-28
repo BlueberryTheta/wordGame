@@ -86,7 +86,23 @@
         const title = document.getElementById('calTitle'); const grid = document.getElementById('calGrid');
         const prev = document.getElementById('prevMon'); const next = document.getElementById('nextMon');
         // Completed set from localStorage
-        function getCompleted(){ const set=new Set(); try{ for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i)||''; if(k.startsWith('wotd:')){ try{ const v=JSON.parse(localStorage.getItem(k)||'{}'); if(v && (v.gameOver || v.guessesLeft===0)) set.add(k.slice(5)); }catch{} } } } catch{} return set; }
+        function getCompleted(){
+          const set=new Set();
+          try{
+            for(let i=0;i<localStorage.length;i++){
+              const k=localStorage.key(i)||'';
+              if(k.startsWith('wotd:')){
+                try{
+                  const v=JSON.parse(localStorage.getItem(k)||'{}');
+                  const allRevealed = Array.isArray(v?.revealed) && v.revealed.length && v.revealed.every(Boolean);
+                  const outOfGuesses = typeof v?.guessesLeft === 'number' && v.guessesLeft <= 0;
+                  if (v && (v.gameOver || outOfGuesses || allRevealed)) set.add(k.slice(5));
+                }catch{}
+              }
+            }
+          } catch{}
+          return set;
+        }
         function render(){
           const completed = getCompleted();
           const first = new Date(Date.UTC(viewY, viewM-1, 1));
@@ -120,7 +136,9 @@
             if(k.startsWith('wotd:')){
               try{
                 const v=JSON.parse(localStorage.getItem(k)||'{}');
-                if(v && (v.gameOver || v.guessesLeft===0)) out.push(k.replace(/^wotd:/,''));
+                const allRevealed = Array.isArray(v?.revealed) && v.revealed.length && v.revealed.every(Boolean);
+                const outOfGuesses = typeof v?.guessesLeft === 'number' && v.guessesLeft <= 0;
+                if(v && (v.gameOver || outOfGuesses || allRevealed)) out.push(k.replace(/^wotd:/,''));
               }catch{}
             }
           }
