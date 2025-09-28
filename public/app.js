@@ -737,7 +737,7 @@ function isVaultMode() {
 }
 function getGameOverCopy(win) {
   if (isVaultMode()) {
-    return win ? 'Great job! You were playing a past day.' : 'Nice try! You were playing a past day.';
+    return win ? 'Great job!' : 'Nice try!';
   }
   return win ? 'Great job! Come back tomorrow for a new word.' : 'Nice try! Come back tomorrow for a new word.';
 }
