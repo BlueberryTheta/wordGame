@@ -63,9 +63,9 @@
           <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        <small>New word rolls at 12:01 AM Eastern Time.</small>
           <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        <nav class=\"legal-links\" aria-label=\"Legal and Privacy\">
           <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          <a href=\"/privacy.html\">Privacy</a>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          <span class=\"sep\">•</span>
+          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          <span class=\"sep\">ï¿½</span>
           <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          <a href=\"/terms.html\">Terms</a>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          <span class=\"sep\">•</span>
+          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          <span class=\"sep\">ï¿½</span>
           <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          <a href=\"/cookies.html\">Cookies</a>
           <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        </nav>
           <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      </footer>
@@ -204,7 +204,7 @@
           <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          const dt = new Date(Date.UTC(y, m-1,  d, 12));
           <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          const parts = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', weekday:'short', month:'short', day:'numeric' }).formatToParts(dt);
           <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          const mp = Object.fromEntries(parts.map(p=>[p.type,p.value]));
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          return `${mp.weekd · ||''} Â· ${mp.month||''} ${mp.d · ||''}`.trim();
+          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          return `${mp.weekd ï¿½ ||''} Â· ${mp.month||''} ${mp.d ï¿½ ||''}`.trim();
           <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        } catch { return String(key||''); }
           <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      }
           <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>
@@ -229,8 +229,8 @@
           <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>
           <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      async function sharePuzzleWin(word){
           <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      async function sharePuzzleWin(word){
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        const text = Inqaily — Puzzle: I solved it!\\n#Inqaily;
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        const shareData = { text, title: 'Inqaily — Puzzle' };
+          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        const text = Inqaily ï¿½ Puzzle: I solved it!\\n#Inqaily;
+          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        const shareData = { text, title: 'Inqaily ï¿½ Puzzle' };
           <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        try { await navigator.clipboard.writeText(text); } catch {}
           <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      }
           <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>    </script>
@@ -245,7 +245,7 @@
           <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        <div class="modal-body">
           <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          <ul>
           <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>            <li>You get 1 total guess.</li>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>            <li>We reveal 1–2 letters of the word up front.</li>
+          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>            <li>We reveal 1ï¿½2 letters of the word up front.</li>
           <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>            <li>Six to seven brief AI hints give general context.</li>
           <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>            <li>The word is always a noun.</li>
           <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          </ul>
