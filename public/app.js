@@ -163,7 +163,8 @@ async function init() {
     const todayLink = document.getElementById('menuToday');
     if (todayLink) {
       const todayKey = s.todayKey || s.dayKey; // fallback
-      if (dayParam && dayParam !== todayKey) todayLink.classList.remove('hidden');
+      const isPastDay = (s.dayKey && todayKey) ? (s.dayKey !== todayKey) : false;
+      if (isPastDay) todayLink.classList.remove('hidden');
       else todayLink.classList.add('hidden');
     }
   } catch {}
