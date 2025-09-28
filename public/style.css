@@ -30,8 +30,17 @@ h1{margin:0 0 8px 0}
 .menu-mount{position:relative}
 .menu-toggle{height:36px; width:36px; padding:0 0; border-radius:10px; border:1px solid var(--shade); background:#0e1120; color:var(--fg); cursor:pointer; font-size:18px; line-height:1}
 .menu-dropdown{position:absolute; right:0; top:calc(100% + 6px); background:var(--card); border:1px solid var(--shade); border-radius:10px; min-width:160px; box-shadow:0 10px 24px rgba(0,0,0,.35); padding:6px; z-index:900}
-.menu-dropdown a{display:block; color:var(--fg); text-decoration:none; padding:8px 10px; border-radius:8px}
-.menu-dropdown a:hover{background:#0e1120}
+.menu-dropdown a{display:block; color:var(--fg); text-decoration:none; padding:8px 10px; border-radius:8px; transition:background-color .12s ease, color .12s ease; -webkit-tap-highlight-color: transparent}
+/* Dark theme hover/active */
+html:not(.theme-light) .menu-dropdown a:hover,
+html:not(.theme-light) .menu-dropdown a:active,
+html:not(.theme-light) .menu-dropdown a:focus-visible{ background:#0e1120; color:var(--fg); outline:none }
+/* Light theme hover/active: use light surface so text stays readable */
+.theme-light .menu-dropdown a:hover,
+.theme-light .menu-dropdown a:active,
+.theme-light .menu-dropdown a:focus-visible{ background:#eef2f7; color:#0f1222; outline:none }
+/* Optional focus ring for accessibility */
+.menu-dropdown a:focus-visible{ box-shadow:0 0 0 3px rgba(120,217,255,.25) }
 .help-btn{position:relative; width:40px; height:40px; border-radius:12px; border:1px solid var(--shade); background:
   radial-gradient(120% 120% at 20% 10%, rgba(120,217,255,.15), transparent 40%),
   linear-gradient(180deg,#0f142d,#0e1120);
