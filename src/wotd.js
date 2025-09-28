@@ -78,6 +78,7 @@ export async function puzzleWord(force = false, salt = '') {
   const today = dayKey();
   const hint = `${today}|${process.env.WOTD_SECRET || ''}|puzzle|${salt}`;
   const hasKV = !!(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
+  const hasOpenAI = !!process.env.OPENAI_API_KEY;
 
   if (hasKV) {
     if (!force) {
@@ -89,7 +90,25 @@ export async function puzzleWord(force = false, salt = '') {
     }
     let exclude = [];
     try { exclude = Array.from(await getUsedWords('puzzle')); } catch {}
-    const word = await generateWord(hint, exclude);
+    let word;
+    if (hasOpenAI) {
+      word = await generateWord(hint, exclude);
+    } else {
+      // Fallback deterministic selection from a small list (no OpenAI)
+      const candidates = [
+        'planet','forest','river','pencil','magnet','bridge','garden','window','rocket','silver',
+        'basket','candle','pirate','throne','hammer','cactus','island','button','wallet','helmet',
+        'pillow','tunnel','mirror','ladder','wallet','copper','fabric','library','market','valley'
+      ];
+      const seen = new Set(exclude);
+      const base = Math.abs([...hint].reduce((h,c)=>((h<<5)-h)+c.charCodeAt(0)|0,0));
+      for (let i = 0; i < candidates.length; i++) {
+        const idx = (base + i) % candidates.length;
+        const w = candidates[idx];
+        if (!seen.has(w)) { word = w; break; }
+      }
+      word = word || candidates[(base) % candidates.length];
+    }
     await setWordForDay(today, word, 'puzzle');
     try { await addUsedWord(word, 'puzzle'); } catch {}
     return word;
@@ -97,7 +116,24 @@ export async function puzzleWord(force = false, salt = '') {
 
   let exclude = [];
   try { exclude = Array.from(await getUsedWords('puzzle')); } catch {}
-  const word = await generateWord(hint, exclude);
+  let word;
+  if (hasOpenAI) {
+    word = await generateWord(hint, exclude);
+  } else {
+    const candidates = [
+      'planet','forest','river','pencil','magnet','bridge','garden','window','rocket','silver',
+      'basket','candle','pirate','throne','hammer','cactus','island','button','wallet','helmet',
+      'pillow','tunnel','mirror','ladder','wallet','copper','fabric','library','market','valley'
+    ];
+    const seen = new Set(exclude);
+    const base = Math.abs([...hint].reduce((h,c)=>((h<<5)-h)+c.charCodeAt(0)|0,0));
+    for (let i = 0; i < candidates.length; i++) {
+      const idx = (base + i) % candidates.length;
+      const w = candidates[idx];
+      if (!seen.has(w)) { word = w; break; }
+    }
+    word = word || candidates[(base) % candidates.length];
+  }
   try { await addUsedWord(word, 'puzzle'); } catch {}
   return word;
 }
