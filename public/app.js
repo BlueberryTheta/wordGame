@@ -286,7 +286,7 @@ function applyTheme(theme) {
   try { localStorage.setItem('theme', theme); } catch {}
   if (els.themeToggle) {
     const label = theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode';
-    els.themeToggle.textContent = theme === 'light' ? '🌙' : '☀️';
+    els.themeToggle.textContent = theme === 'light' ? '\u263E' : '\u2600';
     els.themeToggle.setAttribute('aria-label', label);
     els.themeToggle.setAttribute('title', label);
   }
@@ -299,8 +299,8 @@ function setupTheme() {
       if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) theme = 'light';
     }
   } catch {}
-  applyTheme(theme);
   els.themeToggle = document.getElementById('themeToggle');
+  applyTheme(theme);
   els.themeToggle?.addEventListener('click', () => {
     const next = (localStorage.getItem('theme') || 'dark') === 'light' ? 'dark' : 'light';
     applyTheme(next);
