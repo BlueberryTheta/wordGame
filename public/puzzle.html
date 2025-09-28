@@ -1,272 +1,197 @@
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p><!doctype html>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p><html lang="en">
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>  <head>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>    <meta charset="utf-8" />
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>    <meta name="viewport" content="width=device-width, initial-scale=1" />
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>    <title>Inqaily — Puzzle</title>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>    <script>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      (function(){
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        try { if (localStorage.getItem('theme') === 'light') document.documentElement.classList.add('theme-light'); } catch {}
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      })();
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>    </script>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>    <link rel="stylesheet" href="/style.css" />
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>    <link rel="stylesheet" href="/light.css" />
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>    <style>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      .page{max-width:800px; margin:32px auto; padding:0 16px}
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      .panel{background:var(--card); border:1px solid var(--shade); border-radius:12px; padding:16px; margin:16px 0}
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      .tiles{display:flex; gap:10px; justify-content:center; align-items:center; flex-wrap:wrap}
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      .tile{width:44px; height:54px; display:flex; align-items:center; justify-content:center; border-radius:10px; border:1px solid var(--shade); background:linear-gradient(180deg,#0f142c,#0b0e1d); font:700 22px var(--mono); letter-spacing:.5px; color:var(--fg); box-shadow:inset 0 -3px 0 rgba(255,255,255,.03)}
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      .tile.empty{color:var(--muted); opacity:.85}
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      .qa{display:flex; flex-direction:column; gap:8px}
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      .qa .item{background:#0e1120; border:1px solid var(--shade); padding:10px 12px; border-radius:8px}
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      .qa .q{color:#b8c2d9}
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      .qa .a{color:#dff1ff}
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      .muted{color:var(--muted)}
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>    </style>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>  </head>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>  <body>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>    <div class="page">
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      <div class="titlebar" style="margin-bottom:12px; display:flex; align-items:center; justify-content:space-between; gap:12px">
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        <div class="title-main"><h1 style="margin:0">Puzzle Mode</h1></div>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        <div class="title-actions" style="display:flex; align-items:center; gap:8px">
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          <button id="helpBtn" class="help-btn" title="How to play" aria-label="How to play" data-tip="How to play" aria-haspopup="dialog" aria-controls="tutorialBackdrop">?</button>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          <button id="themeToggle" class="theme-toggle" title="Toggle theme" aria-label="Toggle theme">?</button>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          <div class="menu-mount">
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>            <button id="menuToggle" class="menu-toggle" aria-label="Menu" aria-expanded="false" aria-haspopup="true" aria-controls="menuDropdown" title="Menu">☰</button>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>            <div id="menuDropdown" class="menu-dropdown hidden" role="menu" aria-hidden="true">
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>              <a href="/" role="menuitem">Home</a>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>              <a href="/vault.html" role="menuitem">Vault</a>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>            </div>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          </div>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        </div>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      </div>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      <div class="meta">
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        <div>Day: <span id="pDayKey">—</span></div>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        <div>Letters: <span id="pWordLength">—</span></div>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      </div>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      <div class="panel">
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        <div id="pTiles" class="tiles" aria-live="polite"></div>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      </div>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      <div class="panel">
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        <h2>Hints</h2>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        <div id="pHints" class="qa"></div>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      </div>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      <div class="panel">
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        <h2>Your One Guess</h2>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        <div class="row">
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          <input id="pGuess" type="text" placeholder="Your guess" />
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          <button id="pGuessBtn">Guess</button>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        </div>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        <div id="pResult" class="muted" style="margin-top:8px"></div>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      </div>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>            <footer>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        <small>New word rolls at 12:01 AM Eastern Time.</small>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        <nav class=\"legal-links\" aria-label=\"Legal and Privacy\">
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          <a href=\"/privacy.html\">Privacy</a>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          <span class=\"sep\">�</span>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          <a href=\"/terms.html\">Terms</a>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          <span class=\"sep\">�</span>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          <a href=\"/cookies.html\">Cookies</a>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        </nav>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      </footer>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>    </div>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>    <script type="module">
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      const els = {
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        tiles: document.getElementById('pTiles'),
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        hints: document.getElementById('pHints'),
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        input: document.getElementById('pGuess'),
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        btn: document.getElementById('pGuessBtn'),
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        res: document.getElementById('pResult'),
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        dayKeyEl: document.getElementById('pDayKey'),
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        wordLenEl: document.getElementById('pWordLength')
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      };
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      let mask = [];
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      let len = 0;
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      let used = false;
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      function renderTiles(){
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        els.tiles.innerHTML = '';
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        for (let i=0;i<len;i++){
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          const s = document.createElement('span');
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          s.className = 'tile' + (mask[i] ? '' : ' empty');
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          s.textContent = mask[i] ? mask[i].toUpperCase() : '·';
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          els.tiles.appendChild(s);
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        }
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      }
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      function renderHints(qas){
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        els.hints.innerHTML = '';
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        qas.forEach(({q,a}) => {
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          const div = document.createElement('div');
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          div.className = 'item';
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          const qel = document.createElement('div'); qel.className = 'q'; qel.textContent = `Q: ${q}`;
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          const ael = document.createElement('div'); ael.className = 'a'; ael.textContent = `A: ${a}`;
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          div.appendChild(qel); div.appendChild(ael);
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          els.hints.appendChild(div);
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        });
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      }
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      async function load(){
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        const r = await fetch('/api/puzzle/state');
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        const j = await r.json();
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        len = j.wordLength;
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        mask = j.revealedMask || Array(len).fill(null);
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        if (els.dayKeyEl) els.dayKeyEl.textContent = formatDay(j.dayKey || '');
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        if (els.wordLenEl) els.wordLenEl.textContent = String(len);
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        renderTiles();
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        renderHints(j.qas || []);
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      }
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      async function doGuess(){
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        if (used) return;
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        const g = (els.input.value||'').trim();
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        if (!g) return;
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        els.btn.disabled = true; used = true;
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        try{
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          const r = await fetch('/api/puzzle/guess', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ guess: g }) });
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          const j = await r.json();
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          if (!r.ok) throw new Error(j.error||'failed');
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          if (j.correct){
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>            els.res.innerHTML = `<span style="color:#6dd16a">Correct! The word was ${j.word.toUpperCase()}.</span>`;
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>            openGameOver('You got it!', 'Great job! Come back tomorrow for a new puzzle.', true, j.word);
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          } else {
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>            mask = j.revealedMask || mask;
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>            renderTiles();
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>            const letters = (j.lettersInCommon||[]).map(x=>x.toUpperCase()).join(', ');
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>            els.res.innerHTML = letters ? `Letters in common: <b>${letters}</b>` : `<span style=\"color:#ff6b6b\">No letters in common.</span>`;
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>            // Reveal the word after the single guess
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>            try{ const rr = await fetch('/api/puzzle/reveal'); const jj = await rr.json(); openGameOver('Out of guesses', `${letters ? `Letters in common: ${letters}. ` : ''}The word was ${String(jj.word||'').toUpperCase()}.`); } catch {}
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          }
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        } catch(e){ els.res.textContent = 'Error: ' + (e?.message||''); }
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        finally { els.btn.disabled = true; els.input.disabled = true; }
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      }
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      els.btn.addEventListener('click', doGuess);
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      els.input.addEventListener('keydown', e => { if (e.key==='Enter') doGuess(); });
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      load();
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      // ---- Shared UI bits: theme toggle, menu, tutorial ----
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      function applyTheme(theme){
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        const root = document.documentElement;
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        if (theme === 'light') root.classList.add('theme-light');
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        else root.classList.remove('theme-light');
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        try { localStorage.setItem('theme', theme); } catch {}
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        const t = document.getElementById('themeToggle');
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        if (t) {
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          t.setAttribute('aria-label', theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode');
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          // Match main page button text
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          t.textContent = theme === 'light' ? '\u263E' : '\u2600';
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        }
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      }
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      (function setupTheme(){
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        let theme = 'dark';
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        try {
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          theme = localStorage.getItem('theme') || theme;
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        } catch {}
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        applyTheme(theme);
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        const t = document.getElementById('themeToggle');
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        if (t) t.addEventListener('click', ()=>{
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          const next = (localStorage.getItem('theme') || 'dark') === 'light' ? 'dark' : 'light';
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          applyTheme(next);
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        });
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      })();
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      (function setupMenu(){
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        const btn = document.getElementById('menuToggle');
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        const dd = document.getElementById('menuDropdown');
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        if (!btn || !dd) return;
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        function close(){
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          dd.classList.add('hidden');
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          btn.setAttribute('aria-expanded','false');
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          dd.setAttribute('aria-hidden','true');
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          document.removeEventListener('click', onDoc);
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          document.removeEventListener('keydown', onEsc);
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        }
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        function onDoc(e){ if (e.target===btn||btn.contains(e.target)||e.target===dd||dd.contains(e.target)) return; close(); }
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        function onEsc(e){ if (e.key==='Escape') close(); }
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        btn.addEventListener('click', (e)=>{
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          e.stopPropagation();
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          const hidden = dd.classList.contains('hidden');
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          if (hidden){
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>            dd.classList.remove('hidden');
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>            btn.setAttribute('aria-expanded','true');
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>            dd.setAttribute('aria-hidden','false');
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>            setTimeout(()=>{ document.addEventListener('click', onDoc); document.addEventListener('keydown', onEsc); },0);
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          } else close();
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        });
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      })();
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      // Auto-open tutorial on first visit (shared key with main)
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      (function maybeShowTutorial(){
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        try { if (!localStorage.getItem('tutorialSeen')) setTimeout(()=>document.getElementById('helpBtn')?.click(), 250); }
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        catch { setTimeout(()=>document.getElementById('helpBtn')?.click(), 250); }
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      })();
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      function formatDay(key){
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        try {
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          const [y,m,d] = String(key).split('-').map(n=>parseInt(n,10));
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          if (!y||!m||!d) return String(key||'');
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          const dt = new Date(Date.UTC(y, m-1,  d, 12));
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          const parts = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', weekday:'short', month:'short', day:'numeric' }).formatToParts(dt);
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          const mp = Object.fromEntries(parts.map(p=>[p.type,p.value]));
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          return `${mp.weekd � ||''} · ${mp.month||''} ${mp.d � ||''}`.trim();
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        } catch { return String(key||''); }
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      }
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      function openGameOver(title, message, win=false, word=''){
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        const b = document.getElementById('pGameOver');
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        if (!b) return;
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        const t = document.getElementById('pGoTitle');
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        const m = document.getElementById('pGoMessage');
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        if (t) t.textContent = title;
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        if (m) m.textContent = message;
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        const actions = document.getElementById('pGoActions');
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        if (win) actions?.classList.remove('hidden'); else actions?.classList.add('hidden');
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        const shareBtn = document.getElementById('pShare');
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        if (win && shareBtn) { shareBtn.onclick = () => sharePuzzleWin(word); }
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        b.classList.remove('hidden');
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        function close(){ b.classList.add('hidden'); document.removeEventListener('keydown', onEsc); }
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        function onEsc(e){ if (e.key==='Escape') close(); }
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        document.getElementById('pGoClose')?.addEventListener('click', close, { once:true });
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        b.addEventListener('click', (e)=>{ if (e.target===b) close(); });
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        document.addEventListener('keydown', onEsc);
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      }
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      async function sharePuzzleWin(word){
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      async function sharePuzzleWin(word){
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        const text = Inqaily � Puzzle: I solved it!\\n#Inqaily;
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        const shareData = { text, title: 'Inqaily � Puzzle' };
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        try { await navigator.clipboard.writeText(text); } catch {}
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      }
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>    </script>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>    <!-- Tutorial Modal (reused) -->
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>    <div id="tutorialBackdrop" class="backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="tutorialTitle">
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      <div class="modal" role="document">
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        <div class="modal-header">
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          <h2 id="tutorialTitle">How to Play (Puzzle)</h2>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          <button id="closeTutorial" class="close-btn" aria-label="Close tutorial">×</button>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        </div>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        <div class="modal-body">
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          <ul>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>            <li>You get 1 total guess.</li>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>            <li>We reveal 1�2 letters of the word up front.</li>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>            <li>Six to seven brief AI hints give general context.</li>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>            <li>The word is always a noun.</li>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>          </ul>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        </div>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      </div>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>    </div>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>    <script>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      (function(){
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        const helpBtn = document.getElementById('helpBtn');
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        const back = document.getElementById('tutorialBackdrop');
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        const closeBtn = document.getElementById('closeTutorial');
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        function show(){ if (back) back.classList.remove('hidden'); document.addEventListener('keydown', onEsc); }
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        function hide(){ if (back) back.classList.add('hidden'); document.removeEventListener('keydown', onEsc); }
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        function onEsc(e){ if (e.key==='Escape') hide(); }
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        helpBtn?.addEventListener('click', show);
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        closeBtn?.addEventListener('click', hide);
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        back?.addEventListener('click', (e)=>{ if (e.target===back) hide(); });
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>      })();
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>    </script>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>
-          <p id="pGoMessage">Thanks for playing! Come back tomorrow for a new puzzle.</p>        <!-- Game Over Modal for Puzzle -->
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Inqaily — Puzzle</title>
+    <script>
+      (function(){ try { if (localStorage.getItem('theme') === 'light') document.documentElement.classList.add('theme-light'); } catch {} })();
+    </script>
+    <link rel="stylesheet" href="/style.css" />
+    <link rel="stylesheet" href="/light.css" />
+  </head>
+  <body>
+    <div class="app">
+      <div class="titlebar">
+        <div class="title-main">
+          <h1 class="site-title">Inqaily</h1>
+          <div class="subtitle">Puzzle Mode</div>
+        </div>
+        <div class="title-actions">
+          <button id="helpBtn" class="help-btn" title="How to play" aria-label="How to play" data-tip="How to play" aria-haspopup="dialog" aria-controls="tutorialBackdrop">?</button>
+          <button id="themeToggle" class="theme-toggle" title="Toggle theme" aria-label="Toggle theme">☀</button>
+          <div class="menu-mount">
+            <button id="menuToggle" class="menu-toggle" aria-label="Menu" aria-expanded="false" aria-haspopup="true" aria-controls="menuDropdown" title="Menu">☰</button>
+            <div id="menuDropdown" class="menu-dropdown hidden" role="menu" aria-hidden="true">
+              <a href="/" role="menuitem">Daily</a>
+              <a href="/vault.html" role="menuitem">Vault</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="meta">
+        <div>Day: <span id="pDayKey">—</span></div>
+        <div>Letters: <span id="pWordLength">—</span></div>
+      </div>
+
+      <section class="panel">
+        <div id="pTiles" class="tiles" aria-live="polite"></div>
+      </section>
+      <section class="panel">
+        <h2>Hints</h2>
+        <div id="pHints" class="qa"></div>
+      </section>
+      <section class="panel">
+        <h2>Your One Guess</h2>
+        <div class="row">
+          <input id="pGuess" type="text" placeholder="Your guess" />
+          <button id="pGuessBtn">Guess</button>
+        </div>
+        <div id="pResult" class="muted" style="margin-top:8px"></div>
+      </section>
+
+      <footer>
+        <small>New word rolls at 12:01 AM Eastern Time.</small>
+        <nav class="legal-links" aria-label="Legal and Privacy">
+          <a href="/privacy.html">Privacy</a>
+          <span class="sep">•</span>
+          <a href="/terms.html">Terms</a>
+          <span class="sep">•</span>
+          <a href="/cookies.html">Cookies</a>
+        </nav>
+      </footer>
+    </div>
+
+    <script type="module">
+      const els = {
+        tiles: document.getElementById('pTiles'),
+        hints: document.getElementById('pHints'),
+        input: document.getElementById('pGuess'),
+        btn: document.getElementById('pGuessBtn'),
+        res: document.getElementById('pResult'),
+        dayKeyEl: document.getElementById('pDayKey'),
+        wordLenEl: document.getElementById('pWordLength')
+      };
+      let mask = [];
+      let len = 0;
+      let used = false;
+
+      function renderTiles(){
+        els.tiles.innerHTML = '';
+        for (let i=0;i<len;i++){
+          const s = document.createElement('span');
+          s.className = 'tile' + (mask[i] ? '' : ' empty');
+          s.textContent = mask[i] ? mask[i].toUpperCase() : '·';
+          els.tiles.appendChild(s);
+        }
+      }
+      function renderHints(qas){
+        els.hints.innerHTML = '';
+        qas.forEach(({q,a}) => {
+          const div = document.createElement('div');
+          div.className = 'item';
+          const qel = document.createElement('div'); qel.className = 'q'; qel.textContent = `Q: ${q}`;
+          const ael = document.createElement('div'); ael.className = 'a'; ael.textContent = `A: ${a}`;
+          div.appendChild(qel); div.appendChild(ael);
+          els.hints.appendChild(div);
+        });
+      }
+
+      async function load(){
+        try{
+          const r = await fetch('/api/puzzle/state');
+          if (!r.ok) throw new Error('Puzzle unavailable');
+          const j = await r.json();
+          len = j.wordLength;
+          mask = j.revealedMask || Array(len).fill(null);
+          if (els.dayKeyEl) els.dayKeyEl.textContent = formatDay(j.dayKey || '');
+          if (els.wordLenEl) els.wordLenEl.textContent = String(len);
+          renderTiles();
+          renderHints(j.qas || []);
+        } catch(e){
+          els.tiles.innerHTML = '';
+          els.hints.innerHTML = '';
+          const msg = document.createElement('div');
+          msg.className = 'muted';
+          msg.textContent = 'Puzzle mode is unavailable right now. Please try again later.';
+          els.hints.appendChild(msg);
+        }
+      }
+
+      async function doGuess(){
+        if (used) return;
+        const g = (els.input.value||'').trim();
+        if (!g) return;
+        els.btn.disabled = true; used = true;
+        try{
+          const r = await fetch('/api/puzzle/guess', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ guess: g }) });
+          const j = await r.json();
+          if (!r.ok) throw new Error(j.error||'failed');
+          if (j.correct){
+            els.res.innerHTML = `<span class="ok">Correct!</span>`;
+            openGameOver('You got it!', 'Great job! Come back tomorrow for a new puzzle.', true, j.word);
+            try { startConfetti(); } catch {}
+          } else {
+            mask = j.revealedMask || mask;
+            renderTiles();
+            const letters = (j.lettersInCommon||[]).map(x=>x.toUpperCase()).join(', ');
+            const baseTxt = letters ? `Letters in common: ${letters}` : `No letters in common.`;
+            try{ const rr = await fetch('/api/puzzle/reveal'); const jj = await rr.json(); openGameOver('Out of guesses', `${baseTxt} The word was ${String(jj.word||'').toUpperCase()}.`); } catch { openGameOver('Out of guesses', baseTxt); }
+          }
+        } catch(e){ els.res.textContent = 'Error: ' + (e?.message||''); }
+        finally { els.btn.disabled = true; els.input.disabled = true; }
+      }
+      els.btn.addEventListener('click', doGuess);
+      els.input.addEventListener('keydown', e => { if (e.key==='Enter') doGuess(); });
+      load();
+
+      // Theme
+      function applyTheme(theme){
+        const root = document.documentElement;
+        if (theme === 'light') root.classList.add('theme-light'); else root.classList.remove('theme-light');
+        try { localStorage.setItem('theme', theme); } catch {}
+        const t = document.getElementById('themeToggle');
+        if (t) { t.setAttribute('aria-label', theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'); t.textContent = theme === 'light' ? '\u263E' : '\u2600'; }
+      }
+      (function setupTheme(){ let theme='dark'; try { theme = localStorage.getItem('theme') || theme; } catch {} applyTheme(theme); const t=document.getElementById('themeToggle'); t?.addEventListener('click', ()=>{ const next=(localStorage.getItem('theme')||'dark')==='light'?'dark':'light'; applyTheme(next); }); })();
+
+      // Menu
+      (function setupMenu(){ const btn=document.getElementById('menuToggle'); const dd=document.getElementById('menuDropdown'); if(!btn||!dd) return; function close(){ dd.classList.add('hidden'); btn.setAttribute('aria-expanded','false'); dd.setAttribute('aria-hidden','true'); document.removeEventListener('click',onDoc); document.removeEventListener('keydown',onEsc);} function onDoc(e){ if(e.target===btn||btn.contains(e.target)||e.target===dd||dd.contains(e.target)) return; close(); } function onEsc(e){ if(e.key==='Escape') close(); } btn.addEventListener('click', (e)=>{ e.stopPropagation(); const hidden=dd.classList.contains('hidden'); if(hidden){ dd.classList.remove('hidden'); btn.setAttribute('aria-expanded','true'); dd.setAttribute('aria-hidden','false'); setTimeout(()=>{ document.addEventListener('click',onDoc); document.addEventListener('keydown',onEsc); },0);} else close(); }); })();
+
+      // Tutorial auto-open (share key with main)
+      (function(){ try { if (!localStorage.getItem('tutorialSeen')) setTimeout(()=>document.getElementById('helpBtn')?.click(), 250); } catch { setTimeout(()=>document.getElementById('helpBtn')?.click(), 250); } })();
+
+      function formatDay(key){ try { const [y,m,d]=String(key).split('-').map(n=>parseInt(n,10)); if(!y||!m||!d) return String(key||''); const dt=new Date(Date.UTC(y,m-1,d,12)); const parts=new Intl.DateTimeFormat('en-US',{ timeZone:'America/New_York', weekday:'short', month:'short', day:'numeric' }).formatToParts(dt); const mp=Object.fromEntries(parts.map(p=>[p.type,p.value])); return `${mp.weekday||''} · ${mp.month||''} ${mp.day||''}`.trim(); } catch { return String(key||''); } }
+
+      function openGameOver(title, message, win=false, word=''){
+        const b=document.getElementById('pGameOver'); if(!b) return; const t=document.getElementById('pGoTitle'); const m=document.getElementById('pGoMessage'); if(t) t.textContent=title; if(m) m.textContent=message; const actions=document.getElementById('pGoActions'); if(win) actions?.classList.remove('hidden'); else actions?.classList.add('hidden'); const shareBtn=document.getElementById('pShare'); if(win&&shareBtn){ shareBtn.onclick=()=>sharePuzzleWin(word); } b.classList.remove('hidden'); function close(){ b.classList.add('hidden'); document.removeEventListener('keydown',onEsc);} function onEsc(e){ if(e.key==='Escape') close(); } document.getElementById('pGoClose')?.addEventListener('click', close, { once:true }); b.addEventListener('click', (e)=>{ if(e.target===b) close(); }); document.addEventListener('keydown', onEsc); }
+
+      async function sharePuzzleWin(word){ const text = `Inqaily — Puzzle: I solved it!\n#Inqaily`; const shareData = { text, title: 'Inqaily — Puzzle' }; try { if (navigator.share) { await navigator.share(shareData); return; } } catch {} try { await navigator.clipboard.writeText(text); } catch {} }
+    </script>
+
+    <!-- Tutorial Modal -->
+    <div id="tutorialBackdrop" class="backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="tutorialTitle">
+      <div class="modal" role="document">
+        <div class="modal-header">
+          <h2 id="tutorialTitle">How to Play (Puzzle)</h2>
+          <button id="closeTutorial" class="close-btn" aria-label="Close tutorial">×</button>
+        </div>
+        <div class="modal-body">
+          <ul>
+            <li>You get 1 total guess.</li>
+            <li>We reveal 1-2 letters of the word up front.</li>
+            <li>Six to seven brief AI hints give general context.</li>
+            <li>The word is always a noun.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <script>
+      (function(){ const helpBtn=document.getElementById('helpBtn'); const back=document.getElementById('tutorialBackdrop'); const closeBtn=document.getElementById('closeTutorial'); function show(){ if(back) back.classList.remove('hidden'); document.addEventListener('keydown', onEsc);} function hide(){ if(back) back.classList.add('hidden'); document.removeEventListener('keydown', onEsc);} function onEsc(e){ if(e.key==='Escape') hide(); } helpBtn?.addEventListener('click', show); closeBtn?.addEventListener('click', hide); back?.addEventListener('click', (e)=>{ if(e.target===back) hide(); }); })();
+    </script>
+
+    <!-- Game Over Modal for Puzzle -->
     <div id="pGameOver" class="backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="pGoTitle">
       <div class="modal" role="document">
         <div class="modal-header">
@@ -288,5 +213,46 @@
         </div>
       </div>
     </div>
+
+    <script>
+      // Confetti effect (same as main)
+      function startConfetti(duration = 1500, count = 140) {
+        const canvas = document.createElement('canvas');
+        Object.assign(canvas.style, { position: 'fixed', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 2000 });
+        document.body.appendChild(canvas);
+        const ctx = canvas.getContext('2d');
+        const dpr = window.devicePixelRatio || 1;
+        function resize() { canvas.width = innerWidth * dpr; canvas.height = innerHeight * dpr; }
+        resize();
+        const colors = ['#78d9ff', '#6dd16a', '#e9ecf1', '#a7b0c3', '#ff6b6b'];
+        const parts = Array.from({ length: count }, () => ({
+          x: Math.random() * canvas.width,
+          y: -Math.random() * canvas.height * 0.5,
+          w: 6 + Math.random() * 6,
+          h: 10 + Math.random() * 10,
+          vx: (-0.5 + Math.random()) * 1.2 * dpr,
+          vy: (1 + Math.random() * 2.5) * dpr,
+          rot: Math.random() * Math.PI,
+          vr: (-0.5 + Math.random()) * 0.2,
+          color: colors[Math.floor(Math.random() * colors.length)]
+        }));
+        const start = performance.now();
+        let raf;
+        function tick(t) {
+          const elapsed = t - start;
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          parts.forEach(p => {
+            p.x += p.vx; p.y += p.vy; p.rot += p.vr;
+            if (p.y > canvas.height) { p.y = -10; p.x = Math.random() * canvas.width; }
+            ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.fillStyle = p.color; ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h); ctx.restore();
+          });
+          if (elapsed < duration) raf = requestAnimationFrame(tick); else cleanup();
+        }
+        function cleanup() { cancelAnimationFrame(raf); canvas.remove(); }
+        window.addEventListener('resize', resize, { once: true });
+        raf = requestAnimationFrame(tick);
+      }
+    </script>
   </body>
   </html>
+
