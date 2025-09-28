@@ -126,10 +126,28 @@ function render(state) {
   els.guessBtn.disabled = state.guessesLeft <= 0;
 }
 
+let VAULT_LOCKED = false;
+
+function getDayParam() {
+  try { const u = new URL(location.href); return u.searchParams.get('day'); } catch { return null; }
+}
+
+function isCompletedLocal(day) {
+  if (!day) return false;
+  try {
+    const raw = localStorage.getItem(storageKey(day));
+    if (!raw) return false;
+    const s = JSON.parse(raw);
+    if (!s) return false;
+    if (s.gameOver) return true;
+    if (typeof s.guessesLeft === 'number' && s.guessesLeft <= 0) return true;
+    if (Array.isArray(s.revealed) && s.revealed.length && s.revealed.every(Boolean)) return true;
+    return false;
+  } catch { return false; }
+}
+
 async function init() {
-  // Optional vault day selection via ?day=YYYY-MM-DD
-  let dayParam = null;
-  try { const u = new URL(location.href); dayParam = u.searchParams.get('day'); } catch {}
+  const dayParam = getDayParam();
   const resp = await fetch('/api/state' + (dayParam ? (`?day=${encodeURIComponent(dayParam)}`) : ''));
   if (!resp.ok) {
     els.maskedWord.textContent = 'Failed to load game state.';
@@ -139,6 +157,26 @@ async function init() {
   console.log('[CLIENT STATE]', s);
   const st = loadState(s.dayKey, s.wordLength, s.wordVersion);
   render(st);
+  // Vault lock: if playing a past day already completed, disable play and reveal
+  if (dayParam && isCompletedLocal(dayParam)) {
+    VAULT_LOCKED = true;
+    try {
+      let url2 = '/api/reveal';
+      url2 += `?day=${encodeURIComponent(dayParam)}`;
+      const r = await fetch(url2);
+      const j = await r.json();
+      if (j && j.word) {
+        st.revealed = String(j.word).split('');
+        saveState(st);
+        render(st);
+        if (els.askBtn) els.askBtn.disabled = true;
+        if (els.guessBtn) els.guessBtn.disabled = true;
+        if (els.qInput) els.qInput.disabled = true;
+        if (els.gInput) els.gInput.disabled = true;
+        if (els.guessResult) els.guessResult.innerHTML = `<span class="ok">Already completed. The word was <b>${String(j.word).toUpperCase()}</b>.</span>`;
+      }
+    } catch {}
+  }
 
   els.askBtn.addEventListener('click', () => ask(st));
   els.qInput.addEventListener('keydown', e => { if (e.key === 'Enter') ask(st); });
@@ -176,6 +214,7 @@ function formatDayCool(key) {
 }
 
 async function ask(state) {
+  if (VAULT_LOCKED) { return; }
   const q = (els.qInput.value || '').trim();
   if (!q) return;
   if (q.length > MAX_QUESTION_LEN) {
@@ -209,6 +248,7 @@ async function ask(state) {
 }
 
 async function guess(state) {
+  if (VAULT_LOCKED) { return; }
   const g = (els.gInput.value || '').trim();
   if (!g) return;
   if (state.guessesLeft <= 0) return;
