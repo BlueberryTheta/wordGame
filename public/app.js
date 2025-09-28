@@ -170,8 +170,7 @@ async function init() {
   } catch {}
   // Hide streak UI when viewing a past day (vault mode)
   try {
-    const todayKey = s.todayKey || s.dayKey;
-    const isPastDay = (s.dayKey && todayKey) ? (s.dayKey !== todayKey) : false;
+    const isPastDay = isVaultMode();
     const streakRow = document.querySelector('.streak-row');
     if (streakRow) streakRow.classList.toggle('hidden', !!isPastDay);
     const goStreak = document.getElementById('gameOverStreak');
@@ -651,43 +650,48 @@ function openGameOver(title, message) {
   const m = document.getElementById('gameOverMessage');
   if (t && title) t.textContent = title;
   if (m && message) m.textContent = message;
-  // Always show current streak in the modal
+  // Show streak in modal only for today's game (hide for past days)
   try {
     const day = els.dayKey?.dataset?.key || els.dayKey?.textContent || '';
-    const streakNow = getCurrentStreak(day);
+    const isPast = isVaultMode();
     const sEl = document.getElementById('gameOverStreak');
     if (sEl) {
-      sEl.innerHTML = `
-        <span class="streak-modal">
-          <span class="streak-icon" aria-hidden="true">
-            <svg class="icon" viewBox="0 0 24 24" focusable="false">
-              <defs>
-                <linearGradient id="streakGradModal" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stop-color="#ffd166"/>
-                  <stop offset="100%" stop-color="#fca311"/>
-                </linearGradient>
-              </defs>
-              <path d="M3 14 C7 12, 9 10, 13 9" stroke="url(#streakGradModal)" stroke-width="2" stroke-linecap="round" fill="none"/>
-              <polygon points="15,3 17.2,8.2 22.9,8.6 18.2,12.1 19.8,17.6 15,14.6 10.2,17.6 11.8,12.1 7.1,8.6 12.8,8.2" fill="url(#streakGradModal)"/>
-            </svg>
-          </span>
-          Inqaily streak: <strong class=\"streak-count\">${streakNow}</strong>
-          <button id="streakInfoModal" class="streak-info-btn" aria-label="About streaks" title="About streaks">
-            <svg viewBox="0 0 24 24" width="14" height="14" focusable="false" aria-hidden="true">
-              <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/>
-              <circle cx="12" cy="8" r="1.2" fill="currentColor"/>
-              <path d="M11.2 11.5h1.6v5h-1.6z" fill="currentColor"/>
-            </svg>
-          </button>
-          <div id="streakInfoBubbleModal" class="streak-info-bubble" role="tooltip">
-            Play daily to grow your streak. Come back tomorrow to keep it going!
-          </div>
-        </span>`;
-      setupModalStreakInfo();
-      const modalCountEl = sEl.querySelector('.streak-count');
-      try { applyStreakHeat(modalCountEl, streakNow); } catch {}
-      // Hide streak section entirely when viewing a past day (vault mode)
-      try { sEl.classList.toggle('hidden', isVaultMode()); } catch {}
+      if (isPast) {
+        sEl.classList.add('hidden');
+        sEl.innerHTML = '';
+      } else {
+        const streakNow = getCurrentStreak(day);
+        sEl.classList.remove('hidden');
+        sEl.innerHTML = `
+          <span class="streak-modal">
+            <span class="streak-icon" aria-hidden="true">
+              <svg class="icon" viewBox="0 0 24 24" focusable="false">
+                <defs>
+                  <linearGradient id="streakGradModal" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#ffd166"/>
+                    <stop offset="100%" stop-color="#fca311"/>
+                  </linearGradient>
+                </defs>
+                <path d="M3 14 C7 12, 9 10, 13 9" stroke="url(#streakGradModal)" stroke-width="2" stroke-linecap="round" fill="none"/>
+                <polygon points="15,3 17.2,8.2 22.9,8.6 18.2,12.1 19.8,17.6 15,14.6 10.2,17.6 11.8,12.1 7.1,8.6 12.8,8.2" fill="url(#streakGradModal)"/>
+              </svg>
+            </span>
+            Inqaily streak: <strong class=\"streak-count\">${streakNow}</strong>
+            <button id="streakInfoModal" class="streak-info-btn" aria-label="About streaks" title="About streaks">
+              <svg viewBox="0 0 24 24" width="14" height="14" focusable="false" aria-hidden="true">
+                <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/>
+                <circle cx="12" cy="8" r="1.2" fill="currentColor"/>
+                <path d="M11.2 11.5h1.6v5h-1.6z" fill="currentColor"/>
+              </svg>
+            </button>
+            <div id="streakInfoBubbleModal" class="streak-info-bubble" role="tooltip">
+              Play daily to grow your streak. Come back tomorrow to keep it going!
+            </div>
+          </span>`;
+        setupModalStreakInfo();
+        const modalCountEl = sEl.querySelector('.streak-count');
+        try { applyStreakHeat(modalCountEl, streakNow); } catch {}
+      }
     }
   } catch {}
   // Build score if win
