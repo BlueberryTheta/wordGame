@@ -59,7 +59,16 @@
         </div>
         <div id="pResult" class="muted" style="margin-top:8px"></div>
       </div>
-      <p><a href="/">‚Üê Back to Inqaily</a></p>
+            <footer>
+        <small>New word rolls at 12:01 AM Eastern Time.</small>
+        <nav class=\"legal-links\" aria-label=\"Legal and Privacy\">
+          <a href=\"/privacy.html\">Privacy</a>
+          <span class=\"sep\">ï</span>
+          <a href=\"/terms.html\">Terms</a>
+          <span class=\"sep\">ï</span>
+          <a href=\"/cookies.html\">Cookies</a>
+        </nav>
+      </footer>
     </div>
     <script type="module">
       const els = {
@@ -195,7 +204,7 @@
           const dt = new Date(Date.UTC(y, m-1,  d, 12));
           const parts = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', weekday:'short', month:'short', day:'numeric' }).formatToParts(dt);
           const mp = Object.fromEntries(parts.map(p=>[p.type,p.value]));
-          return `${mp.weekday||''} ¬∑ ${mp.month||''} ${mp.day||''}`.trim();
+          return `${mp.weekd ∑ ||''} ¬∑ ${mp.month||''} ${mp.d ∑ ||''}`.trim();
         } catch { return String(key||''); }
       }
 
@@ -219,9 +228,9 @@
       }
 
       async function sharePuzzleWin(word){
-        const text = `Inqaily ‚Äî Puzzle: I solved it!\nWord: ${String(word||'').toUpperCase()}\n#Inqaily`;
-        const shareData = { text, title: 'Inqaily ‚Äî Puzzle' };
-        try { if (navigator.share) { await navigator.share(shareData); return; } } catch {}
+      async function sharePuzzleWin(word){
+        const text = Inqaily ó Puzzle: I solved it!\\n#Inqaily;
+        const shareData = { text, title: 'Inqaily ó Puzzle' };
         try { await navigator.clipboard.writeText(text); } catch {}
       }
     </script>
