@@ -161,7 +161,8 @@ async function init() {
   try {
     const todayLink = document.getElementById('menuToday');
     if (todayLink) {
-      if (dayParam && dayParam !== s.dayKey) todayLink.classList.remove('hidden');
+      const todayKey = s.todayKey || s.dayKey; // fallback
+      if (dayParam && dayParam !== todayKey) todayLink.classList.remove('hidden');
       else todayLink.classList.add('hidden');
     }
   } catch {}

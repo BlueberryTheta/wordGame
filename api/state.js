@@ -18,7 +18,7 @@ export default async function handler(req, res) {
       word = await todayWord(force && adminOk, (force && adminOk) ? salt : '');
     }
     const version = fnv1a(word);
-    const payload = { dayKey: day || dayKey(), wordLength: word.length, wordVersion: version };
+    const payload = { dayKey: day || dayKey(), todayKey: dayKey(), wordLength: word.length, wordVersion: version };
     console.log('[STATE]', { boot: BOOT_ID, region: process.env.VERCEL_REGION, query: Object.fromEntries(url.searchParams.entries()), payload });
     return res.status(200).json(payload);
   } catch (e) {
