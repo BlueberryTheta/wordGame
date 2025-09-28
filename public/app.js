@@ -157,6 +157,13 @@ async function init() {
   console.log('[CLIENT STATE]', s);
   const st = loadState(s.dayKey, s.wordLength, s.wordVersion);
   render(st);
+  // Toggle Today link in menu when viewing a vault day
+  try {
+    const todayLink = document.getElementById('menuToday');
+    if (todayLink) {
+      if (dayParam) todayLink.classList.remove('hidden'); else todayLink.classList.add('hidden');
+    }
+  } catch {}
   // Vault lock: if playing a past day already completed, disable play and reveal
   if (dayParam && isCompletedLocal(dayParam)) {
     VAULT_LOCKED = true;
