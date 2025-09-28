@@ -157,11 +157,12 @@ async function init() {
   console.log('[CLIENT STATE]', s);
   const st = loadState(s.dayKey, s.wordLength, s.wordVersion);
   render(st);
-  // Toggle Today link in menu when viewing a vault day
+  // Toggle Today link in menu when viewing a vault day (hide if already today's date)
   try {
     const todayLink = document.getElementById('menuToday');
     if (todayLink) {
-      if (dayParam) todayLink.classList.remove('hidden'); else todayLink.classList.add('hidden');
+      if (dayParam && dayParam !== s.dayKey) todayLink.classList.remove('hidden');
+      else todayLink.classList.add('hidden');
     }
   } catch {}
   // Vault lock: if playing a past day already completed, disable play and reveal
@@ -314,10 +315,11 @@ async function guess(state) {
         const r = await fetch(url2);
         const j = await r.json();
         const w = (j && j.word) ? String(j.word).toUpperCase() : '';
-        const msg = w ? `Nice try! The word was ${w}. Come back tomorrow for a new word.` : 'Nice try! Come back tomorrow for a new word.';
+        const base = getGameOverCopy(false);
+        const msg = w ? `${base} The word was ${w}.` : base;
         openGameOver('Out of guesses', msg);
       } catch {
-        openGameOver('Out of guesses', 'Nice try! Come back tomorrow for a new word.');
+        openGameOver('Out of guesses', getGameOverCopy(false));
       }
     }
   } catch (e) {
@@ -698,6 +700,16 @@ function onEscHideGameOver(e) { if (e.key === 'Escape') hideGameOver(); }
   b?.addEventListener('click', (e) => { if (e.target === b) hideGameOver(); });
 })();
 
+function isVaultMode() {
+  try { const u = new URL(location.href); return !!u.searchParams.get('day'); } catch { return false; }
+}
+function getGameOverCopy(win) {
+  if (isVaultMode()) {
+    return win ? 'Great job! You were playing a past day.' : 'Nice try! You were playing a past day.';
+  }
+  return win ? 'Great job! Come back tomorrow for a new word.' : 'Nice try! Come back tomorrow for a new word.';
+}
+
 (function setupGameOverObservers() {
   let shown = false;
   const resEl = document.getElementById('guessResult') || els.guessResult;
@@ -707,7 +719,7 @@ function onEscHideGameOver(e) { if (e.key === 'Escape') hideGameOver(); }
       if (shown) return;
       const txt = resEl.textContent || '';
       if (/Correct!/i.test(txt)) {
-        shown = true; openGameOver('You got it!', 'Great job! Come back tomorrow for a new word.');
+        shown = true; openGameOver('You got it!', getGameOverCopy(true));
       }
     }).observe(resEl, { childList: true, subtree: true, characterData: true });
   }
@@ -716,7 +728,7 @@ function onEscHideGameOver(e) { if (e.key === 'Escape') hideGameOver(); }
       if (shown) return;
       const left = parseInt((gLeftEl.textContent || '').trim(), 10);
       if (!isNaN(left) && left <= 0) {
-        shown = true; openGameOver('Out of guesses', 'Nice try! Come back tomorrow for a new word.');
+        shown = true; openGameOver('Out of guesses', getGameOverCopy(false));
       }
     }).observe(gLeftEl, { childList: true, characterData: true, subtree: true });
   }
