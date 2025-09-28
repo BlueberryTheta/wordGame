@@ -29,7 +29,7 @@ h1{margin:0 0 8px 0}
 .theme-toggle{height:36px; padding:0 10px; border-radius:10px; border:1px solid var(--shade); background:#0e1120; color:var(--fg); cursor:pointer}
 .menu-mount{position:relative}
 .menu-toggle{height:36px; width:36px; padding:0 0; border-radius:10px; border:1px solid var(--shade); background:#0e1120; color:var(--fg); cursor:pointer; font-size:18px; line-height:1}
-.menu-dropdown{position:absolute; right:0; top:calc(100% + 6px); background:var(--card); border:1px solid var(--shade); border-radius:10px; min-width:160px; box-shadow:0 10px 24px rgba(0,0,0,.35); padding:6px}
+.menu-dropdown{position:absolute; right:0; top:calc(100% + 6px); background:var(--card); border:1px solid var(--shade); border-radius:10px; min-width:160px; box-shadow:0 10px 24px rgba(0,0,0,.35); padding:6px; z-index:900}
 .menu-dropdown a{display:block; color:var(--fg); text-decoration:none; padding:8px 10px; border-radius:8px}
 .menu-dropdown a:hover{background:#0e1120}
 .help-btn{position:relative; width:40px; height:40px; border-radius:12px; border:1px solid var(--shade); background:
@@ -75,6 +75,8 @@ h1{margin:0 0 8px 0}
 /* Hide 'Day:' label text without changing HTML */
 .meta > div:first-child{ font-size:0 }
 .meta > div:first-child #dayKey{ font-size:12px }
+/* Ensure puzzle page day shows despite general label-hiding rule */
+.meta > div:first-child #pDayKey{ font-size:12px }
 .meta #dayKey,
 .meta #wordLength{
   display:inline-block; font:700 12px var(--mono); color:var(--fg);
