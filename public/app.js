@@ -196,7 +196,12 @@ async function init() {
     const outOfGuesses = typeof st.guessesLeft === 'number' && st.guessesLeft <= 0;
     if (isDaily && (st.gameOver || outOfGuesses || allRevealed)) {
       let msg = getGameOverCopy(allRevealed);
-      try { const r = await fetch('/api/reveal'); const j = await r.json(); const w = (j && j.word) ? String(j.word).toUpperCase() : ''; if (w) msg = ${msg} The word was .; } catch {}
+      try {
+        const r = await fetch('/api/reveal');
+        const j = await r.json();
+        const w = (j && j.word) ? String(j.word).toUpperCase() : '';
+        if (w) msg = `${msg} The word was ${w}.`;
+      } catch {}
       openGameOver(allRevealed ? 'You got it!' : 'Out of guesses', msg);
     }
   } catch {}
