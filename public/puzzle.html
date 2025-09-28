@@ -26,7 +26,20 @@
   </head>
   <body>
     <div class="page">
-      <h1>Puzzle Mode</h1>
+      <div class="titlebar" style="margin-bottom:12px; display:flex; align-items:center; justify-content:space-between; gap:12px">
+        <div class="title-main"><h1 style="margin:0">Puzzle Mode</h1></div>
+        <div class="title-actions" style="display:flex; align-items:center; gap:8px">
+          <button id="helpBtn" class="help-btn" title="How to play" aria-label="How to play" data-tip="How to play" aria-haspopup="dialog" aria-controls="tutorialBackdrop">?</button>
+          <button id="themeToggle" class="theme-toggle" title="Toggle theme" aria-label="Toggle theme">🌓</button>
+          <div class="menu-mount">
+            <button id="menuToggle" class="menu-toggle" aria-label="Menu" aria-expanded="false" aria-haspopup="true" aria-controls="menuDropdown" title="Menu">☰</button>
+            <div id="menuDropdown" class="menu-dropdown hidden" role="menu" aria-hidden="true">
+              <a href="/" role="menuitem">Home</a>
+              <a href="/vault.html" role="menuitem">Vault</a>
+            </div>
+          </div>
+        </div>
+      </div>
       <div class="panel">
         <div id="pTiles" class="tiles" aria-live="polite"></div>
       </div>
@@ -108,6 +121,84 @@
       els.btn.addEventListener('click', doGuess);
       els.input.addEventListener('keydown', e => { if (e.key==='Enter') doGuess(); });
       load();
+
+      // ---- Shared UI bits: theme toggle, menu, tutorial ----
+      function applyTheme(theme){
+        const root = document.documentElement;
+        if (theme === 'light') root.classList.add('theme-light');
+        else root.classList.remove('theme-light');
+        try { localStorage.setItem('theme', theme); } catch {}
+        const t = document.getElementById('themeToggle');
+        if (t) t.setAttribute('aria-label', theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode');
+      }
+      (function setupTheme(){
+        let theme = 'dark';
+        try {
+          theme = localStorage.getItem('theme') || theme;
+        } catch {}
+        applyTheme(theme);
+        const t = document.getElementById('themeToggle');
+        if (t) t.addEventListener('click', ()=>{
+          const next = (localStorage.getItem('theme') || 'dark') === 'light' ? 'dark' : 'light';
+          applyTheme(next);
+        });
+      })();
+
+      (function setupMenu(){
+        const btn = document.getElementById('menuToggle');
+        const dd = document.getElementById('menuDropdown');
+        if (!btn || !dd) return;
+        function close(){
+          dd.classList.add('hidden');
+          btn.setAttribute('aria-expanded','false');
+          dd.setAttribute('aria-hidden','true');
+          document.removeEventListener('click', onDoc);
+          document.removeEventListener('keydown', onEsc);
+        }
+        function onDoc(e){ if (e.target===btn||btn.contains(e.target)||e.target===dd||dd.contains(e.target)) return; close(); }
+        function onEsc(e){ if (e.key==='Escape') close(); }
+        btn.addEventListener('click', (e)=>{
+          e.stopPropagation();
+          const hidden = dd.classList.contains('hidden');
+          if (hidden){
+            dd.classList.remove('hidden');
+            btn.setAttribute('aria-expanded','true');
+            dd.setAttribute('aria-hidden','false');
+            setTimeout(()=>{ document.addEventListener('click', onDoc); document.addEventListener('keydown', onEsc); },0);
+          } else close();
+        });
+      })();
+    </script>
+
+    <!-- Tutorial Modal (reused) -->
+    <div id="tutorialBackdrop" class="backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="tutorialTitle">
+      <div class="modal" role="document">
+        <div class="modal-header">
+          <h2 id="tutorialTitle">How to Play (Puzzle)</h2>
+          <button id="closeTutorial" class="close-btn" aria-label="Close tutorial">×</button>
+        </div>
+        <div class="modal-body">
+          <ul>
+            <li>You get 1 total guess.</li>
+            <li>We reveal 1–2 letters of the word up front.</li>
+            <li>Two to three brief AI hints give general context.</li>
+            <li>The word is always a noun.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <script>
+      (function(){
+        const helpBtn = document.getElementById('helpBtn');
+        const back = document.getElementById('tutorialBackdrop');
+        const closeBtn = document.getElementById('closeTutorial');
+        function show(){ if (back) back.classList.remove('hidden'); document.addEventListener('keydown', onEsc); }
+        function hide(){ if (back) back.classList.add('hidden'); document.removeEventListener('keydown', onEsc); }
+        function onEsc(e){ if (e.key==='Escape') hide(); }
+        helpBtn?.addEventListener('click', show);
+        closeBtn?.addEventListener('click', hide);
+        back?.addEventListener('click', (e)=>{ if (e.target===back) hide(); });
+      })();
     </script>
   </body>
   </html>
