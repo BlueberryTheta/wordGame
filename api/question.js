@@ -1,4 +1,4 @@
-import { todayWord, dayKey } from '../src/wotd.js';
+import { todayWord, dayKey, wordForDay } from '../src/wotd.js';
 import { answerQuestion } from '../src/openai.js';
 
 async function readJson(req) {
@@ -20,7 +20,7 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
   try {
     const body = await readJson(req);
-    const { question } = body || {};
+    const { question, day } = body || {};
     if (!question || typeof question !== 'string') {
       return res.status(400).json({ error: 'Missing question' });
     }
@@ -28,7 +28,7 @@ export default async function handler(req, res) {
     if (q.length > 100) {
       return res.status(400).json({ error: 'question too long (max 100 chars)' });
     }
-    const word = await todayWord();
+    const word = day ? await wordForDay(day, { generateIfMissing: true }) : await todayWord();
     console.log('[QUESTION]', { dayKey: dayKey(), q, word, len: word.length });
     const reply = await answerQuestion(word, q);
     return res.status(200).json({ answer: reply });

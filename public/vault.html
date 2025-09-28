@@ -5,25 +5,71 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Inqaily — Vault</title>
     <script>
-      (function(){
-        try { if (localStorage.getItem('theme') === 'light') document.documentElement.classList.add('theme-light'); } catch {}
-      })();
+      (function(){ try { if (localStorage.getItem('theme') === 'light') document.documentElement.classList.add('theme-light'); } catch {} })();
     </script>
     <link rel="stylesheet" href="/style.css" />
     <link rel="stylesheet" href="/light.css" />
     <style>
-      .page{max-width:800px; margin:32px auto; padding:0 16px}
-      .card{background:var(--card); border:1px solid var(--shade); border-radius:12px; padding:16px; margin:16px 0; text-align:center}
+      .vault{max-width:800px; margin:32px auto; padding:0 16px}
+      .picker{background:var(--card); border:1px solid var(--shade); border-radius:12px; padding:16px; margin:16px 0}
+      .done-list{background:var(--card); border:1px solid var(--shade); border-radius:12px; padding:16px; margin:16px 0}
+      .done-list ul{margin:8px 0 0; padding-left:18px}
       .muted{color:var(--muted)}
     </style>
   </head>
   <body>
-    <div class="page">
-      <h1>Vault</h1>
-      <div class="card">
-        <p class="muted">Coming soon.</p>
+    <div class="vault">
+      <div class="titlebar" style="margin-bottom:8px">
+        <div class="title-main"><h1 style="margin:0">Vault</h1><div class="subtitle">Play previous days</div></div>
+        <div class="title-actions">
+          <button id="themeToggle" class="theme-toggle" title="Toggle theme" aria-label="Toggle theme">☀</button>
+          <div class="menu-mount">
+            <button id="menuToggle" class="menu-toggle" aria-label="Menu" aria-expanded="false" aria-haspopup="true" aria-controls="menuDropdown" title="Menu">☰</button>
+            <div id="menuDropdown" class="menu-dropdown hidden" role="menu" aria-hidden="true">
+              <a href="/" role="menuitem">Daily</a>
+              <a href="/puzzle.html" role="menuitem">Puzzle</a>
+            </div>
+          </div>
+        </div>
       </div>
-      <p><a href="/">← Back to Inqaily</a></p>
+
+      <section class="picker">
+        <h2>Select a Day</h2>
+        <div class="row">
+          <input id="dayPicker" type="date" />
+          <button id="playBtn">Play</button>
+        </div>
+        <p class="muted" style="margin-top:8px">You will play the original game for the selected day.</p>
+      </section>
+
+      <section class="done-list">
+        <h2>Completed Days</h2>
+        <div id="doneWrap" class="muted">No days completed yet.</div>
+      </section>
+
+      <footer>
+        <small>New word rolls at 12:01 AM Eastern Time.</small>
+        <nav class="legal-links" aria-label="Legal and Privacy">
+          <a href="/privacy.html">Privacy</a>
+          <span class="sep">•</span>
+          <a href="/terms.html">Terms</a>
+          <span class="sep">•</span>
+          <a href="/cookies.html">Cookies</a>
+        </nav>
+      </footer>
     </div>
+
+    <script>
+      // Theme quick setup
+      function applyTheme(theme){ const r=document.documentElement; if(theme==='light') r.classList.add('theme-light'); else r.classList.remove('theme-light'); try{ localStorage.setItem('theme',theme);}catch{}; const t=document.getElementById('themeToggle'); if(t){ t.textContent = theme==='light'?'\u263E':'\u2600'; t.setAttribute('aria-label', theme==='light'?'Switch to dark mode':'Switch to light mode'); } }
+      (function(){ let theme='dark'; try{ theme=localStorage.getItem('theme')||theme;}catch{} applyTheme(theme); const t=document.getElementById('themeToggle'); t?.addEventListener('click',()=>{ const next=(localStorage.getItem('theme')||'dark')==='light'?'dark':'light'; applyTheme(next); }); })();
+      // Menu
+      (function(){ const btn=document.getElementById('menuToggle'); const dd=document.getElementById('menuDropdown'); if(!btn||!dd) return; function close(){ dd.classList.add('hidden'); btn.setAttribute('aria-expanded','false'); dd.setAttribute('aria-hidden','true'); document.removeEventListener('click', onDoc); document.removeEventListener('keydown', onEsc);} function onDoc(e){ if(e.target===btn||btn.contains(e.target)||e.target===dd||dd.contains(e.target)) return; close(); } function onEsc(e){ if(e.key==='Escape') close(); } btn.addEventListener('click',(e)=>{ e.stopPropagation(); const hidden=dd.classList.contains('hidden'); if(hidden){ dd.classList.remove('hidden'); btn.setAttribute('aria-expanded','true'); dd.setAttribute('aria-hidden','false'); setTimeout(()=>{ document.addEventListener('click', onDoc); document.addEventListener('keydown', onEsc); },0);} else close(); }); })();
+      // Vault play
+      (function(){ const input=document.getElementById('dayPicker'); const btn=document.getElementById('playBtn'); const today=new Date(); const tz='America/New_York'; const y=new Intl.DateTimeFormat('en-CA',{timeZone:tz,year:'numeric'}).format(today); const m=new Intl.DateTimeFormat('en-CA',{timeZone:tz,month:'2-digit'}).format(today); const d=new Intl.DateTimeFormat('en-CA',{timeZone:tz,day:'2-digit'}).format(today); input.max = `${y}-${m}-${d}`; btn.addEventListener('click',()=>{ const v=input.value; if(!/^\d{4}-\d{2}-\d{2}$/.test(v)) { alert('Please select a valid date.'); return; } location.href = '/?day=' + encodeURIComponent(v); }); })();
+      // Completed days list
+      ;(function(){ const wrap=document.getElementById('doneWrap'); const out=[]; try{ for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i)||''; if(k.startsWith('wotd:')){ try{ const v=JSON.parse(localStorage.getItem(k)||'{}'); if(v && (v.gameOver || v.guessesLeft===0)) out.push(k.replace(/^wotd:/,'')); }catch{} } } } catch{} if(out.length){ out.sort(); const ul=document.createElement('ul'); out.forEach(d=>{ const li=document.createElement('li'); li.textContent = d; ul.appendChild(li); }); wrap.textContent=''; wrap.appendChild(ul); } })();
+    </script>
   </body>
   </html>
+

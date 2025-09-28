@@ -73,6 +73,21 @@ export async function todayWord(force = false, salt = '') {
   return word;
 }
 
+// Fetch the word for a specific day (main mode). If generateIfMissing is true,
+// generates via OpenAI and persists it so it's stable for future requests.
+export async function wordForDay(day, { generateIfMissing = false } = {}) {
+  if (!day || typeof day !== 'string') throw new Error('invalid day');
+  const existing = await getWordForDay(day, 'main');
+  if (existing) return existing;
+  if (!generateIfMissing) throw new Error('word not available');
+  const hint = `${day}|${process.env.WOTD_SECRET || ''}|vault`;
+  let exclude = [];
+  try { exclude = Array.from(await getUsedWords('main')); } catch {}
+  const word = await generateWord(hint, exclude);
+  await setWordForDay(day, word, 'main');
+  try { await addUsedWord(word, 'main'); } catch {}
+  return word;
+}
 // Puzzle mode variant: separate word namespace and seed
 export async function puzzleWord(force = false, salt = '') {
   const today = dayKey();

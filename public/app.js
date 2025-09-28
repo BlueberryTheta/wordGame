@@ -127,7 +127,10 @@ function render(state) {
 }
 
 async function init() {
-  const resp = await fetch('/api/state');
+  // Optional vault day selection via ?day=YYYY-MM-DD
+  let dayParam = null;
+  try { const u = new URL(location.href); dayParam = u.searchParams.get('day'); } catch {}
+  const resp = await fetch('/api/state' + (dayParam ? (`?day=${encodeURIComponent(dayParam)}`) : ''));
   if (!resp.ok) {
     els.maskedWord.textContent = 'Failed to load game state.';
     return;
@@ -182,9 +185,11 @@ async function ask(state) {
   if (state.questionsLeft <= 0) return;
   els.askBtn.disabled = true;
   try {
-    const resp = await fetch('/api/question', {
+    let url = '/api/question';
+    try { const u = new URL(location.href); const d = u.searchParams.get('day'); if (d) url = url + '?day=' + encodeURIComponent(d); } catch {}
+    const resp = await fetch(url, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ question: q })
+      body: JSON.stringify({ question: q, day: (new URL(location.href)).searchParams.get('day') || undefined })
     });
     const data = await resp.json();
     console.log('[CLIENT Q]', { q, respOk: resp.ok, data });
@@ -210,9 +215,11 @@ async function guess(state) {
   els.guessBtn.disabled = true;
   els.guessResult.textContent = '';
   try {
-    const resp = await fetch('/api/guess', {
+    let url = '/api/guess';
+    try { const u = new URL(location.href); const d = u.searchParams.get('day'); if (d) url = url + '?day=' + encodeURIComponent(d); } catch {}
+    const resp = await fetch(url, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ guess: g })
+      body: JSON.stringify({ guess: g, day: (new URL(location.href)).searchParams.get('day') || undefined })
     });
     const data = await resp.json();
     console.log('[CLIENT GUESS]', { g, respOk: resp.ok, data });
@@ -255,7 +262,9 @@ async function guess(state) {
       state.gameOver = true;
       saveState(state);
       try {
-        const r = await fetch('/api/reveal');
+        let url2 = '/api/reveal';
+        try { const u = new URL(location.href); const d = u.searchParams.get('day'); if (d) url2 = url2 + '?day=' + encodeURIComponent(d); } catch {}
+        const r = await fetch(url2);
         const j = await r.json();
         const w = (j && j.word) ? String(j.word).toUpperCase() : '';
         const msg = w ? `Nice try! The word was ${w}. Come back tomorrow for a new word.` : 'Nice try! Come back tomorrow for a new word.';

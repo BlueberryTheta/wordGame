@@ -1,4 +1,4 @@
-import { todayWord } from '../src/wotd.js';
+import { todayWord, wordForDay } from '../src/wotd.js';
 import { isValidEnglishWord } from '../src/openai.js';
 const BOOT_ID = Math.random().toString(36).slice(2,8);
 
@@ -23,7 +23,7 @@ export default async function handler(req, res) {
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
     res.setHeader('Pragma', 'no-cache');
     const body = await readJson(req);
-    const { guess } = body || {};
+    const { guess, day } = body || {};
     if (!guess || typeof guess !== 'string') {
       return res.status(400).json({ error: 'Missing guess' });
     }
@@ -36,7 +36,7 @@ export default async function handler(req, res) {
     if (!valid) {
       return res.status(400).json({ error: 'not a word' });
     }
-    const word = await todayWord();
+    const word = day ? await wordForDay(day, { generateIfMissing: true }) : await todayWord();
     const cleanedWord = word.toLowerCase();
 
     const correct = cleanedGuess === cleanedWord;
