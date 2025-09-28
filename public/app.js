@@ -187,6 +187,19 @@ async function init() {
     } catch {}
   }
 
+    // Daily mode: persist Game Over modal on refresh
+  try {
+    const dayParam = getDayParam();
+    const todayKey = s.todayKey || s.dayKey;
+    const isDaily = !dayParam || dayParam === todayKey;
+    const allRevealed = Array.isArray(st.revealed) && st.revealed.length && st.revealed.every(Boolean);
+    const outOfGuesses = typeof st.guessesLeft === 'number' && st.guessesLeft <= 0;
+    if (isDaily && (st.gameOver || outOfGuesses || allRevealed)) {
+      let msg = getGameOverCopy(allRevealed);
+      try { const r = await fetch('/api/reveal'); const j = await r.json(); const w = (j && j.word) ? String(j.word).toUpperCase() : ''; if (w) msg = ${msg} The word was .; } catch {}
+      openGameOver(allRevealed ? 'You got it!' : 'Out of guesses', msg);
+    }
+  } catch {}
   els.askBtn.addEventListener('click', () => ask(st));
   els.qInput.addEventListener('keydown', e => { if (e.key === 'Enter') ask(st); });
   els.guessBtn.addEventListener('click', () => guess(st));
