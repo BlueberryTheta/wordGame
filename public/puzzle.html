@@ -73,6 +73,11 @@
         dayKeyEl: document.getElementById('pDayKey'),
         wordLenEl: document.getElementById('pWordLength')
       };
+      // Simple per-day storage so game-over persists across refreshes
+      function storageKey(day){ return `wotd:puzzle:${day}`; }
+      function loadState(day){ try { const raw = localStorage.getItem(storageKey(day)); return raw ? JSON.parse(raw) : null; } catch { return null; } }
+      function saveState(day, obj){ try { localStorage.setItem(storageKey(day), JSON.stringify(obj)); } catch {}
+      }
       let mask = [];
       let len = 0;
       let used = false;
@@ -109,6 +114,18 @@
           if (els.wordLenEl) els.wordLenEl.textContent = String(len);
           renderTiles();
           renderHints(j.qas || []);
+          // If user already played today, reopen modal and lock inputs
+          const st = loadState(j.dayKey || '');
+          if (st && st.used) {
+            els.btn.disabled = true; els.input.disabled = true;
+            if (st.win) {
+              openGameOver('You got it!', 'Great job! Come back tomorrow for a new puzzle.', true);
+            } else {
+              const baseTxt = st.letters ? `Letters in common: ${st.letters}` : 'No letters in common.';
+              const msg = st.word ? `${baseTxt} The word was ${String(st.word).toUpperCase()}.` : baseTxt;
+              openGameOver('Out of guesses', msg);
+            }
+          }
         } catch(e){
           els.tiles.innerHTML = '';
           els.hints.innerHTML = '';
@@ -132,12 +149,23 @@
             els.res.innerHTML = `<span class="ok">Correct!</span>`;
             openGameOver('You got it!', 'Great job! Come back tomorrow for a new puzzle.', true, j.word);
             try { startConfetti(); } catch {}
+            // Persist win
+            try { const day = (els.dayKeyEl?.textContent || '').trim(); if (day) saveState(dayFromPretty(day), { used:true, win:true }); } catch {}
           } else {
             mask = j.revealedMask || mask;
             renderTiles();
             const letters = (j.lettersInCommon||[]).map(x=>x.toUpperCase()).join(', ');
             const baseTxt = letters ? `Letters in common: ${letters}` : `No letters in common.`;
-            try{ const rr = await fetch('/api/puzzle/reveal'); const jj = await rr.json(); openGameOver('Out of guesses', `${baseTxt} The word was ${String(jj.word||'').toUpperCase()}.`); } catch { openGameOver('Out of guesses', baseTxt); }
+            try{
+              const rr = await fetch('/api/puzzle/reveal');
+              const jj = await rr.json();
+              const w = String(jj.word||'').toUpperCase();
+              openGameOver('Out of guesses', `${baseTxt} The word was ${w}.`);
+              try { const day = (els.dayKeyEl?.textContent || '').trim(); if (day) saveState(dayFromPretty(day), { used:true, win:false, letters, word:w }); } catch {}
+            } catch {
+              openGameOver('Out of guesses', baseTxt);
+              try { const day = (els.dayKeyEl?.textContent || '').trim(); if (day) saveState(dayFromPretty(day), { used:true, win:false, letters }); } catch {}
+            }
           }
         } catch(e){ els.res.textContent = 'Error: ' + (e?.message||''); }
         finally { els.btn.disabled = true; els.input.disabled = true; }
@@ -163,6 +191,20 @@
       (function(){ try { if (!localStorage.getItem('tutorialSeen')) setTimeout(()=>document.getElementById('helpBtn')?.click(), 250); } catch { setTimeout(()=>document.getElementById('helpBtn')?.click(), 250); } })();
 
       function formatDay(key){ try { const [y,m,d]=String(key).split('-').map(n=>parseInt(n,10)); if(!y||!m||!d) return String(key||''); const dt=new Date(Date.UTC(y,m-1,d,12)); const parts=new Intl.DateTimeFormat('en-US',{ timeZone:'America/New_York', weekday:'short', month:'short', day:'numeric' }).formatToParts(dt); const mp=Object.fromEntries(parts.map(p=>[p.type,p.value])); return `${mp.weekday||''} · ${mp.month||''} ${mp.day||''}`.trim(); } catch { return String(key||''); } }
+      // Convert pretty day back to key (YYYY-MM-DD) using ET to match server key
+      function dayFromPretty(pretty){
+        try{
+          // pretty like: Tue · Sep 23 (no year). Use today’s year for key fallback.
+          const parts = pretty.split('·')[1]?.trim().split(' ') || [];
+          if (parts.length < 2) return '';
+          const month = parts[0]; const day = parseInt(parts[1],10);
+          const mIdx = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].indexOf(month);
+          if (mIdx < 0 || isNaN(day)) return '';
+          const tz='America/New_York'; const now=new Date();
+          const y = new Intl.DateTimeFormat('en-CA', { timeZone: tz, year:'numeric' }).format(now);
+          return `${y}-${String(mIdx+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+        } catch { return ''; }
+      }
 
       function openGameOver(title, message, win=false, word=''){
         const b=document.getElementById('pGameOver'); if(!b) return; const t=document.getElementById('pGoTitle'); const m=document.getElementById('pGoMessage'); if(t) t.textContent=title; if(m) m.textContent=message; const actions=document.getElementById('pGoActions'); if(win) actions?.classList.remove('hidden'); else actions?.classList.add('hidden'); const shareBtn=document.getElementById('pShare'); if(win&&shareBtn){ shareBtn.onclick=()=>sharePuzzleWin(word); } b.classList.remove('hidden'); function close(){ b.classList.add('hidden'); document.removeEventListener('keydown',onEsc);} function onEsc(e){ if(e.key==='Escape') close(); } document.getElementById('pGoClose')?.addEventListener('click', close, { once:true }); b.addEventListener('click', (e)=>{ if(e.target===b) close(); }); document.addEventListener('keydown', onEsc); }
@@ -255,4 +297,3 @@
     </script>
   </body>
   </html>
-
