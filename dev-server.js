@@ -4,6 +4,9 @@ import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import { getTodayWord, scheduleNextRoll, ensureTodayWord, dayKey, forceRollTodayWord } from './src/wordManager.js';
 import { answerQuestion, isValidEnglishWord } from './src/openai.js';
+import puzzleState from './api/puzzle/state.js';
+import puzzleGuess from './api/puzzle/guess.js';
+import puzzleReveal from './api/puzzle/reveal.js';
 
 dotenv.config();
 
@@ -123,6 +126,11 @@ app.get('/api/reveal', (req, res) => {
     return res.status(500).json({ error: 'Failed to reveal word' });
   }
 });
+
+// Puzzle API routes (dev server parity)
+app.get('/api/puzzle/state', (req, res) => puzzleState(req, res));
+app.post('/api/puzzle/guess', (req, res) => puzzleGuess(req, res));
+app.get('/api/puzzle/reveal', (req, res) => puzzleReveal(req, res));
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

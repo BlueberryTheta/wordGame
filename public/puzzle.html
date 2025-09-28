@@ -40,6 +40,10 @@
           </div>
         </div>
       </div>
+      <div class="meta">
+        <div>Day: <span id="pDayKey">—</span></div>
+        <div>Letters: <span id="pWordLength">—</span></div>
+      </div>
       <div class="panel">
         <div id="pTiles" class="tiles" aria-live="polite"></div>
       </div>
@@ -63,7 +67,9 @@
         hints: document.getElementById('pHints'),
         input: document.getElementById('pGuess'),
         btn: document.getElementById('pGuessBtn'),
-        res: document.getElementById('pResult')
+        res: document.getElementById('pResult'),
+        dayKeyEl: document.getElementById('pDayKey'),
+        wordLenEl: document.getElementById('pWordLength')
       };
       let mask = [];
       let len = 0;
@@ -93,6 +99,8 @@
         const j = await r.json();
         len = j.wordLength;
         mask = j.revealedMask || Array(len).fill(null);
+        if (els.dayKeyEl) els.dayKeyEl.textContent = formatDay(j.dayKey || '');
+        if (els.wordLenEl) els.wordLenEl.textContent = String(len);
         renderTiles();
         renderHints(j.qas || []);
       }
@@ -180,6 +188,17 @@
         catch { setTimeout(()=>document.getElementById('helpBtn')?.click(), 250); }
       })();
 
+      function formatDay(key){
+        try {
+          const [y,m,d] = String(key).split('-').map(n=>parseInt(n,10));
+          if (!y||!m||!d) return String(key||'');
+          const dt = new Date(Date.UTC(y, m-1,  d, 12));
+          const parts = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', weekday:'short', month:'short', day:'numeric' }).formatToParts(dt);
+          const mp = Object.fromEntries(parts.map(p=>[p.type,p.value]));
+          return `${mp.weekday||''} · ${mp.month||''} ${mp.day||''}`.trim();
+        } catch { return String(key||''); }
+      }
+
       function openGameOver(title, message, win=false, word=''){
         const b = document.getElementById('pGameOver');
         if (!b) return;
@@ -217,8 +236,8 @@
         <div class="modal-body">
           <ul>
             <li>You get 1 total guess.</li>
-            <li>We reveal 1–2 letters of the word up front.</li>
-            <li>Two to three brief AI hints give general context.</li>
+            <li>We reveal 1�2 letters of the word up front.</li>
+            <li>Six to seven brief AI hints give general context.</li>
             <li>The word is always a noun.</li>
           </ul>
         </div>
