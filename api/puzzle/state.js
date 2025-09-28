@@ -27,9 +27,10 @@ export default async function handler(req, res) {
     const day = dayKey();
     let stored = await getPuzzleState(day);
     if (!stored) {
-      const revealCount = Math.random() < 0.5 ? 1 : 2;
+      // Reveal count tied to word length: longer words get 2, short get 1
+      const revealCount = letters.length >= 6 ? 2 : 1;
       const idxs = pick(revealCount, letters.length);
-      const qCount = 4 + Math.floor(Math.random() * 2); // 4 or 5
+      const qCount = 6 + Math.floor(Math.random() * 2); // 6 or 7
       const qIdxs = pick(qCount, SAMPLE_QUESTIONS.length);
       const qas = [];
       for (const qi of qIdxs) {
