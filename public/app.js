@@ -686,6 +686,8 @@ function openGameOver(title, message) {
       setupModalStreakInfo();
       const modalCountEl = sEl.querySelector('.streak-count');
       try { applyStreakHeat(modalCountEl, streakNow); } catch {}
+      // Hide streak section entirely when viewing a past day (vault mode)
+      try { sEl.classList.toggle('hidden', isVaultMode()); } catch {}
     }
   } catch {}
   // Build score if win
