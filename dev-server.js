@@ -36,10 +36,21 @@ await ensureTodayWord();
 scheduleNextRoll();
 
 // Helpers
-function getMaskedState() {
+function getMaskedState(req) {
   const word = getTodayWord();
+  const today = dayKey();
+  let selected = today;
+  try {
+    const url = new URL(req.url, 'http://localhost');
+    const d = url.searchParams.get('day');
+    if (d && typeof d === 'string') {
+      // Dev server does not support arbitrary past words; only allow today to match
+      if (d === today) selected = d;
+    }
+  } catch {}
   return {
-    dayKey: dayKey(),
+    dayKey: selected,
+    todayKey: today,
     wordLength: word.length
   };
 }
@@ -47,7 +58,7 @@ function getMaskedState() {
 // API routes
 app.get('/api/state', (req, res) => {
   try {
-    return res.json(getMaskedState());
+    return res.json(getMaskedState(req));
   } catch (e) {
     console.error(e);
     return res.status(500).json({ error: 'Failed to get state' });
