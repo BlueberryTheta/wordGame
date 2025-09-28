@@ -155,6 +155,7 @@ async function init() {
   }
   const s = await resp.json();
   console.log('[CLIENT STATE]', s);
+  try { window.__TODAY_KEY__ = s.todayKey || s.dayKey; } catch {}
   const st = loadState(s.dayKey, s.wordLength, s.wordVersion);
   render(st);
   // Toggle Today link in menu when viewing a vault day (hide if already today's date)
@@ -264,8 +265,8 @@ async function ask(state) {
     state.questionsLeft -= 1;
     saveState(state);
     els.qInput.value = '';
-    // count streak on first successful interaction
-    try { markPlayed(state.dayKey); } catch {}
+    // Count streak only for today's game (not vault/past days)
+    try { if (window.__TODAY_KEY__ && state.dayKey === window.__TODAY_KEY__) markPlayed(state.dayKey); } catch {}
     render(state);
   } catch (e) {
     alert('Failed to ask: ' + e.message);
@@ -298,7 +299,7 @@ async function guess(state) {
       state.revealed = data.word.split('');
       state.guessesLeft -= 1;
       saveState(state);
-      try { markPlayed(state.dayKey); } catch {}
+      try { if (window.__TODAY_KEY__ && state.dayKey === window.__TODAY_KEY__) markPlayed(state.dayKey); } catch {}
       render(state);
       try { animateTileReveal([...Array(state.revealed.length).keys()]); } catch {}
       try { startConfetti(); } catch {}
@@ -314,7 +315,7 @@ async function guess(state) {
     }
     state.guessesLeft -= 1;
     saveState(state);
-    try { markPlayed(state.dayKey); } catch {}
+    try { if (window.__TODAY_KEY__ && state.dayKey === window.__TODAY_KEY__) markPlayed(state.dayKey); } catch {}
     render(state);
     if (typeof newly !== 'undefined' && newly.length) { try { animateTileSlam(newly); } catch {} }
     const letters = (data.lettersInCommon || []).map(x => x.toUpperCase()).join(', ');
