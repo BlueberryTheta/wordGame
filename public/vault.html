@@ -35,11 +35,18 @@
 
       <section class="picker">
         <h2>Select a Day</h2>
-        <div class="row">
-          <input id="dayPicker" type="date" />
-          <button id="playBtn">Play</button>
+        <div id="cal" class="cal" aria-label="Calendar">
+          <div class="cal-header">
+            <button id="prevMon" class="cal-nav" aria-label="Previous month">‹</button>
+            <div id="calTitle" class="cal-title">Month YYYY</div>
+            <button id="nextMon" class="cal-nav" aria-label="Next month">›</button>
+          </div>
+          <div class="cal-grid cal-dow">
+            <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+          </div>
+          <div id="calGrid" class="cal-grid" role="grid"></div>
         </div>
-        <p class="muted" style="margin-top:8px">You will play the original game for the selected day.</p>
+        <p class="muted" style="margin-top:8px">Click a past day to play that day’s original game. Completed days are marked.</p>
       </section>
 
       <section class="done-list">
@@ -65,11 +72,43 @@
       (function(){ let theme='dark'; try{ theme=localStorage.getItem('theme')||theme;}catch{} applyTheme(theme); const t=document.getElementById('themeToggle'); t?.addEventListener('click',()=>{ const next=(localStorage.getItem('theme')||'dark')==='light'?'dark':'light'; applyTheme(next); }); })();
       // Menu
       (function(){ const btn=document.getElementById('menuToggle'); const dd=document.getElementById('menuDropdown'); if(!btn||!dd) return; function close(){ dd.classList.add('hidden'); btn.setAttribute('aria-expanded','false'); dd.setAttribute('aria-hidden','true'); document.removeEventListener('click', onDoc); document.removeEventListener('keydown', onEsc);} function onDoc(e){ if(e.target===btn||btn.contains(e.target)||e.target===dd||dd.contains(e.target)) return; close(); } function onEsc(e){ if(e.key==='Escape') close(); } btn.addEventListener('click',(e)=>{ e.stopPropagation(); const hidden=dd.classList.contains('hidden'); if(hidden){ dd.classList.remove('hidden'); btn.setAttribute('aria-expanded','true'); dd.setAttribute('aria-hidden','false'); setTimeout(()=>{ document.addEventListener('click', onDoc); document.addEventListener('keydown', onEsc); },0);} else close(); }); })();
-      // Vault play
-      (function(){ const input=document.getElementById('dayPicker'); const btn=document.getElementById('playBtn'); const today=new Date(); const tz='America/New_York'; const y=new Intl.DateTimeFormat('en-CA',{timeZone:tz,year:'numeric'}).format(today); const m=new Intl.DateTimeFormat('en-CA',{timeZone:tz,month:'2-digit'}).format(today); const d=new Intl.DateTimeFormat('en-CA',{timeZone:tz,day:'2-digit'}).format(today); input.max = `${y}-${m}-${d}`; btn.addEventListener('click',()=>{ const v=input.value; if(!/^\d{4}-\d{2}-\d{2}$/.test(v)) { alert('Please select a valid date.'); return; } location.href = '/?day=' + encodeURIComponent(v); }); })();
+      // Calendar render + navigation
+      (function(){
+        const tz = 'America/New_York';
+        function etParts(d){ const fY=new Intl.DateTimeFormat('en-CA',{timeZone:tz,year:'numeric'}); const fM=new Intl.DateTimeFormat('en-CA',{timeZone:tz,month:'2-digit'}); const fD=new Intl.DateTimeFormat('en-CA',{timeZone:tz,day:'2-digit'}); return { y:parseInt(fY.format(d),10), m:parseInt(fM.format(d),10), d:parseInt(fD.format(d),10) }; }
+        function dayKeyFromYMD(y,m,d){ return `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
+        function endOfMonth(y,m){ return new Date(Date.UTC(y, m-1+1, 0)); }
+        const today = new Date(); const tP = etParts(today); const todayKey = dayKeyFromYMD(tP.y, tP.m, tP.d);
+        let viewY = tP.y, viewM = tP.m;
+        const title = document.getElementById('calTitle'); const grid = document.getElementById('calGrid');
+        const prev = document.getElementById('prevMon'); const next = document.getElementById('nextMon');
+        // Completed set from localStorage
+        function getCompleted(){ const set=new Set(); try{ for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i)||''; if(k.startsWith('wotd:')){ try{ const v=JSON.parse(localStorage.getItem(k)||'{}'); if(v && (v.gameOver || v.guessesLeft===0)) set.add(k.slice(5)); }catch{} } } } catch{} return set; }
+        function render(){
+          const completed = getCompleted();
+          const first = new Date(Date.UTC(viewY, viewM-1, 1));
+          const startDow = first.getUTCDay(); // use UTC; minor drift acceptable for calendar layout
+          const eom = endOfMonth(viewY, viewM);
+          const daysInMonth = eom.getUTCDate();
+          const monthName = new Intl.DateTimeFormat('en-US',{ month:'long'}).format(new Date(viewY,viewM-1,1));
+          title.textContent = `${monthName} ${viewY}`;
+          grid.innerHTML = '';
+          for (let i=0;i<startDow;i++){ const pad=document.createElement('div'); pad.className='cal-pad'; grid.appendChild(pad); }
+          for (let d=1; d<=daysInMonth; d++){
+            const key = dayKeyFromYMD(viewY, viewM, d);
+            const cell = document.createElement('button'); cell.type='button'; cell.className='cal-cell'; cell.setAttribute('role','gridcell'); cell.textContent = String(d);
+            if (key > todayKey){ cell.disabled = true; cell.classList.add('disabled'); }
+            if (completed.has(key)){ const badge=document.createElement('span'); badge.className='cal-done'; badge.textContent='✓'; cell.appendChild(badge); }
+            cell.onclick = ()=>{ if (!cell.disabled) location.href='/?day='+encodeURIComponent(key); };
+            grid.appendChild(cell);
+          }
+        }
+        prev.onclick = ()=>{ if (viewM===1){ viewM=12; viewY--; } else viewM--; render(); };
+        next.onclick = ()=>{ if (viewY>tP.y || (viewY===tP.y && viewM>=tP.m)) return; if (viewM===12){ viewM=1; viewY++; } else viewM++; render(); };
+        render();
+      })();
       // Completed days list
       ;(function(){ const wrap=document.getElementById('doneWrap'); const out=[]; try{ for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i)||''; if(k.startsWith('wotd:')){ try{ const v=JSON.parse(localStorage.getItem(k)||'{}'); if(v && (v.gameOver || v.guessesLeft===0)) out.push(k.replace(/^wotd:/,'')); }catch{} } } } catch{} if(out.length){ out.sort(); const ul=document.createElement('ul'); out.forEach(d=>{ const li=document.createElement('li'); li.textContent = d; ul.appendChild(li); }); wrap.textContent=''; wrap.appendChild(ul); } })();
     </script>
   </body>
   </html>
-

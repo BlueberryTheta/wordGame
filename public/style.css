@@ -245,6 +245,19 @@ html:not(.theme-light) .logo-dark{display:block}
   .logo-dark,
   .logo-light{ height:200px }
 }
+/* Calendar styles for Vault */
+.cal{background:var(--card); border:1px solid var(--shade); border-radius:12px; padding:12px}
+.cal-header{display:flex; align-items:center; justify-content:space-between; margin-bottom:6px}
+.cal-title{font-weight:800}
+.cal-nav{background:#0e1120; color:var(--fg); border:1px solid var(--shade); border-radius:8px; padding:6px 10px}
+.cal-grid{display:grid; grid-template-columns: repeat(7, 1fr); gap:6px}
+.cal-dow{margin-bottom:6px; color:var(--muted); font-weight:700; font-size:12px}
+.cal-dow > div{text-align:center}
+.cal-pad{opacity:0}
+.cal-cell{position:relative; background:#0e1120; color:var(--fg); border:1px solid var(--shade); border-radius:10px; padding:10px 0; font-weight:800}
+.cal-cell.disabled{opacity:.5; cursor:not-allowed}
+.cal-cell:hover:not(.disabled){transform:translateY(-1px)}
+.cal-done{position:absolute; right:6px; top:4px; width:18px; height:18px; border-radius:50%; background:linear-gradient(180deg,var(--ok),#57b857); color:#001018; display:inline-flex; align-items:center; justify-content:center; font-weight:900; font-size:12px; border:1px solid #2d7a2d}
 @media (min-width: 640px){ .subtitle{ font-size:24px } }
 /* Streak icon visuals */
 .streak-row{margin:4px 0 12px}
