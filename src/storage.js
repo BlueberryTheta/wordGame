@@ -32,13 +32,19 @@ async function kvFetch(cmdPath, opts = {}) {
 function ensureFile() {
   if (IS_VERCEL) return; // never write files on serverless
   if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
-  if (!fs.existsSync(histPath)) fs.writeFileSync(histPath, JSON.stringify({ used: [], perDay: {} }, null, 2), 'utf8');
+  if (!fs.existsSync(histPath)) {
+    fs.writeFileSync(
+      histPath,
+      JSON.stringify({ used: [], usedByKind: {}, perDay: {}, puzzleState: {} }, null, 2),
+      'utf8'
+    );
+  }
 }
 
 function readLocal() {
   if (IS_VERCEL) {
     // fall back to in-memory
-    return { used: Array.from(memStore.used), perDay: Object.fromEntries(memStore.perDay) };
+    return { used: Array.from(memStore.used), perDay: Object.fromEntries(memStore.perDay), usedByKind: {}, puzzleState: {} };
   }
   ensureFile();
   return JSON.parse(fs.readFileSync(histPath, 'utf8'));
@@ -111,5 +117,31 @@ export async function addUsedWord(word, kind = 'main') {
   setKind.add(word);
   usedByKind[kind] = Array.from(setKind);
   obj.usedByKind = usedByKind;
+  writeLocal(obj);
+}
+
+// --- Puzzle state persistence (revealed indices + Q&A) ---
+export async function getPuzzleState(day) {
+  if (KV_ENABLED) {
+    const key = `wotd:puzzle:state:${day}`;
+    const out = await kvFetch(`/get/${encodeURIComponent(key)}`);
+    const raw = out.result || null;
+    if (!raw) return null;
+    try { return JSON.parse(raw); } catch { return null; }
+  }
+  const obj = readLocal();
+  return (obj.puzzleState || {})[day] || null;
+}
+
+export async function setPuzzleState(day, state) {
+  if (KV_ENABLED) {
+    const key = `wotd:puzzle:state:${day}`;
+    const val = encodeURIComponent(JSON.stringify(state));
+    await kvFetch(`/set/${encodeURIComponent(key)}/${val}`);
+    return;
+  }
+  const obj = readLocal();
+  if (!obj.puzzleState) obj.puzzleState = {};
+  obj.puzzleState[day] = state;
   writeLocal(obj);
 }

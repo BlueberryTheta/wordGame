@@ -1,5 +1,6 @@
-import { puzzleWord } from '../../src/wotd.js';
+import { puzzleWord, dayKey } from '../../src/wotd.js';
 import { answerQuestion } from '../../src/openai.js';
+import { getPuzzleState, setPuzzleState } from '../../src/storage.js';
 
 function pick(n, max) {
   const out = new Set();
@@ -23,26 +24,26 @@ export default async function handler(req, res) {
     res.setHeader('Pragma', 'no-cache');
     const word = await puzzleWord();
     const letters = word.split('');
-    const revealCount = Math.random() < 0.5 ? 1 : 2;
-    const idxs = pick(revealCount, letters.length);
-    const mask = letters.map((ch, i) => (idxs.includes(i) ? ch : null));
-    // Pick 2-3 sample questions; answer via AI
-    const qCount = 2 + Math.floor(Math.random() * 2); // 2 or 3
-    const qIdxs = pick(qCount, SAMPLE_QUESTIONS.length);
-    const qas = [];
-    for (const qi of qIdxs) {
-      const q = SAMPLE_QUESTIONS[qi];
-      try {
-        const a = await answerQuestion(word, q);
-        qas.push({ q, a });
-      } catch {
-        qas.push({ q: SAMPLE_QUESTIONS[qi], a: 'Cannot say.' });
+    const day = dayKey();
+    let stored = await getPuzzleState(day);
+    if (!stored) {
+      const revealCount = Math.random() < 0.5 ? 1 : 2;
+      const idxs = pick(revealCount, letters.length);
+      const qCount = 4 + Math.floor(Math.random() * 2); // 4 or 5
+      const qIdxs = pick(qCount, SAMPLE_QUESTIONS.length);
+      const qas = [];
+      for (const qi of qIdxs) {
+        const q = SAMPLE_QUESTIONS[qi];
+        try { const a = await answerQuestion(word, q); qas.push({ q, a }); }
+        catch { qas.push({ q, a: 'Cannot say.' }); }
       }
+      stored = { idxs, qas };
+      try { await setPuzzleState(day, stored); } catch {}
     }
-    return res.status(200).json({ wordLength: letters.length, revealedMask: mask, qas });
+    const mask = letters.map((ch, i) => (stored.idxs || []).includes(i) ? ch : null);
+    return res.status(200).json({ wordLength: letters.length, revealedMask: mask, qas: stored.qas || [] });
   } catch (e) {
     console.error('[PUZZLE_STATE_ERROR]', e?.message || e);
     return res.status(500).json({ error: 'Failed to load puzzle state' });
   }
 }
-
