@@ -183,6 +183,51 @@ A: That is not applicable.`;
   }
 }
 
+// Deterministic variant for puzzle pre-asked hints (aim for stable answers)
+export async function answerQuestionDeterministic(secretWord, question) {
+  if (!client) throw new Error('OpenAI not configured');
+  const guard = `You know a secret word. Never reveal it or any exact letters.
+Answer the user's question in ONE short sentence (max 10 words). No explanations.
+Before answering, silently classify the secret word into one: organism (animal/plant), object, place, material/substance, event/time, concept.
+Style rules (be decisive):
+- For yes/no questions (Is/Are/Do/Does/Did/Can/Could/Should/Would/Will/Was/Were/Has/Have/Had), answer EXACTLY "Yes." or "No." — nothing else, unless it is not applicable.
+- For option questions ("X or Y?"), pick the most typical option for the secret word.
+- For who/what/where/when/how questions, give a generic, high-level property or common context about the word without naming it (e.g., "Often found outdoors").
+- If a question does not apply to this category, reply exactly: That is not applicable.
+- Avoid "Varies" or "It depends". Choose the typical case.
+- Only reply "Can't say" for spelling/letter questions or if answering reveals letters.`;
+  try {
+    const resp = await client.chat.completions.create({
+      model: defaultModel,
+      messages: [
+        { role: 'system', content: guard },
+        { role: 'user', content: `Secret word: ${secretWord}` },
+        { role: 'user', content: question }
+      ],
+      temperature: 0,
+      max_tokens: 70
+    });
+    let text = resp.choices?.[0]?.message?.content?.trim() || '';
+    if (text.toLowerCase().includes(secretWord.toLowerCase())) {
+      const re = new RegExp(secretWord, 'ig');
+      text = text.replace(re, '[redacted]');
+    }
+    text = concise(text, 10);
+    const qLower = String(question || '').trim().toLowerCase();
+    const isYesNo = /^(is|are|do|does|did|can|could|should|would|will|was|were|has|have|had)\b/.test(qLower);
+    if (isYesNo) {
+      const t = text.toLowerCase();
+      if (t.includes('not applicable')) return 'That is not applicable.';
+      if (/^\s*y(es)?\b/.test(t) || /\byes\b/.test(t)) return 'Yes.';
+      if (/^\s*n(o)?\b/.test(t) || /\bno\b/.test(t)) return 'No.';
+    }
+    return text;
+  } catch (e) {
+    console.error('OpenAI answerQuestionDeterministic failed:', e?.message || e);
+    throw e;
+  }
+}
+
 // Minimal word validation using OpenAI when available.
 // Returns true if it's a valid common English word, false otherwise.
 export async function isValidEnglishWord(word) {
