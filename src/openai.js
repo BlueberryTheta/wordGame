@@ -223,6 +223,38 @@ Style rules (be decisive):
       if (/^\s*y(es)?\b/.test(t) || /\byes\b/.test(t)) return 'Yes.';
       if (/^\s*n(o)?\b/.test(t) || /\bno\b/.test(t)) return 'No.';
     }
+    // For option questions like "X or Y?", force choosing one option only
+    if (isOption) {
+      const m = /\b(\w[\w-]*)\b\s+or\s+\b(\w[\w-]*)\b/i.exec(qLower);
+      if (m && m[1] && m[2]) {
+        const opt1 = m[1];
+        const opt2 = m[2];
+        const t = text.toLowerCase().replace(/\.$/, '');
+        // If the model already picked one option, normalize and return
+        if (t === opt1 || t === opt2) return t.charAt(0).toUpperCase() + t.slice(1) + '.';
+        if (t === 'yes' || t === 'no' || t === 'cannot say' || t === "can't say") {
+          // Ask again with a stricter instruction to pick exactly one option
+          try {
+            const strict = await client.chat.completions.create({
+              model: defaultModel,
+              messages: [
+                { role: 'system', content: `${guard}\nWhen the user asks an X or Y question, respond with EXACTLY one word: \"${opt1}\" or \"${opt2}\".` },
+                { role: 'user', content: `Secret word: ${secretWord}` },
+                { role: 'user', content: question }
+              ],
+              temperature: 0,
+              max_tokens: 5
+            });
+            const strictText = (strict.choices?.[0]?.message?.content || '').trim().toLowerCase().replace(/\.$/, '');
+            if (strictText === opt1 || strictText === opt2) {
+              return strictText.charAt(0).toUpperCase() + strictText.slice(1) + '.';
+            }
+          } catch {}
+        }
+        // Fallback: return the original text without forcing yes/no
+        return text;
+      }
+    }
     return text;
   } catch (e) {
     console.error('OpenAI answerQuestionDeterministic failed:', e?.message || e);
