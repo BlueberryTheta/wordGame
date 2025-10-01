@@ -137,7 +137,8 @@ A: That is not applicable.`;
     text = concise(text, 10);
     // Strict post-processing for yes/no questions to avoid extra info
     const qLower = String(question || '').trim().toLowerCase();
-    const isYesNo = /^(is|are|do|does|did|can|could|should|would|will|was|were|has|have|had)\b/.test(qLower);
+    const isOption = /\bor\b/.test(qLower);
+    const isYesNo = !isOption && /^(is|are|do|does|did|can|could|should|would|will|was|were|has|have|had)\b/.test(qLower);
     if (isYesNo) {
       const t = text.toLowerCase();
       if (t.includes('not applicable')) return 'That is not applicable.';
@@ -214,7 +215,8 @@ Style rules (be decisive):
     }
     text = concise(text, 10);
     const qLower = String(question || '').trim().toLowerCase();
-    const isYesNo = /^(is|are|do|does|did|can|could|should|would|will|was|were|has|have|had)\b/.test(qLower);
+    const isOption = /\bor\b/.test(qLower);
+    const isYesNo = !isOption && /^(is|are|do|does|did|can|could|should|would|will|was|were|has|have|had)\b/.test(qLower);
     if (isYesNo) {
       const t = text.toLowerCase();
       if (t.includes('not applicable')) return 'That is not applicable.';
