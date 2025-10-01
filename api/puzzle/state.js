@@ -28,7 +28,7 @@ const SAMPLE_QUESTIONS = [
 ];
 
 // Bump this to force regenerating puzzle state for a day
-const PUZZLE_STATE_VERSION = 3;
+const PUZZLE_STATE_VERSION = 4;
 
 export default async function handler(req, res) {
   try {
